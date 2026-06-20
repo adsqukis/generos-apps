@@ -153,16 +153,10 @@ function initApp() {
     });
   });
 
-  // Navigate to sleep from anywhere
-
-  // SLEEP article click → buka artikel
-  safeAddListener('sleep-articles', 'click', async (e) => {
+  // Sleep articles click → navigate to knowledge page
+  safeAddListener('sleep-articles', 'click', (e) => {
     const card = e.target.closest('.article-horiz');
-    if (card && card.dataset.articleId) {
-      navigate('knowledge');
-      // Tunggu sebentar biar page load, lalu buka detail
-      setTimeout(() => showArticleDetailById(card.dataset.articleId), 300);
-    }
+    if (card) navigate('knowledge');
   });
 
   // All back buttons (navigate home)

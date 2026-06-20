@@ -241,6 +241,21 @@ const Api = {
     return this.request('/daily/sleep', { method: 'POST', body: JSON.stringify(payload) });
   },
 
+  async getSleepHistory(from, to) {
+    let q = '?';
+    if (from) q += `from=${from}&`;
+    if (to) q += `to=${to}&`;
+    return this.request(`/daily/sleep/history${q}`);
+  },
+
+  async getSleepAnalytics(days = 7) {
+    return this.request(`/daily/sleep/analytics?days=${days}`);
+  },
+
+  async getSleepArticles() {
+    return this.request('/daily/sleep/articles');
+  },
+
   async deleteDailySleep(id) {
     return this.request(`/daily/sleep/${id}`, { method: 'DELETE' });
   },
