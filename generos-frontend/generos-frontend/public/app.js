@@ -81,6 +81,20 @@ function initApp() {
     };
   });
 
+  // Tracker card body — klik lihat detail riwayat hari ini
+  document.querySelectorAll('.tracker-card').forEach(card => {
+    card.addEventListener('click', function() {
+      openTrackerDetail(this.dataset.tracker);
+    });
+  });
+
+  // Tracker detail: tambah lagi
+  safeAddListener('btn-tracker-detail-add', 'click', () => {
+    const type = document.getElementById('tracker-detail-modal').dataset.activeType || 'sleep';
+    document.getElementById('tracker-detail-modal').classList.add('hidden');
+    openQuickAdd(type);
+  });
+
   // Modal close buttons
   document.querySelectorAll('.modal-close').forEach(btn => {
     btn.onclick = function() {
@@ -147,6 +161,14 @@ function initApp() {
     if (action === 'submit-admin-article') submitAdminArticle();
     else if (action === 'submit-admin-food') submitAdminFood();
     else if (action === 'submit-admin-product') submitAdminProduct();
+  });
+
+  // Tracker detail delete buttons
+  safeAddListener('tracker-detail-list', 'click', (e) => {
+    const del = e.target.closest('.tracker-record-del');
+    if (del && del.dataset.recordId) {
+      deleteTrackerRecord(del.dataset.trackerType, del.dataset.recordId);
+    }
   });
 
   // Settings page admin buttons (show forms)
@@ -648,6 +670,94 @@ async function submitQuickAdd() {
   }
 }
 
+// === Tracker Detail — lihat riwayat hari ini ===
+async function openTrackerDetail(type) {
+  const modal = document.getElementById('tracker-detail-modal');
+  const title = document.getElementById('tracker-detail-title');
+  const list = document.getElementById('tracker-detail-list');
+  const today = new Date().toISOString().split('T')[0];
+
+  const labels = {
+    sleep: { title: '😴 Riwayat Tidur', icon: '😴', fmt: (r) => {
+      const start = r.sleep_start ? r.sleep_start.slice(0,5) : '-';
+      const end = r.sleep_end ? r.sleep_end.slice(0,5) : '-';
+      const dur = r.duration_minutes ? `${Math.floor(r.duration_minutes/60)}j ${r.duration_minutes%60}m` : '';
+      return `<b>${start} - ${end}</b> ${dur ? '<br><small>'+dur+'</small>' : ''}`;
+    }},
+    feeding: { title: '🍼 Riwayat Menyusui', icon: '🍼', fmt: (r) => {
+      let text = `<b>${escapeHtml(r.feeding_type || '')}</b>`;
+      if (r.amount_ml) text += ` · ${r.amount_ml} ml`;
+      if (r.duration_minutes) text += ` · ${r.duration_minutes} menit`;
+      return text;
+    }},
+    drink: { title: '💧 Riwayat Minum', icon: '💧', fmt: (r) => {
+      return `<b>${r.amount_ml || 0} ml</b>`;
+    }},
+    poop: { title: '💩 Riwayat BAB', icon: '💩', fmt: (r) => {
+      let text = `<b>${r.count}x</b>`;
+      if (r.consistency) text += ` · ${escapeHtml(r.consistency)}`;
+      return text;
+    }},
+    pee: { title: '🚽 Riwayat BAK', icon: '🚽', fmt: (r) => {
+      return `<b>${r.count || 1}x</b>`;
+    }},
+  };
+
+  const cfg = labels[type] || labels.sleep;
+  title.textContent = cfg.title;
+  list.innerHTML = '<p class="info-text">Memuat...</p>';
+  // Simpan type buat tombol "Tambah Lagi"
+  document.getElementById('tracker-detail-modal').dataset.activeType = type;
+  modal.classList.remove('hidden');
+
+  try {
+    let records = [];
+    switch (type) {
+      case 'sleep': records = (await Api.getDailySleep(today)).records || []; break;
+      case 'feeding': records = (await Api.getDailyFeeding(today)).records || []; break;
+      case 'drink': records = (await Api.getDailyDrink(today)).records || []; break;
+      case 'poop': records = (await Api.getDailyPoop(today)).records || []; break;
+      case 'pee': records = (await Api.getDailyPee(today)).records || []; break;
+    }
+
+    if (records.length === 0) {
+      list.innerHTML = '<p class="info-text">Belum ada catatan hari ini.</p>';
+      return;
+    }
+
+    list.innerHTML = records.map(r => {
+      const time = r.created_at ? formatTime(r.created_at) : '';
+      return `<div class="tracker-record-item">
+        <div class="tracker-record-info">${cfg.fmt(r)}</div>
+        <div class="tracker-record-meta">
+          <span class="tracker-record-time">${time}</span>
+          <button class="tracker-record-del" data-tracker-type="${type}" data-record-id="${r.id}">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '<p class="info-text">Gagal memuat data.</p>';
+  }
+}
+
+// === Delete tracker record ===
+async function deleteTrackerRecord(type, id) {
+  try {
+    switch (type) {
+      case 'sleep': await Api.deleteDailySleep(id); break;
+      case 'feeding': await Api.deleteDailyFeeding(id); break;
+      case 'drink': await Api.deleteDailyDrink(id); break;
+      case 'poop': await Api.deleteDailyPoop(id); break;
+      case 'pee': await Api.deleteDailyPee(id); break;
+    }
+    showToast('Data dihapus', 'success');
+    openTrackerDetail(type); // refresh list
+    loadDailySummary();     // refresh summary
+  } catch (err) {
+    showToast('Gagal menghapus', 'error');
+  }
+}
+
 // === AI Chat (dari floating button) ===
 function openAIChat() {
   document.getElementById('ai-overlay').classList.remove('hidden');
@@ -728,6 +838,12 @@ function formatDate(dateStr) {
   if (diffDays === 1) return 'Kemarin';
   if (diffDays < 7) return `${diffDays} hari lalu`;
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function entryTypeLabel(type) {

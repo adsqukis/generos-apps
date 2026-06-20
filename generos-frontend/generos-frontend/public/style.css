@@ -1380,3 +1380,48 @@ textarea {
   margin-bottom: 10px;
   margin-top: 4px;
 }
+
+/* Tracker Record Item (detail modal) */
+.tracker-record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.tracker-record-item:last-child {
+  border-bottom: none;
+}
+.tracker-record-info {
+  font-size: 14px;
+  color: var(--text);
+}
+.tracker-record-info small {
+  font-size: 11px;
+  color: var(--text-light);
+}
+.tracker-record-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tracker-record-time {
+  font-size: 11px;
+  color: var(--text-light);
+}
+.tracker-record-del {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tracker-record-del:active {
+  background: #FECACA;
+}
