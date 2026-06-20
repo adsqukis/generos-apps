@@ -118,20 +118,22 @@ const { Pool } = require('pg');
     await migratePool.end();
   } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
 
-  // Auto seed screening data if empty
-  try {
-    const checkData = await pool.query('SELECT COUNT(*) as cnt FROM screening_questions');
-    if (parseInt(checkData.rows[0].cnt) === 0) {
-      console.log('🌱 Seeding screening data...');
-      const seedFn = require('./config/seed-screening');
-      await seedFn();
-      console.log('✓ Seeding completed');
-    } else {
-      console.log(`✓ Screening data exists (${checkData.rows[0].cnt} questions)`);
+  // Auto seed screening data if empty (background — jangan delay server start)
+  setTimeout(async () => {
+    try {
+      const checkData = await pool.query('SELECT COUNT(*) as cnt FROM screening_questions');
+      if (parseInt(checkData.rows[0].cnt) === 0) {
+        console.log('🌱 Seeding screening data...');
+        const seedFn = require('./config/seed-screening');
+        await seedFn();
+        console.log('✓ Seeding completed');
+      } else {
+        console.log(`✓ Screening data exists (${checkData.rows[0].cnt} questions)`);
+      }
+    } catch(e) {
+      console.warn('[seed] Skipped:', e.message.slice(0,100));
     }
-  } catch(e) {
-    console.warn('[seed] Skipped:', e.message.slice(0,100));
-  }
+  }, 100);
 })();
 
 // ============================

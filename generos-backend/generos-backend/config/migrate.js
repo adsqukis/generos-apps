@@ -189,6 +189,8 @@ CREATE TABLE IF NOT EXISTS screening_answers (
 );
 
 CREATE INDEX IF NOT EXISTS idx_screening_answer_session ON screening_answers(session_id);
+-- Unique constraint untuk upsert answer
+ALTER TABLE screening_answers ADD CONSTRAINT IF NOT EXISTS unique_session_question UNIQUE (session_id, question_id);
 
 -- Master stimulation activities
 CREATE TABLE IF NOT EXISTS stimulation_activities (
