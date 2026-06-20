@@ -47,6 +47,166 @@ router.get('/dashboard/summary', async (req, res) => {
 });
 
 // ============================
+// TUMBUH KEMBANG — GROWTH (BB/TB/LK)
+// Routes spesifik HARUS sebelum /:id supaya tidak ke-shadow
+// ============================
+
+// GET all growth records (ordered by date DESC)
+router.get('/growth', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM growth_records WHERE user_id = $1 ORDER BY record_date DESC, created_at DESC`,
+      [req.user.id]
+    );
+    res.json({ records: result.rows });
+  } catch (err) {
+    console.error('Get growth error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// POST new growth record
+router.post(
+  '/growth',
+  [
+    body('record_date').isDate().withMessage('Tanggal tidak valid'),
+    body('weight_kg').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 200 }).withMessage('Berat badan tidak valid'),
+    body('height_cm').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 250 }).withMessage('Tinggi badan tidak valid'),
+    body('head_circumference_cm').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Lingkar kepala tidak valid'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { weight_kg, height_cm, head_circumference_cm, record_date, notes } = req.body;
+
+    if (!weight_kg && !height_cm && !head_circumference_cm) {
+      return res.status(400).json({ error: 'Isi minimal salah satu: berat, tinggi, atau lingkar kepala' });
+    }
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO growth_records (user_id, weight_kg, height_cm, head_circumference_cm, record_date, notes)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+          req.user.id,
+          weight_kg || null,
+          height_cm || null,
+          head_circumference_cm || null,
+          record_date,
+          notes || null,
+        ]
+      );
+      res.status(201).json({ record: result.rows[0] });
+    } catch (err) {
+      console.error('Create growth error:', err);
+      res.status(500).json({ error: 'Terjadi kesalahan server' });
+    }
+  }
+);
+
+// ============================
+// TUMBUH KEMBANG — IMUNISASI
+// ============================
+
+// GET all immunization records
+router.get('/immunization', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM immunization_records WHERE user_id = $1 ORDER BY immunization_date DESC, created_at DESC`,
+      [req.user.id]
+    );
+    res.json({ records: result.rows });
+  } catch (err) {
+    console.error('Get immunization error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// POST new immunization record
+router.post(
+  '/immunization',
+  [
+    body('vaccine_name').trim().notEmpty().isLength({ max: 255 }).withMessage('Nama vaksin wajib diisi'),
+    body('immunization_date').isDate().withMessage('Tanggal tidak valid'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { vaccine_name, immunization_date, age_in_months, given_by, location, notes, next_schedule } = req.body;
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO immunization_records (user_id, vaccine_name, immunization_date, age_in_months, given_by, location, notes, next_schedule)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [
+          req.user.id,
+          vaccine_name,
+          immunization_date,
+          age_in_months || null,
+          given_by || null,
+          location || null,
+          notes || null,
+          next_schedule || null,
+        ]
+      );
+      res.status(201).json({ record: result.rows[0] });
+    } catch (err) {
+      console.error('Create immunization error:', err);
+      res.status(500).json({ error: 'Terjadi kesalahan server' });
+    }
+  }
+);
+
+// ============================
+// TUMBUH KEMBANG — PROGRESS SCREENING (aggregated per domain)
+// ============================
+router.get('/screening-progress', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT domain, score_percentage, result, child_age_months,
+              COALESCE(completed_at, started_at) AS session_date
+       FROM screening_sessions
+       WHERE user_id = $1 AND status = 'completed'
+       ORDER BY domain, COALESCE(completed_at, started_at) ASC`,
+      [req.user.id]
+    );
+
+    // Group by domain
+    const byDomain = {};
+    for (const row of result.rows) {
+      if (!byDomain[row.domain]) {
+        byDomain[row.domain] = {
+          domain: row.domain,
+          sessions_count: 0,
+          latest_score: null,
+          latest_result: null,
+          latest_date: null,
+          scores: [],
+        };
+      }
+      const d = byDomain[row.domain];
+      d.sessions_count += 1;
+      d.scores.push({ date: row.session_date, score_percentage: row.score_percentage });
+      // rows are ASC, so the last seen is the latest
+      d.latest_score = row.score_percentage;
+      d.latest_result = row.result;
+      d.latest_date = row.session_date;
+    }
+
+    res.json({ progress: Object.values(byDomain) });
+  } catch (err) {
+    console.error('Get screening progress error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// ============================
 // GET all tracking entries (paginated)
 // ============================
 router.get('/', async (req, res) => {

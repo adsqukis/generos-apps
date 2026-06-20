@@ -87,50 +87,96 @@
                     <button class="menu-btn" id="btn-go-stimulation">🧩 Stimulasi</button>
                 </div>
 
-                <h3>Tracking Terbaru</h3>
+                <h3>Ringkasan Tumbuh Kembang</h3>
                 <div id="home-recent-tracking">Memuat...</div>
             </div>
         </div>
 
-        <!-- ============ TRACKING PAGE ============ -->
+        <!-- ============ TUMBUH KEMBANG PAGE ============ -->
         <div id="page-tracking" class="page hidden">
             <div class="header">
                 <button class="back-btn" id="btn-back-tracking">←</button>
-                <h1>Catat Perkembangan</h1>
+                <h1>📈 Tumbuh Kembang</h1>
             </div>
             <div class="container">
-                <div id="tracking-categories">
-                    <p class="info-text">Pilih kategori:</p>
-                    <button class="btn-secondary cat-btn" data-type="speech">💬 Bicara</button>
-                    <button class="btn-secondary cat-btn" data-type="behavior">😊 Perilaku</button>
-                    <button class="btn-secondary cat-btn" data-type="illness">🤒 Kesehatan</button>
-                    <button class="btn-secondary cat-btn" data-type="sleep">😴 Tidur</button>
-                    <button class="btn-secondary cat-btn" data-type="motor">🚶 Motorik</button>
+                <!-- Tab navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="growth">Pertumbuhan</button>
+                    <button class="tab-btn" data-tab="immunization">Imunisasi</button>
+                    <button class="tab-btn" data-tab="screening">Screening</button>
                 </div>
 
-                <div id="tracking-form" class="hidden">
-                    <p class="info-text" id="tracking-selected-cat"></p>
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="date" id="tracking-date">
-                    </div>
-                    <div class="form-group">
-                        <label>Deskripsi</label>
-                        <textarea id="tracking-description" placeholder="Ceritakan apa yang terjadi..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Tingkat perhatian</label>
-                        <div class="severity-buttons">
-                            <button class="severity-btn" data-severity="normal">Normal</button>
-                            <button class="severity-btn" data-severity="concern">Monitor</button>
-                            <button class="severity-btn" data-severity="red_flag">Concern</button>
+                <!-- ===== Tab: Pertumbuhan (BB/TB/LK) ===== -->
+                <div id="tab-growth" class="tab-panel">
+                    <div class="tk-form">
+                        <p class="info-text">Catat berat, tinggi, dan lingkar kepala anak:</p>
+                        <div class="form-group">
+                            <label>Berat Badan (kg)</label>
+                            <input type="number" step="0.01" min="0" id="growth-weight" placeholder="contoh: 8.5">
                         </div>
+                        <div class="form-group">
+                            <label>Tinggi Badan (cm)</label>
+                            <input type="number" step="0.1" min="0" id="growth-height" placeholder="contoh: 72.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Lingkar Kepala (cm)</label>
+                            <input type="number" step="0.1" min="0" id="growth-head" placeholder="contoh: 45">
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="growth-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Catatan (opsional)</label>
+                            <textarea id="growth-notes" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+                        <button class="btn-primary" id="btn-submit-growth">Simpan Pertumbuhan</button>
                     </div>
-                    <button class="btn-primary" id="btn-submit-tracking">Simpan</button>
-                    <button class="btn-secondary" id="btn-cancel-tracking">Batal</button>
+                    <div id="growth-history" style="margin-top: 16px;"></div>
                 </div>
 
-                <div id="tracking-list" style="margin-top: 16px;"></div>
+                <!-- ===== Tab: Imunisasi ===== -->
+                <div id="tab-immunization" class="tab-panel hidden">
+                    <div class="tk-form">
+                        <p class="info-text">Catat riwayat imunisasi anak:</p>
+                        <div class="form-group">
+                            <label>Nama Vaksin</label>
+                            <input type="text" id="imm-vaccine" placeholder="contoh: BCG, Polio, DPT">
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Imunisasi</label>
+                            <input type="date" id="imm-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Usia Anak (otomatis)</label>
+                            <input type="text" id="imm-age" readonly placeholder="Otomatis dari tanggal lahir">
+                        </div>
+                        <div class="form-group">
+                            <label>Pemberi (dokter/nakes)</label>
+                            <input type="text" id="imm-given-by" placeholder="contoh: dr. Andi">
+                        </div>
+                        <div class="form-group">
+                            <label>Tempat</label>
+                            <input type="text" id="imm-location" placeholder="contoh: Posyandu Melati">
+                        </div>
+                        <div class="form-group">
+                            <label>Catatan (opsional)</label>
+                            <textarea id="imm-notes" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Jadwal Berikutnya (opsional)</label>
+                            <input type="date" id="imm-next">
+                        </div>
+                        <button class="btn-primary" id="btn-submit-immunization">Simpan Imunisasi</button>
+                    </div>
+                    <div id="immunization-history" style="margin-top: 16px;"></div>
+                </div>
+
+                <!-- ===== Tab: Screening ===== -->
+                <div id="tab-screening" class="tab-panel hidden">
+                    <p class="info-text">Ringkasan progres skrining per area perkembangan:</p>
+                    <div id="screening-progress-content">Memuat...</div>
+                </div>
             </div>
         </div>
 
@@ -280,7 +326,7 @@
                 <span>🏠</span><span>Beranda</span>
             </button>
             <button class="nav-btn" data-page="tracking">
-                <span>📊</span><span>Tracking</span>
+                <span>📈</span><span>Tumbuh Kembang</span>
             </button>
             <button class="nav-btn" data-page="food">
                 <span>🍲</span><span>Makanan</span>

@@ -26,19 +26,17 @@ function initApp() {
     btn.addEventListener('click', () => navigate(btn.dataset.page));
   });
 
-  // Setup tracking category buttons
-  document.querySelectorAll('.cat-btn').forEach((btn) => {
-    btn.addEventListener('click', () => selectTrackingType(btn.dataset.type, btn.textContent));
+  // Tumbuh Kembang: tab switching
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => switchGrowthTab(btn.dataset.tab));
   });
 
-  // Setup severity buttons
-  document.querySelectorAll('.severity-btn').forEach((btn) => {
-    btn.addEventListener('click', () => selectSeverity(btn.dataset.severity));
-  });
-
-  // Default date for tracking
-  const dateInput = document.getElementById('tracking-date');
-  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+  // Tumbuh Kembang: default dates (hari ini) untuk form
+  const today = new Date().toISOString().split('T')[0];
+  const growthDate = document.getElementById('growth-date');
+  if (growthDate) growthDate.value = today;
+  const immDate = document.getElementById('imm-date');
+  if (immDate) immDate.value = today;
 
   // Chat input enter key
   const chatInput = document.getElementById('chat-input');
@@ -59,8 +57,9 @@ function initApp() {
   safeAddListener('btn-go-knowledge', 'click', () => navigate('knowledge'));
   safeAddListener('btn-go-screening', 'click', () => navigate('screening'));
   safeAddListener('btn-go-stimulation', 'click', () => navigate('stimulation'));
-  safeAddListener('btn-submit-tracking', 'click', submitTracking);
-  safeAddListener('btn-cancel-tracking', 'click', cancelTrackingForm);
+  safeAddListener('btn-submit-growth', 'click', submitGrowthRecord);
+  safeAddListener('btn-submit-immunization', 'click', submitImmunizationRecord);
+  safeAddListener('imm-date', 'change', updateImmunizationAge);
   safeAddListener('btn-send-chat', 'click', sendChat);
   safeAddListener('btn-logout', 'click', handleLogout);
 
@@ -97,14 +96,6 @@ function initApp() {
   safeAddListener('article-detail', 'click', (e) => {
     if (e.target.dataset.action === 'back-article-list') {
       loadArticles();
-    }
-  });
-
-  // Tracking list items (AI insight)
-  safeAddListener('tracking-list', 'click', (e) => {
-    const card = e.target.closest('.card');
-    if (card && card.dataset.entryId) {
-      getAiInsightFor(card.dataset.entryId);
     }
   });
 
@@ -228,7 +219,7 @@ function navigate(page) {
 
   // Load data per page
   if (page === 'home') loadHomeData();
-  if (page === 'tracking') loadTrackingList();
+  if (page === 'tracking') loadGrowthPage();
   if (page === 'food') loadFoodMenu();
   if (page === 'knowledge') loadArticles();
   if (page === 'chat') loadChatHistory();
@@ -316,29 +307,53 @@ async function loadHomeData() {
     console.error('Failed to load summary:', err);
   }
 
-  try {
-    const data = await Api.getTrackingEntries();
-    const recent = data.entries.slice(0, 2);
-    const container = document.getElementById('home-recent-tracking');
+  const container = document.getElementById('home-recent-tracking');
+  let html = '';
 
-    if (recent.length === 0) {
-      container.innerHTML = '<p class="info-text">Belum ada tracking. Mulai catat sekarang!</p>';
+  // Ringkasan pertumbuhan terakhir (BB/TB/LK)
+  try {
+    const growthData = await Api.getGrowthRecords();
+    const latest = growthData.records && growthData.records[0];
+    if (latest) {
+      const parts = [];
+      if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
+      if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
+      if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
+      html += `
+        <div class="card" style="cursor:default;">
+          <p class="cat">📏 Pertumbuhan Terakhir</p>
+          <div class="g-metric-row">${parts.join('')}</div>
+          <small>${formatDate(latest.record_date)}</small>
+        </div>`;
     } else {
-      container.innerHTML = recent
-        .map(
-          (entry) => `
-        <div class="card">
-          <p class="cat">${entryTypeLabel(entry.entry_type)}</p>
-          <p class="desc">${escapeHtml(entry.description)}</p>
-          <small>${formatDate(entry.date)}</small>
-        </div>
-      `
-        )
+      html += '<p class="info-text">Belum ada data pertumbuhan. Catat berat & tinggi anak!</p>';
+    }
+  } catch (err) {
+    console.error('Failed to load growth summary:', err);
+  }
+
+  // Ringkasan progres skrining per domain
+  try {
+    const progData = await Api.getScreeningProgress();
+    const progress = progData.progress || [];
+    if (progress.length > 0) {
+      html += progress
+        .map((p) => {
+          const icon = p.latest_result === 'sesuai' ? '✅' : (p.latest_result === 'meragukan' ? '⚠️' : '❌');
+          return `
+        <div class="card" style="cursor:default;">
+          <p class="cat">${domainLabel(p.domain)}</p>
+          <p class="desc">${icon} Skor terakhir: <b>${p.latest_score != null ? p.latest_score + '%' : '-'}</b> · ${p.sessions_count}x skrining</p>
+          <small>${p.latest_date ? formatDate(p.latest_date) : ''}</small>
+        </div>`;
+        })
         .join('');
     }
   } catch (err) {
-    console.error('Failed to load tracking:', err);
+    console.error('Failed to load screening progress:', err);
   }
+
+  container.innerHTML = html || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
 }
 
 function calculateAgeMonths(dob) {
@@ -471,6 +486,229 @@ async function getAiInsightFor(entryId) {
     loadTrackingList();
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// TUMBUH KEMBANG (GROWTH TRACKER) PAGE
+// ============================
+function loadGrowthPage() {
+  // Default ke tab Pertumbuhan setiap kali masuk halaman
+  switchGrowthTab('growth');
+}
+
+function switchGrowthTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.add('hidden'));
+  const active = document.getElementById(`tab-${tab}`);
+  if (active) active.classList.remove('hidden');
+
+  if (tab === 'growth') loadGrowthTab();
+  else if (tab === 'immunization') loadImmunizationTab();
+  else if (tab === 'screening') loadScreeningProgressTab();
+}
+
+// ---- Pertumbuhan (BB/TB/LK) ----
+async function loadGrowthTab() {
+  const container = document.getElementById('growth-history');
+  if (!container) return;
+  try {
+    const data = await Api.getGrowthRecords();
+    const records = data.records || [];
+    if (records.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada data pertumbuhan.</p>';
+      return;
+    }
+    container.innerHTML =
+      '<h3 style="margin-bottom:12px;">Riwayat Pertumbuhan</h3>' +
+      records
+        .map((r) => {
+          const parts = [];
+          if (r.weight_kg != null) parts.push(`<span class="g-metric">BB <b>${r.weight_kg}</b> kg</span>`);
+          if (r.height_cm != null) parts.push(`<span class="g-metric">TB <b>${r.height_cm}</b> cm</span>`);
+          if (r.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${r.head_circumference_cm}</b> cm</span>`);
+          return `
+        <div class="growth-card">
+          <div class="g-metric-row">${parts.join('')}</div>
+          ${r.notes ? `<p class="desc">${escapeHtml(r.notes)}</p>` : ''}
+          <small>${formatDate(r.record_date)}</small>
+        </div>`;
+        })
+        .join('');
+  } catch (err) {
+    console.error('Failed to load growth tab:', err);
+    container.innerHTML = '<p class="info-text">Gagal memuat data pertumbuhan.</p>';
+  }
+}
+
+async function submitGrowthRecord() {
+  const weight = document.getElementById('growth-weight').value;
+  const height = document.getElementById('growth-height').value;
+  const head = document.getElementById('growth-head').value;
+  const date = document.getElementById('growth-date').value;
+  const notes = document.getElementById('growth-notes').value.trim();
+
+  if (!date) {
+    showToast('Mohon isi tanggal', 'error');
+    return;
+  }
+  if (!weight && !height && !head) {
+    showToast('Isi minimal salah satu: berat, tinggi, atau lingkar kepala', 'error');
+    return;
+  }
+
+  try {
+    await Api.createGrowthRecord({
+      weight_kg: weight || null,
+      height_cm: height || null,
+      head_circumference_cm: head || null,
+      record_date: date,
+      notes: notes || null,
+    });
+    showToast('Data pertumbuhan tersimpan', 'success');
+    document.getElementById('growth-weight').value = '';
+    document.getElementById('growth-height').value = '';
+    document.getElementById('growth-head').value = '';
+    document.getElementById('growth-notes').value = '';
+    loadGrowthTab();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ---- Imunisasi ----
+function updateImmunizationAge() {
+  const ageField = document.getElementById('imm-age');
+  const user = Api.getUser();
+  if (!ageField || !user || !user.child_dob) return;
+  const immDate = document.getElementById('imm-date').value;
+  const ref = immDate ? new Date(immDate) : new Date();
+  const months = Math.floor((ref - new Date(user.child_dob)) / (1000 * 60 * 60 * 24 * 30));
+  ageField.value = months >= 0 ? `${months} bulan` : '';
+}
+
+async function loadImmunizationTab() {
+  updateImmunizationAge();
+  const container = document.getElementById('immunization-history');
+  if (!container) return;
+  try {
+    const data = await Api.getImmunizationRecords();
+    const records = data.records || [];
+    if (records.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada data imunisasi.</p>';
+      return;
+    }
+    container.innerHTML =
+      '<h3 style="margin-bottom:12px;">Riwayat Imunisasi</h3>' +
+      records
+        .map((r) => {
+          const meta = [];
+          if (r.age_in_months != null) meta.push(`Usia ${r.age_in_months} bulan`);
+          if (r.given_by) meta.push(escapeHtml(r.given_by));
+          if (r.location) meta.push(escapeHtml(r.location));
+          return `
+        <div class="imm-card">
+          <p class="imm-name">💉 ${escapeHtml(r.vaccine_name)}</p>
+          ${meta.length ? `<p class="desc">${meta.join(' · ')}</p>` : ''}
+          ${r.notes ? `<p class="desc">${escapeHtml(r.notes)}</p>` : ''}
+          <small>${formatDate(r.immunization_date)}</small>
+          ${r.next_schedule ? `<p class="imm-next">📅 Jadwal berikutnya: ${formatDate(r.next_schedule)}</p>` : ''}
+        </div>`;
+        })
+        .join('');
+  } catch (err) {
+    console.error('Failed to load immunization tab:', err);
+    container.innerHTML = '<p class="info-text">Gagal memuat data imunisasi.</p>';
+  }
+}
+
+async function submitImmunizationRecord() {
+  const vaccine = document.getElementById('imm-vaccine').value.trim();
+  const date = document.getElementById('imm-date').value;
+  const givenBy = document.getElementById('imm-given-by').value.trim();
+  const location = document.getElementById('imm-location').value.trim();
+  const notes = document.getElementById('imm-notes').value.trim();
+  const next = document.getElementById('imm-next').value;
+
+  if (!vaccine) {
+    showToast('Mohon isi nama vaksin', 'error');
+    return;
+  }
+  if (!date) {
+    showToast('Mohon isi tanggal imunisasi', 'error');
+    return;
+  }
+
+  // Hitung usia otomatis dari tanggal lahir anak
+  const user = Api.getUser();
+  let ageInMonths = null;
+  if (user && user.child_dob) {
+    const m = Math.floor((new Date(date) - new Date(user.child_dob)) / (1000 * 60 * 60 * 24 * 30));
+    if (m >= 0) ageInMonths = m;
+  }
+
+  try {
+    await Api.createImmunizationRecord({
+      vaccine_name: vaccine,
+      immunization_date: date,
+      age_in_months: ageInMonths,
+      given_by: givenBy || null,
+      location: location || null,
+      notes: notes || null,
+      next_schedule: next || null,
+    });
+    showToast('Data imunisasi tersimpan', 'success');
+    document.getElementById('imm-vaccine').value = '';
+    document.getElementById('imm-given-by').value = '';
+    document.getElementById('imm-location').value = '';
+    document.getElementById('imm-notes').value = '';
+    document.getElementById('imm-next').value = '';
+    loadImmunizationTab();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ---- Progres Screening per domain ----
+async function loadScreeningProgressTab() {
+  const container = document.getElementById('screening-progress-content');
+  if (!container) return;
+  const domains = ['cognitive', 'speech', 'immunity', 'motor'];
+  try {
+    const data = await Api.getScreeningProgress();
+    const byDomain = {};
+    (data.progress || []).forEach((p) => {
+      byDomain[p.domain] = p;
+    });
+
+    container.innerHTML = domains
+      .map((dom) => {
+        const p = byDomain[dom];
+        if (!p) {
+          return `
+        <div class="growth-card">
+          <p class="cat">${domainLabel(dom)}</p>
+          <p class="info-text">Belum pernah diskrining.</p>
+        </div>`;
+        }
+        const icon = p.latest_result === 'sesuai' ? '✅' : p.latest_result === 'meragukan' ? '⚠️' : '❌';
+        const history = (p.scores || [])
+          .map((s) => `<span class="g-metric">${s.score_percentage}% <small>(${formatDate(s.date)})</small></span>`)
+          .join('');
+        return `
+        <div class="growth-card">
+          <p class="cat">${domainLabel(dom)}</p>
+          <p class="desc">${icon} Skor terakhir: <b>${p.latest_score != null ? p.latest_score + '%' : '-'}</b> · ${p.sessions_count}x skrining</p>
+          <small>Terakhir: ${p.latest_date ? formatDate(p.latest_date) : '-'}</small>
+          ${history ? `<div class="g-metric-row" style="margin-top:8px;">${history}</div>` : ''}
+        </div>`;
+      })
+      .join('');
+  } catch (err) {
+    console.error('Failed to load screening progress:', err);
+    container.innerHTML = '<p class="info-text">Gagal memuat progres skrining.</p>';
   }
 }
 

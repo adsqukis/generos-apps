@@ -144,6 +144,27 @@ const Api = {
     return this.request(`/tracking/${entryId}/ai-insight`, { method: 'POST' });
   },
 
+  // ============ TUMBUH KEMBANG ============
+  async getGrowthRecords() {
+    return this.request('/tracking/growth');
+  },
+
+  async createGrowthRecord(payload) {
+    return this.request('/tracking/growth', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async getImmunizationRecords() {
+    return this.request('/tracking/immunization');
+  },
+
+  async createImmunizationRecord(payload) {
+    return this.request('/tracking/immunization', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async getScreeningProgress() {
+    return this.request('/tracking/screening-progress');
+  },
+
   // ============ KNOWLEDGE ============
   async getArticles(category) {
     const query = category ? `?category=${category}` : '';

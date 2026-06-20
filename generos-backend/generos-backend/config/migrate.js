@@ -237,6 +237,38 @@ CREATE INDEX IF NOT EXISTS idx_tracking_domain ON tracking_entries(domain);
 
 -- Add sort_order column ke stimulation_activities (kalau belum ada)
 ALTER TABLE stimulation_activities ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+
+-- ============================
+-- TUMBUH KEMBANG (Growth & Development Tracker)
+-- ============================
+
+-- Growth records (BB/TB/LK)
+CREATE TABLE IF NOT EXISTS growth_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  weight_kg DECIMAL(5,2),       -- Berat Badan (kg)
+  height_cm DECIMAL(5,2),       -- Tinggi Badan (cm)
+  head_circumference_cm DECIMAL(5,2), -- Lingkar Kepala (cm)
+  record_date DATE NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_growth_user_date ON growth_records(user_id, record_date DESC);
+
+-- Immunization records
+CREATE TABLE IF NOT EXISTS immunization_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  vaccine_name VARCHAR(255) NOT NULL,
+  immunization_date DATE NOT NULL,
+  age_in_months INTEGER,        -- usia anak saat imunisasi
+  given_by VARCHAR(255),        -- nama dokter/nakes
+  location VARCHAR(255),        -- tempat imunisasi
+  notes TEXT,
+  next_schedule DATE,           -- jadwal imunisasi berikutnya
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_immunization_user ON immunization_records(user_id, immunization_date DESC);
 `;
 
 async function runMigrations() {
