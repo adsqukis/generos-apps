@@ -902,51 +902,40 @@ async function loadScreeningHistory() {
 }
 
 async function startScreening(domain) {
-  console.log('[TRACE] startScreening called with domain:', domain);
   screeningDomain = domain;
   const user = Api.getUser();
   const age = calculateAgeMonths(user.child_dob);
-  console.log('[TRACE] user:', user?.full_name, 'age:', age);
 
   if (age === '-' || age < 0) {
-    console.log('[TRACE] invalid age, returning');
     showToast('Data usia anak tidak valid', 'error');
     return;
   }
 
   // Show loading
-  console.log('[TRACE] hiding domain-select, showing questions');
   document.getElementById('screening-domain-select').classList.add('hidden');
   document.getElementById('screening-questions').classList.remove('hidden');
   document.getElementById('screening-question-text').textContent = 'Memuat pertanyaan...';
   document.getElementById('screening-progress').textContent = `🔄 ${domainLabel(domain)}`;
 
-  console.log('[TRACE] calling API...');
   try {
     // Get questions
     const qData = await Api.getScreeningQuestions(domain, age);
-    console.log('[TRACE] API returned', qData.questions?.length, 'questions');
     if (!qData.questions || qData.questions.length === 0) {
-      console.log('[TRACE] no questions, resetting');
       showToast('Belum ada pertanyaan untuk usia ini', 'error');
       loadScreeningPage();
       return;
     }
 
     screeningQuestions = qData.questions;
-    console.log('[TRACE] creating session...');
 
     // Create session
     const sessionData = await Api.createScreeningSession(domain, age);
-    console.log('[TRACE] session created:', sessionData.session?.id);
     screeningSessionId = sessionData.session.id;
 
     // Show first question
     screeningCurrentIndex = 0;
-    console.log('[TRACE] showing first question');
     showScreeningQuestion();
   } catch (err) {
-    console.log('[TRACE] ERROR in startScreening:', err.message);
     showToast(err.message, 'error');
     loadScreeningPage();
   }
