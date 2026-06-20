@@ -123,6 +123,14 @@ function initApp() {
     const del = e.target.closest('.sleep-rec-del');
     if (del && del.dataset.id) deleteSleepRecord(del.dataset.id);
   });
+  // Sleep articles click → ke halaman artikel
+  safeAddListener('sleep-articles', 'click', (e) => {
+    const el = e.target.closest('.article-horiz');
+    if (el && el.dataset.articleId) {
+      navigate('knowledge');
+      setTimeout(() => showArticleDetail(el.dataset.articleId), 400);
+    }
+  });
   // Default history dates
   const histFrom = document.getElementById('sl-hist-from');
   const histTo = document.getElementById('sl-hist-to');
