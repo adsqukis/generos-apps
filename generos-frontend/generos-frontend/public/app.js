@@ -43,6 +43,89 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') sendChat();
     });
   }
+
+  // ============ STATIC EVENT LISTENERS (replace inline onclick) ============
+  document.getElementById('btn-login').addEventListener('click', handleLogin);
+  document.getElementById('link-register').addEventListener('click', showRegisterForm);
+  document.getElementById('btn-register').addEventListener('click', handleRegister);
+  document.getElementById('link-login').addEventListener('click', showLoginForm);
+  document.getElementById('btn-settings').addEventListener('click', () => navigate('settings'));
+  document.getElementById('btn-go-tracking').addEventListener('click', () => navigate('tracking'));
+  document.getElementById('btn-go-food').addEventListener('click', () => navigate('food'));
+  document.getElementById('btn-go-knowledge').addEventListener('click', () => navigate('knowledge'));
+  document.getElementById('btn-submit-tracking').addEventListener('click', submitTracking);
+  document.getElementById('btn-cancel-tracking').addEventListener('click', cancelTrackingForm);
+  document.getElementById('btn-send-chat').addEventListener('click', sendChat);
+  document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+  // All back buttons (navigate home)
+  document.querySelectorAll('.back-btn').forEach((btn) => {
+    btn.addEventListener('click', () => navigate('home'));
+  });
+
+  // ============ EVENT DELEGATION FOR DYNAMIC CONTENT ============
+  // Food list items
+  document.getElementById('food-list').addEventListener('click', (e) => {
+    const item = e.target.closest('.food-item');
+    if (item && item.dataset.foodIdx !== undefined) {
+      showFoodDetail(parseInt(item.dataset.foodIdx));
+    }
+  });
+
+  // Food detail back button
+  document.getElementById('food-detail').addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'back-food-list') {
+      loadFoodMenu();
+    }
+  });
+
+  // Article list items
+  document.getElementById('article-list').addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+    if (card && card.dataset.articleId) {
+      showArticleDetail(card.dataset.articleId);
+    }
+  });
+
+  // Article detail back button
+  document.getElementById('article-detail').addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'back-article-list') {
+      loadArticles();
+    }
+  });
+
+  // Tracking list items (AI insight)
+  document.getElementById('tracking-list').addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+    if (card && card.dataset.entryId) {
+      getAiInsightFor(card.dataset.entryId);
+    }
+  });
+
+  // Product list - buy buttons
+  document.getElementById('product-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-product-id]');
+    if (btn && btn.dataset.productId) {
+      buyProduct(btn.dataset.productId);
+    }
+  });
+
+  // Admin panel actions
+  document.getElementById('admin-panel-content').addEventListener('click', (e) => {
+    const action = e.target.dataset.action;
+    if (action === 'submit-admin-article') submitAdminArticle();
+    else if (action === 'submit-admin-food') submitAdminFood();
+    else if (action === 'submit-admin-product') submitAdminProduct();
+  });
+
+  // Settings page admin buttons (show forms)
+  document.getElementById('settings-content').addEventListener('click', (e) => {
+    const action = e.target.dataset.action;
+    if (action === 'show-admin-add-article') showAdminAddArticle();
+    else if (action === 'show-admin-add-food') showAdminAddFood();
+    else if (action === 'show-admin-add-product') showAdminAddProduct();
+    else if (action === 'show-admin-analytics') showAdminAnalytics();
+  });
 });
 
 // ============================
@@ -295,7 +378,7 @@ async function loadTrackingList() {
       data.entries
         .map(
           (entry) => `
-      <div class="card" onclick="getAiInsightFor('${entry.id}')">
+      <div class="card" data-entry-id="${entry.id}">
         <p class="cat">${entryTypeLabel(entry.entry_type)}</p>
         <p class="desc">${escapeHtml(entry.description)}</p>
         <span class="severity-badge severity-${entry.severity}">${entry.severity}</span>
@@ -340,7 +423,7 @@ async function loadFoodMenu() {
     container.innerHTML = data.foods
       .map(
         (food, idx) => `
-      <button class="food-item" onclick="showFoodDetail(${idx})">
+      <button class="food-item" data-food-idx="${idx}">
         <span class="emoji">🍽️</span>
         <div>
           <p class="name">${escapeHtml(food.name)}</p>
@@ -362,7 +445,7 @@ function showFoodDetail(idx) {
   detail.classList.remove('hidden');
 
   detail.innerHTML = `
-    <button class="btn-secondary" onclick="loadFoodMenu()" style="text-align: center;">← Kembali</button>
+    <button class="btn-secondary" data-action="back-food-list" style="text-align: center;">← Kembali</button>
     <div style="text-align: center; margin: 16px 0;">
       <div style="font-size: 50px;">🍽️</div>
       <h2 style="color: #003DA5; margin: 8px 0 4px;">${escapeHtml(food.name)}</h2>
@@ -398,7 +481,7 @@ async function loadArticles() {
     container.innerHTML = data.articles
       .map(
         (article, idx) => `
-      <div class="card" onclick="showArticleDetail('${article.id}')">
+      <div class="card" data-article-id="${article.id}">
         <p class="cat">${escapeHtml(article.category)}</p>
         <p class="title">${escapeHtml(article.title)}</p>
         <p class="desc">${escapeHtml(article.summary)}</p>
@@ -421,7 +504,7 @@ async function showArticleDetail(id) {
     detail.classList.remove('hidden');
 
     detail.innerHTML = `
-      <button class="btn-secondary" onclick="loadArticles()" style="text-align: center;">← Kembali</button>
+      <button class="btn-secondary" data-action="back-article-list" style="text-align: center;">← Kembali</button>
       <h2 style="color: #003DA5; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
       <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6; margin-bottom: 16px;">${escapeHtml(article.content).replace(/\n/g, '<br><br>')}</p>
       ${article.red_flags ? `
@@ -510,7 +593,7 @@ async function loadProducts() {
       <div class="product-card">
         <h3>${escapeHtml(product.name)}</h3>
         <p class="price">Rp ${Number(product.price).toLocaleString('id-ID')}</p>
-        <button onclick="buyProduct('${product.id}')">🛒 Beli di Shopee</button>
+        <button data-product-id="${product.id}">🛒 Beli di Shopee</button>
       </div>
     `
       )
@@ -553,10 +636,10 @@ function loadSettings() {
     html += `
       <div class="admin-section" style="margin-top: 20px;">
         <h4>🔧 Admin Panel</h4>
-        <button class="btn-secondary" onclick="showAdminAddArticle()">➕ Tambah Artikel</button>
-        <button class="btn-secondary" onclick="showAdminAddFood()">➕ Tambah Menu Makanan</button>
-        <button class="btn-secondary" onclick="showAdminAddProduct()">➕ Tambah Produk</button>
-        <button class="btn-secondary" onclick="showAdminAnalytics()">📊 Lihat Analytics</button>
+        <button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Artikel</button>
+        <button class="btn-secondary" data-action="show-admin-add-food">➕ Tambah Menu Makanan</button>
+        <button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Produk</button>
+        <button class="btn-secondary" data-action="show-admin-analytics">📊 Lihat Analytics</button>
         <div id="admin-panel-content"></div>
       </div>
     `;
@@ -587,7 +670,7 @@ function showAdminAddArticle() {
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;"></textarea></div>
     <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags"></textarea></div>
     <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor"></textarea></div>
-    <button class="btn-primary" onclick="submitAdminArticle()">Simpan Artikel</button>
+    <button class="btn-primary" data-action="submit-admin-article">Simpan Artikel</button>
   `;
 }
 
@@ -615,7 +698,7 @@ function showAdminAddFood() {
     <div class="form-group"><label>Rentang Usia</label><input type="text" id="adm-food-age" placeholder="contoh: 8-12 bulan"></div>
     <div class="form-group"><label>Manfaat</label><textarea id="adm-food-benefits"></textarea></div>
     <div class="form-group"><label>Resep</label><textarea id="adm-food-recipe"></textarea></div>
-    <button class="btn-primary" onclick="submitAdminFood()">Simpan Menu</button>
+    <button class="btn-primary" data-action="submit-admin-food">Simpan Menu</button>
   `;
 }
 
@@ -640,7 +723,7 @@ function showAdminAddProduct() {
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
-    <button class="btn-primary" onclick="submitAdminProduct()">Simpan Produk</button>
+    <button class="btn-primary" data-action="submit-admin-product">Simpan Produk</button>
   `;
 }
 

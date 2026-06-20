@@ -25,8 +25,8 @@
                     <label>Password</label>
                     <input type="password" id="login-password" placeholder="Masukkan password">
                 </div>
-                <button class="btn-primary" onclick="handleLogin()">Login</button>
-                <p class="link-text">Belum punya akun? <a onclick="showRegisterForm()">Daftar di sini</a></p>
+                <button class="btn-primary" id="btn-login">Login</button>
+                <p class="link-text">Belum punya akun? <a id="link-register">Daftar di sini</a></p>
             </div>
 
             <div id="register-form" class="form-box hidden">
@@ -50,8 +50,8 @@
                     <label>Tanggal Lahir Anak</label>
                     <input type="date" id="reg-childdob">
                 </div>
-                <button class="btn-primary" onclick="handleRegister()">Daftar</button>
-                <p class="link-text">Sudah punya akun? <a onclick="showLoginForm()">Login di sini</a></p>
+                <button class="btn-primary" id="btn-register">Daftar</button>
+                <p class="link-text">Sudah punya akun? <a id="link-login">Login di sini</a></p>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
         <div id="page-home" class="page hidden">
             <div class="header">
                 <h1><span class="logo">🧠</span> Generos Care</h1>
-                <button class="icon-btn" onclick="navigate('settings')">⚙️</button>
+                <button class="icon-btn" id="btn-settings">⚙️</button>
             </div>
             <div class="container">
                 <div class="profile-card">
@@ -78,11 +78,11 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" onclick="navigate('tracking')">➕ Catat Perkembangan</button>
+                <button class="btn-primary" id="btn-go-tracking">➕ Catat Perkembangan</button>
 
                 <div class="menu-grid">
-                    <button class="menu-btn" onclick="navigate('food')">🍲 Menu Makanan</button>
-                    <button class="menu-btn" onclick="navigate('knowledge')">📚 Artikel</button>
+                    <button class="menu-btn" id="btn-go-food">🍲 Menu Makanan</button>
+                    <button class="menu-btn" id="btn-go-knowledge">📚 Artikel</button>
                 </div>
 
                 <h3>Tracking Terbaru</h3>
@@ -93,7 +93,7 @@
         <!-- ============ TRACKING PAGE ============ -->
         <div id="page-tracking" class="page hidden">
             <div class="header">
-                <button class="back-btn" onclick="navigate('home')">←</button>
+                <button class="back-btn" id="btn-back-tracking">←</button>
                 <h1>Catat Perkembangan</h1>
             </div>
             <div class="container">
@@ -124,8 +124,8 @@
                             <button class="severity-btn" data-severity="red_flag">Concern</button>
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="submitTracking()">Simpan</button>
-                    <button class="btn-secondary" onclick="cancelTrackingForm()">Batal</button>
+                    <button class="btn-primary" id="btn-submit-tracking">Simpan</button>
+                    <button class="btn-secondary" id="btn-cancel-tracking">Batal</button>
                 </div>
 
                 <div id="tracking-list" style="margin-top: 16px;"></div>
@@ -135,7 +135,7 @@
         <!-- ============ FOOD MENU PAGE ============ -->
         <div id="page-food" class="page hidden">
             <div class="header">
-                <button class="back-btn" onclick="navigate('home')">←</button>
+                <button class="back-btn" id="btn-back-food">←</button>
                 <h1>🍲 Menu Makanan</h1>
             </div>
             <div class="container">
@@ -148,7 +148,7 @@
         <!-- ============ KNOWLEDGE BASE PAGE ============ -->
         <div id="page-knowledge" class="page hidden">
             <div class="header">
-                <button class="back-btn" onclick="navigate('home')">←</button>
+                <button class="back-btn" id="btn-back-knowledge">←</button>
                 <h1>📚 Pengetahuan</h1>
             </div>
             <div class="container">
@@ -160,14 +160,14 @@
         <!-- ============ CHAT PAGE ============ -->
         <div id="page-chat" class="page hidden">
             <div class="header">
-                <button class="back-btn" onclick="navigate('home')">←</button>
+                <button class="back-btn" id="btn-back-chat">←</button>
                 <h1>💬 Chat Assistant</h1>
             </div>
             <div class="chat-container">
                 <div id="chat-messages" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="chat-input" placeholder="Ketik pertanyaan...">
-                    <button onclick="sendChat()">Kirim</button>
+                    <button id="btn-send-chat">Kirim</button>
                 </div>
             </div>
         </div>
@@ -185,12 +185,12 @@
         <!-- ============ SETTINGS PAGE ============ -->
         <div id="page-settings" class="page hidden">
             <div class="header">
-                <button class="back-btn" onclick="navigate('home')">←</button>
+                <button class="back-btn" id="btn-back-settings">←</button>
                 <h1>⚙️ Pengaturan</h1>
             </div>
             <div class="container">
                 <div id="settings-content"></div>
-                <button class="btn-danger" onclick="handleLogout()">🚪 Logout</button>
+                <button class="btn-danger" id="btn-logout">🚪 Logout</button>
             </div>
         </div>
 
