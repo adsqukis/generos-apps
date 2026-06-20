@@ -356,8 +356,13 @@ async function loadHomeData() {
   const firstName = nameParts[0] || 'Pengguna';
   document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
 
-  // 2. Child Profile
-  await loadChildProfile(user);
+  // 2. Child Profile (ambil growth records buat dipake ulang)
+  let growthRecords = null;
+  try {
+    const data = await Api.getGrowthRecords();
+    growthRecords = data.records || [];
+  } catch (e) { /* skip */ }
+  await loadChildProfile(user, growthRecords);
 
   // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
   await loadDailySummary();
@@ -365,15 +370,15 @@ async function loadHomeData() {
   // 4. Development Today
   await loadDevelopmentToday(user);
 
-  // 5. Growth summary (ringkasan data BB/TB/LK & screening)
-  await loadBerandaGrowthRingkasan();
+  // 5. Growth summary (pake data growth yg udah diambil)
+  await loadBerandaGrowthRingkasan(growthRecords);
 
   // 6. Reminders
   await loadReminders();
 }
 
 // === 2. Child Profile ===
-async function loadChildProfile(user) {
+async function loadChildProfile(user, growthRecords) {
   const childName = user.child_name || 'Anak';
   const age = calculateAgeMonths(user.child_dob);
   const dob = user.child_dob ? new Date(user.child_dob) : null;
@@ -391,11 +396,9 @@ async function loadChildProfile(user) {
   const initial = (childName.charAt(0) || '·').toUpperCase();
   document.getElementById('child-avatar').textContent = initial;
 
-  // Ambil data pertumbuhan terakhir
-  try {
-    const data = await Api.getGrowthRecords();
-    const latest = data.records && data.records[0];
-    if (latest) {
+  // Ambil data pertumbuhan terakhir (dari parameter)
+  const latest = growthRecords && growthRecords[0];
+  if (latest) {
       document.getElementById('stat-bb').textContent = latest.weight_kg != null ? `${latest.weight_kg} kg` : '-';
       document.getElementById('stat-tb').textContent = latest.height_cm != null ? `${latest.height_cm} cm` : '-';
       document.getElementById('stat-lk').textContent = latest.head_circumference_cm != null ? `${latest.head_circumference_cm} cm` : '-';
@@ -417,9 +420,6 @@ async function loadChildProfile(user) {
       document.getElementById('stat-tb').textContent = '-';
       document.getElementById('stat-lk').textContent = '-';
     }
-  } catch (e) {
-    console.error('Failed to load growth for profile:', e);
-  }
 }
 
 // === 3. Daily Summary ===
@@ -510,21 +510,18 @@ async function loadDevelopmentToday(user) {
   }
 }
 
-// === 5. Growth & Screening Ringkasan (dipertahankan dari versi lama) ===
-async function loadBerandaGrowthRingkasan() {
+// === 5. Growth & Screening Ringkasan ===
+async function loadBerandaGrowthRingkasan(growthRecords) {
   let html = '';
   // Growth
-  try {
-    const growthData = await Api.getGrowthRecords();
-    const latest = growthData.records && growthData.records[0];
-    if (latest) {
-      const parts = [];
-      if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
-      if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
-      if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
-      html += `<div class="card" style="cursor:default;"><p class="cat">📏 Pertumbuhan Terakhir</p><div class="g-metric-row">${parts.join('')}</div><small>${formatDate(latest.record_date)}</small></div>`;
-    }
-  } catch (e) { /* skip */ }
+  const latest = growthRecords && growthRecords[0];
+  if (latest) {
+    const parts = [];
+    if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
+    if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
+    if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
+    html += `<div class="card" style="cursor:default;"><p class="cat">📏 Pertumbuhan Terakhir</p><div class="g-metric-row">${parts.join('')}</div><small>${formatDate(latest.record_date)}</small></div>`;
+  }
 
   // Screening ringkasan
   try {
