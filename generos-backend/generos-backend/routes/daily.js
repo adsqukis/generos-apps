@@ -408,6 +408,9 @@ const DEVELOPMENT_TIPS = [
   { max: 48, label: '3-4 tahun', tip: 'Bisa melompat dan menggambar lingkaran. Dorong interaksi sosial dengan teman sebaya.' },
   { max: 60, label: '4-5 tahun', tip: 'Berhitung sederhana dan bercerita. Latih kemandirian seperti berpakaian sendiri.' },
   { max: 72, label: '5-6 tahun', tip: 'Siap masuk sekolah, mengenal huruf dan menulis nama. Dukung rasa ingin tahu dan kreativitas.' },
+  { max: 96, label: '6-8 tahun', tip: 'Kembangkan kemampuan membaca dan berhitung. Beri tanggung jawab kecil di rumah dan dukung hobi anak.' },
+  { max: 120, label: '8-10 tahun', tip: 'Anak semakin mandiri dalam belajar. Dorong pemikiran kritis, diskusikan hal-hal sehari-hari, dan jaga komunikasi terbuka.' },
+  { max: 144, label: '10-12 tahun', tip: 'Memasuki masa pra-remaja. Perhatikan perubahan fisik dan emosional. Beri pemahaman tentang pubertas secara positif.' },
 ];
 
 router.get('/development', async (req, res) => {

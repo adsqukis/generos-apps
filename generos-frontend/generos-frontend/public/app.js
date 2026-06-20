@@ -356,6 +356,12 @@ async function loadHomeData() {
   const firstName = nameParts[0] || 'Pengguna';
   document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
 
+  // Hitung usia anak
+  const age = calculateAgeMonths(user.child_dob);
+
+  // Sembunyikan tracker yang gak relevan berdasarkan usia
+  applyAgeBasedVisibility(age);
+
   // 2. Child Profile (ambil growth records buat dipake ulang)
   let growthRecords = null;
   try {
@@ -420,6 +426,43 @@ async function loadChildProfile(user, growthRecords) {
       document.getElementById('stat-tb').textContent = '-';
       document.getElementById('stat-lk').textContent = '-';
     }
+}
+
+// === Age-based visibility — sembunyikan tracker sesuai usia ===
+function applyAgeBasedVisibility(age) {
+  const showCard = (tracker, show) => {
+    const card = document.querySelector(`.tracker-card[data-tracker="${tracker}"]`);
+    if (card) card.style.display = show ? '' : 'none';
+  };
+
+  const trackerSection = document.getElementById('daily-trackers');
+  const title = trackerSection?.previousElementSibling; // <h3>
+
+  if (age > 72) {
+    // >6 tahun: sembunyikan semua daily tracker, tunjukkin growth & screening aja
+    if (trackerSection) trackerSection.style.display = 'none';
+    if (title) title.style.display = 'none';
+    return;
+  }
+
+  // Tampilkan section tracker
+  if (trackerSection) trackerSection.style.display = '';
+  if (title) {
+    title.style.display = '';
+    title.textContent = age > 36 ? '📋 Kebiasaan Harian' : '📋 Aktivitas Harian';
+  }
+
+  // Menyusui: hanya relevan sampai ~3 tahun
+  showCard('feeding', age <= 36);
+
+  // Makan (MPASI): relevan sampai ~5 tahun
+  showCard('eating', age <= 60);
+
+  // Sisanya selalu tampil
+  showCard('sleep', true);
+  showCard('drink', true);
+  showCard('poop', true);
+  showCard('pee', true);
 }
 
 // === 3. Daily Summary ===
