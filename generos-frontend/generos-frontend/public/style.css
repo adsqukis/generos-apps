@@ -1019,3 +1019,364 @@ textarea {
 @media (max-width: 360px) {
   .tab-btn { font-size: 12px; padding: 9px 4px; }
 }
+
+/* ============================
+   BERANDA BARU — HOME PAGE
+   ============================ */
+
+/* Home Header */
+#home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 4px;
+  background: var(--white);
+}
+#home-header .greeting {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+#home-header .greeting-sub {
+  font-size: 12px;
+  color: var(--text-light);
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+.icon-btn-round {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary-light);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.icon-btn-round:active {
+  background: #d0e0ff;
+}
+
+/* Child Profile Card */
+.child-card {
+  background: linear-gradient(135deg, #003DA5 0%, #0066CC 100%);
+  color: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.child-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.child-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.child-info h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+}
+.child-info p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  margin: 2px 0 0;
+}
+.nutrition-status {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.child-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.cstat {
+  flex: 1;
+  text-align: center;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.cstat-label {
+  display: block;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 2px;
+}
+.cstat-val {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}
+.btn-outline {
+  width: 100%;
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.btn-outline:active {
+  border-color: rgba(255,255,255,0.8);
+}
+
+/* Daily Tracker Grid */
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.tracker-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.tracker-card:nth-child(4),
+.tracker-card:nth-child(5) {
+  /* BAB & BAK jadi 2 kolom di baris bawah */
+}
+.tracker-add {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.tracker-add:active {
+  background: #d0e0ff;
+}
+.tracker-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.tracker-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+.tracker-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+.tracker-time {
+  font-size: 9px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* Info Card (Development Today, Reminder) */
+.info-card {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.info-card .title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+/* Reminder Widget */
+#reminders {
+  margin-bottom: 20px;
+}
+.reminder-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.reminder-item:last-child {
+  border-bottom: none;
+}
+.reminder-days {
+  font-size: 11px;
+  font-weight: 600;
+  color: #F59E0B;
+  background: #FEF3C7;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Floating AI Button */
+.floating-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,61,165,0.35);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.floating-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(0,61,165,0.25);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.modal-head h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* AI Chat Box (larger modal) */
+.ai-chat-box {
+  background: var(--white);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+/* Menu grid 2-column on beranda */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.menu-btn {
+  background: var(--primary-light);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 14px 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  transition: background 0.15s;
+}
+.menu-btn:active {
+  background: #d0e0ff;
+}
+
+/* Override menu grid di page-home supaya konsisten */
+#page-home .container h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  margin-top: 4px;
+}

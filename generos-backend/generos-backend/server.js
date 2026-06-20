@@ -85,6 +85,7 @@ const aiLimiter = rateLimit({
   message: { error: 'Terlalu banyak permintaan ke AI. Tunggu sebentar sebelum mencoba lagi.' },
 });
 app.use('/api/chat/message', aiLimiter);
+app.use('/api/daily/ai', aiLimiter);
 app.use('/api/tracking', (req, res, next) => {
   if (req.method === 'POST' && req.path.endsWith('/ai-insight')) {
     return aiLimiter(req, res, next);
@@ -118,6 +119,20 @@ const { Pool } = require('pg');
     }
     await migratePool.end();
   } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
+
+  // Auto create daily tracker tables
+  try {
+    const dPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    const dailySql = fs.readFileSync(path.join(__dirname, 'config', 'daily-migrate.js'), 'utf8');
+    const dailyMatch = dailySql.match(/const migrations = `([\s\S]*?)`;/);
+    if (dailyMatch) {
+      await dPool.query(dailyMatch[1]);
+      console.log('✓ Daily tracker tables ready');
+    }
+    await dPool.end();
+  } catch(e) {
+    console.warn('[daily-migrate]', e.message.slice(0,200));
+  }
 
   // Auto create growth & immunization tables (terpisah dari migrate.js biar aman)
   try {
@@ -195,6 +210,7 @@ app.use('/api/shop', shopRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/screening', require('./routes/screening'));
 app.use('/api/stimulation', require('./routes/stimulation'));
+app.use('/api/daily', require('./routes/daily'));
 
 // ============================
 // 404 HANDLER

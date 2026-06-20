@@ -227,6 +227,85 @@ const Api = {
     return this.request('/shop/analytics/clicks');
   },
 
+  // ============ DAILY TRACKER ============
+  async getDailySummary(date) {
+    const q = date ? `?date=${date}` : '';
+    return this.request(`/daily/summary${q}`);
+  },
+
+  async getDailySleep(date) {
+    return this.request(`/daily/sleep?date=${date}`);
+  },
+
+  async createDailySleep(payload) {
+    return this.request('/daily/sleep', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async deleteDailySleep(id) {
+    return this.request(`/daily/sleep/${id}`, { method: 'DELETE' });
+  },
+
+  async getDailyFeeding(date) {
+    return this.request(`/daily/feeding?date=${date}`);
+  },
+
+  async createDailyFeeding(payload) {
+    return this.request('/daily/feeding', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async deleteDailyFeeding(id) {
+    return this.request(`/daily/feeding/${id}`, { method: 'DELETE' });
+  },
+
+  async getDailyDrink(date) {
+    return this.request(`/daily/drink?date=${date}`);
+  },
+
+  async createDailyDrink(payload) {
+    return this.request('/daily/drink', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async deleteDailyDrink(id) {
+    return this.request(`/daily/drink/${id}`, { method: 'DELETE' });
+  },
+
+  async getDailyPee(date) {
+    return this.request(`/daily/pee?date=${date}`);
+  },
+
+  async createDailyPee(payload) {
+    return this.request('/daily/pee', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async deleteDailyPee(id) {
+    return this.request(`/daily/pee/${id}`, { method: 'DELETE' });
+  },
+
+  async getDailyPoop(date) {
+    return this.request(`/daily/poop?date=${date}`);
+  },
+
+  async createDailyPoop(payload) {
+    return this.request('/daily/poop', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async deleteDailyPoop(id) {
+    return this.request(`/daily/poop/${id}`, { method: 'DELETE' });
+  },
+
+  async getDevelopmentToday(age) {
+    const q = age ? `?age=${age}` : '';
+    return this.request(`/daily/development${q}`);
+  },
+
+  async getReminders() {
+    return this.request('/daily/reminders');
+  },
+
+  async askDailyAI(message) {
+    return this.request('/daily/ai', { method: 'POST', body: JSON.stringify({ message }) });
+  },
+
   // ============ SCREENING ============
   async getScreeningDomains() {
     return this.request('/screening/domains');

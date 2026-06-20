@@ -62,6 +62,40 @@ function initApp() {
   safeAddListener('imm-date', 'change', updateImmunizationAge);
   safeAddListener('btn-send-chat', 'click', sendChat);
   safeAddListener('btn-logout', 'click', handleLogout);
+  // === HOME PAGE Listeners ===
+  safeAddListener('btn-add-growth', 'click', () => document.getElementById('growth-modal').classList.remove('hidden'));
+  safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
+  safeAddListener('btn-notif', 'click', () => { /* placeholder */ });
+  safeAddListener('ai-floating-btn', 'click', openAIChat);
+  safeAddListener('btn-ai-send', 'click', sendAIChat);
+  safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
+  // AI input enter key
+  const aiInput = document.getElementById('ai-input');
+  if (aiInput) aiInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendAIChat(); });
+
+  // Tracker add buttons (± ada 5, pake onclick property biar reliable)
+  document.querySelectorAll('.tracker-add').forEach(btn => {
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      openQuickAdd(this.dataset.tracker);
+    };
+  });
+
+  // Modal close buttons
+  document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.onclick = function() {
+      const id = this.dataset.closeModal;
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    };
+  });
+
+  // Click outside modal to close
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.add('hidden');
+    });
+  });
 
   // All back buttons (navigate home)
   document.querySelectorAll('.back-btn').forEach((btn) => {
@@ -289,81 +323,389 @@ async function handleLogout() {
 }
 
 // ============================
-// HOME PAGE
+// HOME PAGE — Beranda Baru
 // ============================
 async function loadHomeData() {
   const user = Api.getUser();
   if (!user) return;
 
+  // 1. Header greeting
+  const nameParts = (user.full_name || '').split(' ');
+  const firstName = nameParts[0] || 'Pengguna';
+  document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
+
+  // 2. Child Profile
+  await loadChildProfile(user);
+
+  // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
+  await loadDailySummary();
+
+  // 4. Development Today
+  await loadDevelopmentToday(user);
+
+  // 5. Growth summary (ringkasan data BB/TB/LK & screening)
+  await loadBerandaGrowthRingkasan();
+
+  // 6. Reminders
+  await loadReminders();
+}
+
+// === 2. Child Profile ===
+async function loadChildProfile(user) {
+  const childName = user.child_name || 'Anak';
   const age = calculateAgeMonths(user.child_dob);
-  document.getElementById('home-greeting').textContent = `Selamat datang, ${user.full_name}`;
-  document.getElementById('home-child-info').textContent = `${user.child_name}, ${age} bulan`;
+  const dob = user.child_dob ? new Date(user.child_dob) : null;
+  let extraDays = 0;
+  if (dob) {
+    const diff = new Date() - dob;
+    const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    extraDays = totalDays % 30;
+  }
 
-  let growthCount = 0;
-  let screenCount = 0;
-  let latestGrowthHtml = '';
-  let screeningHtml = '';
+  document.getElementById('child-name').textContent = childName;
+  document.getElementById('child-age').textContent = `${age} bulan ${extraDays} hari`;
 
-  // Data pertumbuhan
+  // Avatar initial
+  const initial = (childName.charAt(0) || '·').toUpperCase();
+  document.getElementById('child-avatar').textContent = initial;
+
+  // Ambil data pertumbuhan terakhir
+  try {
+    const data = await Api.getGrowthRecords();
+    const latest = data.records && data.records[0];
+    if (latest) {
+      document.getElementById('stat-bb').textContent = latest.weight_kg != null ? `${latest.weight_kg} kg` : '-';
+      document.getElementById('stat-tb').textContent = latest.height_cm != null ? `${latest.height_cm} cm` : '-';
+      document.getElementById('stat-lk').textContent = latest.head_circumference_cm != null ? `${latest.head_circumference_cm} cm` : '-';
+
+      // Status gizi sederhana
+      const bb = parseFloat(latest.weight_kg);
+      const nutStatus = document.getElementById('nutrition-status');
+      if (bb > 0) {
+        // Estimasi sederhana berdasarkan BB rata-rata per usia
+        if (bb < 2.5) nutStatus.textContent = '🔴 Risiko';
+        else if (bb < 5) nutStatus.textContent = '🟡 Perlu Perhatian';
+        else nutStatus.textContent = '✅ Gizi Baik';
+      } else {
+        nutStatus.textContent = '✅ Gizi Baik';
+      }
+    } else {
+      // Fallback — tampilin apa yang ada dari user
+      document.getElementById('stat-bb').textContent = '-';
+      document.getElementById('stat-tb').textContent = '-';
+      document.getElementById('stat-lk').textContent = '-';
+    }
+  } catch (e) {
+    console.error('Failed to load growth for profile:', e);
+  }
+}
+
+// === 3. Daily Summary ===
+async function loadDailySummary() {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const data = await Api.getDailySummary(today);
+    const s = data.summary || {};
+
+    // Tidur
+    const sleepVal = document.getElementById('tracker-sleep-value');
+    const sleepTime = document.getElementById('tracker-sleep-time');
+    if (s.sleep && s.sleep.total_minutes > 0) {
+      const hrs = Math.floor(s.sleep.total_minutes / 60);
+      const min = s.sleep.total_minutes % 60;
+      sleepVal.textContent = `${hrs}j ${min}m`;
+      sleepTime.textContent = s.sleep.last_record ? s.sleep.last_record.slice(0, 5) : '-';
+    } else {
+      sleepVal.textContent = 'Belum';
+      sleepTime.textContent = '—';
+    }
+
+    // Menyusui
+    const feedVal = document.getElementById('tracker-feeding-value');
+    const feedTime = document.getElementById('tracker-feeding-time');
+    if (s.feeding && s.feeding.count > 0) {
+      feedVal.textContent = `${s.feeding.count}x`;
+      feedTime.textContent = s.feeding.last_record ? s.feeding.last_record.slice(0, 5) : '-';
+    } else {
+      feedVal.textContent = '0';
+      feedTime.textContent = '—';
+    }
+
+    // Minum
+    const drinkVal = document.getElementById('tracker-drink-value');
+    const drinkTime = document.getElementById('tracker-drink-time');
+    if (s.drink && s.drink.count > 0) {
+      drinkVal.textContent = `${s.drink.total_ml || 0} ml`;
+      drinkTime.textContent = s.drink.last_record ? s.drink.last_record.slice(0, 5) : '-';
+    } else {
+      drinkVal.textContent = '0';
+      drinkTime.textContent = '—';
+    }
+
+    // BAB
+    const poopVal = document.getElementById('tracker-poop-value');
+    const poopTime = document.getElementById('tracker-poop-time');
+    if (s.poop && s.poop.count > 0) {
+      poopVal.textContent = `${s.poop.count}x`;
+      poopTime.textContent = s.poop.last_record ? s.poop.last_record.slice(0, 5) : '-';
+    } else {
+      poopVal.textContent = '0';
+      poopTime.textContent = '—';
+    }
+
+    // BAK
+    const peeVal = document.getElementById('tracker-pee-value');
+    const peeTime = document.getElementById('tracker-pee-time');
+    if (s.pee && s.pee.count > 0) {
+      peeVal.textContent = `${s.pee.count}x`;
+      peeTime.textContent = s.pee.last_record ? s.pee.last_record.slice(0, 5) : '-';
+    } else {
+      peeVal.textContent = '0';
+      peeTime.textContent = '—';
+    }
+  } catch (err) {
+    console.error('Failed to load daily summary:', err);
+    document.querySelectorAll('.tracker-value').forEach(el => el.textContent = '!');
+  }
+}
+
+// === 4. Development Today ===
+async function loadDevelopmentToday(user) {
+  const age = calculateAgeMonths(user.child_dob);
+  try {
+    const data = await Api.getDevelopmentToday(age);
+    const dev = data.development || {};
+    document.getElementById('dev-title').textContent = `${age} Bulan`;
+    document.getElementById('dev-text').textContent = dev.tip || 'Pantau terus tumbuh kembang si kecil!';
+  } catch (e) {
+    document.getElementById('dev-title').textContent = `${age} Bulan`;
+    document.getElementById('dev-text').textContent = 'Pantau terus tumbuh kembang si kecil!';
+  }
+}
+
+// === 5. Growth & Screening Ringkasan (dipertahankan dari versi lama) ===
+async function loadBerandaGrowthRingkasan() {
+  let html = '';
+  // Growth
   try {
     const growthData = await Api.getGrowthRecords();
-    const records = growthData.records || [];
-    growthCount = records.length;
-    const latest = records[0];
-
+    const latest = growthData.records && growthData.records[0];
     if (latest) {
       const parts = [];
       if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
       if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
       if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
-      latestGrowthHtml = `
-        <div class="card" style="cursor:default;">
-          <p class="cat">📏 Pertumbuhan Terakhir</p>
-          <div class="g-metric-row">${parts.join('')}</div>
-          <small>${formatDate(latest.record_date)}</small>
-        </div>`;
+      html += `<div class="card" style="cursor:default;"><p class="cat">📏 Pertumbuhan Terakhir</p><div class="g-metric-row">${parts.join('')}</div><small>${formatDate(latest.record_date)}</small></div>`;
     }
-  } catch (err) {
-    console.error('Failed to load growth:', err);
-  }
+  } catch (e) { /* skip */ }
 
-  // Data skrining
+  // Screening ringkasan
   try {
-    const screenData = await Api.getScreeningSessions(null, 50);
+    const screenData = await Api.getScreeningSessions(null, 5);
     const sessions = screenData.sessions || [];
-    screenCount = sessions.length;
-
-    if (screenCount > 0) {
-      // Kelompokkan per domain
+    if (sessions.length > 0) {
       const byDomain = {};
-      sessions.forEach(s => {
-        if (!byDomain[s.domain]) byDomain[s.domain] = s;
-      });
-      screeningHtml = Object.entries(byDomain).map(([dom, s]) => {
+      sessions.forEach(s => { if (!byDomain[s.domain]) byDomain[s.domain] = s; });
+      html += Object.entries(byDomain).map(([dom, s]) => {
         const icon = s.result === 'sesuai' ? '✅' : (s.result === 'meragukan' ? '⚠️' : '❌');
-        return `
-        <div class="card" style="cursor:default;">
-          <p class="cat">${domainLabel(dom)}</p>
-          <p class="desc">${icon} Skor: <b>${s.score_percentage || '-'}%</b></p>
-          <small>${s.completed_at ? formatDate(s.completed_at) : ''}</small>
-        </div>`;
+        return `<div class="card" style="cursor:default;"><p class="cat">${domainLabel(dom)}</p><p class="desc">${icon} Skor: <b>${s.score_percentage || '-'}%</b></p><small>${s.completed_at ? formatDate(s.completed_at) : ''}</small></div>`;
       }).join('');
     }
-  } catch (err) {
-    console.error('Failed to load screening:', err);
-  }
+  } catch (e) { /* skip */ }
 
-  // Update stats
-  document.getElementById('stat-growth').textContent = growthCount;
-  document.getElementById('stat-screening').textContent = screenCount;
-
-  // Render ringkasan
   const container = document.getElementById('home-recent-tracking');
-  if (latestGrowthHtml || screeningHtml) {
-    container.innerHTML = (latestGrowthHtml + screeningHtml) || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
-  } else {
-    container.innerHTML = '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
+  container.innerHTML = html || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang!</p>';
+}
+
+// === 6. Reminders ===
+async function loadReminders() {
+  const container = document.getElementById('reminders-list');
+  try {
+    const data = await Api.getReminders();
+    const reminders = data.reminders || [];
+    if (reminders.length === 0) {
+      container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
+      return;
+    }
+    container.innerHTML = reminders.slice(0, 3).map(r => {
+      const icon = r.type === 'imunisasi' ? '💉' : '🏥';
+      const days = r.days_left > 0 ? `${r.days_left} hari lagi` : 'Hari ini';
+      return `<div class="reminder-item"><span>${icon} ${escapeHtml(r.title)}</span><span class="reminder-days">${days}</span></div>`;
+    }).join('');
+  } catch (e) {
+    container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
   }
+}
+
+// === Quick Add Tracker ===
+function openQuickAdd(trackerType) {
+  const modal = document.getElementById('quickadd-modal');
+  const title = document.getElementById('quickadd-title');
+  const fields = document.getElementById('quickadd-fields');
+  const today = new Date().toISOString().split('T')[0];
+
+  const configs = {
+    sleep: { title: '😴 Tambah Tidur', html: `
+      <div class="form-group"><label>Jam Mulai Tidur</label><input type="time" id="qa-sleep-start"></div>
+      <div class="form-group"><label>Jam Bangun</label><input type="time" id="qa-sleep-end"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
+    feeding: { title: '🍼 Tambah Menyusui', html: `
+      <div class="form-group"><label>Jenis</label>
+        <select id="qa-feeding-type"><option value="ASI">ASI</option><option value="Susu Formula">Susu Formula</option><option value="MPASI">MPASI</option></select>
+      </div>
+      <div class="form-group"><label>Jumlah (ml)</label><input type="number" step="1" min="0" id="qa-amount"></div>
+      <div class="form-group"><label>Durasi (menit)</label><input type="number" min="0" id="qa-duration"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
+    drink: { title: '💧 Tambah Minum', html: `
+      <div class="form-group"><label>Jumlah (ml)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
+    pee: { title: '🚽 Tambah BAK', html: `
+      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
+    poop: { title: '💩 Tambah BAB', html: `
+      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
+      <div class="form-group"><label>Konsistensi</label>
+        <select id="qa-consistency"><option value="normal">Normal</option><option value="cair">Cair (diare)</option><option value="keras">Keras (sembelit)</option><option value="lendir">Berlendir</option></select>
+      </div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
+  };
+
+  const config = configs[trackerType] || configs.sleep;
+  title.textContent = config.title;
+  fields.innerHTML = config.html + `<input type="hidden" id="qa-type" value="${trackerType}">`;
+  modal.classList.remove('hidden');
+}
+
+async function submitQuickAdd() {
+  const type = document.getElementById('qa-type').value;
+  const today = new Date().toISOString().split('T')[0];
+  let payload = { record_date: today };
+
+  try {
+    switch (type) {
+      case 'sleep': {
+        payload.sleep_start = document.getElementById('qa-sleep-start').value || null;
+        payload.sleep_end = document.getElementById('qa-sleep-end').value || null;
+        if (payload.sleep_start && payload.sleep_end) {
+          const [sh, sm] = payload.sleep_start.split(':');
+          const [eh, em] = payload.sleep_end.split(':');
+          let minutes = (parseInt(eh) * 60 + parseInt(em)) - (parseInt(sh) * 60 + parseInt(sm));
+          if (minutes < 0) minutes += 1440; // melewati tengah malam
+          payload.duration_minutes = minutes;
+        }
+        payload.notes = document.getElementById('qa-notes').value.trim() || null;
+        await Api.createDailySleep(payload);
+        break;
+      }
+      case 'feeding': {
+        payload.feeding_type = document.getElementById('qa-feeding-type').value;
+        const amt = document.getElementById('qa-amount').value;
+        if (amt) payload.amount_ml = parseFloat(amt);
+        const dur = document.getElementById('qa-duration').value;
+        if (dur) payload.duration_minutes = parseInt(dur);
+        payload.notes = document.getElementById('qa-notes').value.trim() || null;
+        await Api.createDailyFeeding(payload);
+        break;
+      }
+      case 'drink': {
+        const amt = document.getElementById('qa-amount').value;
+        payload.amount_ml = amt ? parseFloat(amt) : 100;
+        payload.notes = document.getElementById('qa-notes').value.trim() || null;
+        await Api.createDailyDrink(payload);
+        break;
+      }
+      case 'pee': {
+        const cnt = document.getElementById('qa-count').value;
+        payload.count = cnt ? parseInt(cnt) : 1;
+        payload.notes = document.getElementById('qa-notes').value.trim() || null;
+        await Api.createDailyPee(payload);
+        break;
+      }
+      case 'poop': {
+        const cnt = document.getElementById('qa-count').value;
+        payload.count = cnt ? parseInt(cnt) : 1;
+        payload.consistency = document.getElementById('qa-consistency').value;
+        payload.notes = document.getElementById('qa-notes').value.trim() || null;
+        await Api.createDailyPoop(payload);
+        break;
+      }
+    }
+    showToast('Data tersimpan', 'success');
+    document.getElementById('quickadd-modal').classList.add('hidden');
+    await loadDailySummary(); // refresh
+  } catch (err) {
+    showToast(err.message || 'Gagal menyimpan', 'error');
+  }
+}
+
+// === AI Chat (dari floating button) ===
+function openAIChat() {
+  document.getElementById('ai-overlay').classList.remove('hidden');
+  document.getElementById('ai-messages').innerHTML = '<div class="chat-bubble bot">Halo! 👋 Ada yang bisa saya bantu seputar pengasuhan si kecil?</div>';
+  document.getElementById('ai-input').value = '';
+  document.getElementById('ai-input').focus();
+}
+
+async function sendAIChat() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const container = document.getElementById('ai-messages');
+  container.innerHTML += `<div class="chat-bubble user">${escapeHtml(msg)}</div>`;
+  input.value = '';
+  container.scrollTop = container.scrollHeight;
+
+  try {
+    const data = await Api.askDailyAI(msg);
+    container.innerHTML += `<div class="chat-bubble bot">${escapeHtml(data.reply)}</div>`;
+  } catch (err) {
+    container.innerHTML += `<div class="chat-bubble bot">Maaf, saya belum bisa menjawab sekarang. Coba lagi ya!</div>`;
+  }
+  container.scrollTop = container.scrollHeight;
+}
+
+// === Growth dari Beranda ===
+async function submitHomeGrowth() {
+  const weight = document.getElementById('hg-weight').value;
+  const height = document.getElementById('hg-height').value;
+  const head = document.getElementById('hg-head').value;
+  const notes = document.getElementById('hg-notes').value.trim();
+
+  if (!weight && !height && !head) {
+    showToast('Isi minimal salah satu: berat, tinggi, atau lingkar kepala', 'error');
+    return;
+  }
+
+  try {
+    await Api.createGrowthRecord({
+      weight_kg: weight || null,
+      height_cm: height || null,
+      head_circumference_cm: head || null,
+      record_date: new Date().toISOString().split('T')[0],
+      notes: notes || null,
+    });
+    showToast('Data pertumbuhan tersimpan', 'success');
+    document.getElementById('growth-modal').classList.add('hidden');
+    document.getElementById('hg-weight').value = '';
+    document.getElementById('hg-height').value = '';
+    document.getElementById('hg-head').value = '';
+    document.getElementById('hg-notes').value = '';
+    await loadChildProfile(Api.getUser()); // refresh
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// === Modal Close (generic) ===
+function closeModal(modalId) {
+  const el = document.getElementById(modalId);
+  if (el) el.classList.add('hidden');
 }
 
 function calculateAgeMonths(dob) {

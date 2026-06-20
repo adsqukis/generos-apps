@@ -57,38 +57,143 @@
 
         <!-- ============ HOME PAGE ============ -->
         <div id="page-home" class="page hidden">
-            <div class="header">
-                <h1><span class="logo">🧠</span> Generos Care</h1>
-                <button class="icon-btn" id="btn-settings">⚙️</button>
+            <div id="home-header">
+                <div>
+                    <p class="greeting" id="home-greeting">Hi!</p>
+                    <p class="greeting-sub">Pantau tumbuh kembang si kecil</p>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn-round" id="btn-notif">🔔</button>
+                    <button class="icon-btn-round" id="btn-settings">⚙️</button>
+                </div>
             </div>
             <div class="container">
-                <div class="profile-card">
-                    <p id="home-greeting">Selamat datang</p>
-                    <h2 id="home-child-info">Memuat...</h2>
+                <!-- Child Profile Card -->
+                <div id="child-profile" class="child-card">
+                    <div class="child-top">
+                        <div class="child-avatar" id="child-avatar">·</div>
+                        <div class="child-info">
+                            <h2 id="child-name">Memuat...</h2>
+                            <p id="child-age">-</p>
+                        </div>
+                        <span class="nutrition-status" id="nutrition-status">-</span>
+                    </div>
+                    <div class="child-stats">
+                        <div class="cstat"><span class="cstat-label">BB</span><span class="cstat-val" id="stat-bb">-</span></div>
+                        <div class="cstat"><span class="cstat-label">TB</span><span class="cstat-val" id="stat-tb">-</span></div>
+                        <div class="cstat"><span class="cstat-label">LK</span><span class="cstat-val" id="stat-lk">-</span></div>
+                    </div>
+                    <button class="btn-outline" id="btn-add-growth">+ Tambah Data Pertumbuhan</button>
                 </div>
 
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div id="stat-growth">-</div>
-                        <p>Catatan pertumbuhan</p>
+                <!-- Daily Tracker Dashboard -->
+                <h3>📋 Aktivitas Harian</h3>
+                <div id="daily-trackers" class="tracker-grid">
+                    <div class="tracker-card" data-tracker="sleep">
+                        <button class="tracker-add" data-tracker="sleep">+</button>
+                        <div class="tracker-icon">😴</div>
+                        <div class="tracker-label">Tidur</div>
+                        <div class="tracker-value" id="tracker-sleep-value">-</div>
+                        <div class="tracker-time" id="tracker-sleep-time">Belum ada</div>
                     </div>
-                    <div class="stat-box">
-                        <div id="stat-screening">-</div>
-                        <p>Skrining selesai</p>
+                    <div class="tracker-card" data-tracker="feeding">
+                        <button class="tracker-add" data-tracker="feeding">+</button>
+                        <div class="tracker-icon">🍼</div>
+                        <div class="tracker-label">Menyusui</div>
+                        <div class="tracker-value" id="tracker-feeding-value">-</div>
+                        <div class="tracker-time" id="tracker-feeding-time">Belum ada</div>
+                    </div>
+                    <div class="tracker-card" data-tracker="drink">
+                        <button class="tracker-add" data-tracker="drink">+</button>
+                        <div class="tracker-icon">💧</div>
+                        <div class="tracker-label">Minum</div>
+                        <div class="tracker-value" id="tracker-drink-value">-</div>
+                        <div class="tracker-time" id="tracker-drink-time">Belum ada</div>
+                    </div>
+                    <div class="tracker-card" data-tracker="poop">
+                        <button class="tracker-add" data-tracker="poop">+</button>
+                        <div class="tracker-icon">💩</div>
+                        <div class="tracker-label">BAB</div>
+                        <div class="tracker-value" id="tracker-poop-value">-</div>
+                        <div class="tracker-time" id="tracker-poop-time">Belum ada</div>
+                    </div>
+                    <div class="tracker-card" data-tracker="pee">
+                        <button class="tracker-add" data-tracker="pee">+</button>
+                        <div class="tracker-icon">🚽</div>
+                        <div class="tracker-label">BAK</div>
+                        <div class="tracker-value" id="tracker-pee-value">-</div>
+                        <div class="tracker-time" id="tracker-pee-time">Belum ada</div>
                     </div>
                 </div>
 
-                <button class="btn-primary" id="btn-go-tracking">📈 Catat Tumbuh Kembang</button>
+                <!-- Development Today -->
+                <div id="development-today" class="card info-card" style="cursor:default;">
+                    <p class="cat">✨ Milestone Hari Ini</p>
+                    <p class="title" id="dev-title">Memuat...</p>
+                    <p class="desc" id="dev-text"></p>
+                </div>
 
+                <!-- Quick menu (akses skrining & stimulasi) -->
+                <h3>🎯 Menu</h3>
                 <div class="menu-grid">
-                    <button class="menu-btn" id="btn-go-food">🍲 Menu Makanan</button>
-                    <button class="menu-btn" id="btn-go-knowledge">📚 Artikel</button>
                     <button class="menu-btn" id="btn-go-screening">📋 Skrining</button>
                     <button class="menu-btn" id="btn-go-stimulation">🧩 Stimulasi</button>
                 </div>
 
-                <h3>Ringkasan Tumbuh Kembang</h3>
+                <!-- Growth Summary -->
+                <h3>📏 Ringkasan Pertumbuhan</h3>
                 <div id="home-recent-tracking">Memuat...</div>
+
+                <!-- Reminder Widget -->
+                <div id="reminders" class="card info-card" style="cursor:default;">
+                    <p class="cat">📅 Pengingat</p>
+                    <div id="reminders-list"><p class="info-text">Memuat...</p></div>
+                </div>
+            </div>
+
+            <!-- AI Floating Button -->
+            <button id="ai-floating-btn" class="floating-btn">🤖</button>
+
+            <!-- Growth Add Modal -->
+            <div id="growth-modal" class="modal-overlay hidden">
+                <div class="modal-box">
+                    <div class="modal-head">
+                        <h3>Tambah Data Pertumbuhan</h3>
+                        <button class="modal-close" data-close-modal="growth-modal">✕</button>
+                    </div>
+                    <div class="form-group"><label>Berat Badan (kg)</label><input type="number" step="0.01" min="0" id="hg-weight" placeholder="contoh: 8.5"></div>
+                    <div class="form-group"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" min="0" id="hg-height" placeholder="contoh: 72.5"></div>
+                    <div class="form-group"><label>Lingkar Kepala (cm)</label><input type="number" step="0.1" min="0" id="hg-head" placeholder="contoh: 45"></div>
+                    <div class="form-group"><label>Catatan (opsional)</label><textarea id="hg-notes" placeholder="Catatan tambahan..."></textarea></div>
+                    <button class="btn-primary" id="btn-submit-home-growth">Simpan</button>
+                </div>
+            </div>
+
+            <!-- Quick Add Tracker Modal -->
+            <div id="quickadd-modal" class="modal-overlay hidden">
+                <div class="modal-box">
+                    <div class="modal-head">
+                        <h3 id="quickadd-title">Tambah</h3>
+                        <button class="modal-close" data-close-modal="quickadd-modal">✕</button>
+                    </div>
+                    <div id="quickadd-fields"></div>
+                    <button class="btn-primary" id="btn-submit-quickadd">Simpan</button>
+                </div>
+            </div>
+
+            <!-- AI Chat Overlay -->
+            <div id="ai-overlay" class="modal-overlay hidden">
+                <div class="ai-chat-box">
+                    <div class="modal-head">
+                        <h3>🤖 Asisten Generos</h3>
+                        <button class="modal-close" data-close-modal="ai-overlay">✕</button>
+                    </div>
+                    <div id="ai-messages" class="chat-messages ai-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="ai-input" placeholder="Tanya seputar pengasuhan...">
+                        <button id="btn-ai-send">Kirim</button>
+                    </div>
+                </div>
             </div>
         </div>
 
