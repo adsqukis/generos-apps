@@ -119,6 +119,41 @@ const { Pool } = require('pg');
     await migratePool.end();
   } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
 
+  // Auto create growth & immunization tables (terpisah dari migrate.js biar aman)
+  try {
+    const gPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    await gPool.query(`
+      CREATE TABLE IF NOT EXISTS growth_records (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        weight_kg DECIMAL(5,2),
+        height_cm DECIMAL(5,2),
+        head_circumference_cm DECIMAL(5,2),
+        record_date DATE NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_growth_user_date ON growth_records(user_id, record_date DESC);
+      CREATE TABLE IF NOT EXISTS immunization_records (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        vaccine_name VARCHAR(255) NOT NULL,
+        immunization_date DATE NOT NULL,
+        age_in_months INTEGER,
+        given_by VARCHAR(255),
+        location VARCHAR(255),
+        notes TEXT,
+        next_schedule DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_immunization_user ON immunization_records(user_id, immunization_date DESC);
+    `);
+    await gPool.end();
+    console.log('✓ Growth & immunization tables ready');
+  } catch(e) {
+    console.warn('[growth-migrate]', e.message.slice(0,200));
+  }
+
   // Auto seed screening data if empty (background — jangan delay server start)
   setTimeout(async () => {
     try {

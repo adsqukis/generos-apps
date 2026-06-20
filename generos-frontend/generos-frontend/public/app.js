@@ -299,61 +299,71 @@ async function loadHomeData() {
   document.getElementById('home-greeting').textContent = `Selamat datang, ${user.full_name}`;
   document.getElementById('home-child-info').textContent = `${user.child_name}, ${age} bulan`;
 
-  try {
-    const summary = await Api.getDashboardSummary();
-    document.getElementById('stat-weekly').textContent = summary.weekly_entries;
-    document.getElementById('stat-consistency').textContent = `${summary.consistency_percentage}%`;
-  } catch (err) {
-    console.error('Failed to load summary:', err);
-  }
+  let growthCount = 0;
+  let screenCount = 0;
+  let latestGrowthHtml = '';
+  let screeningHtml = '';
 
-  const container = document.getElementById('home-recent-tracking');
-  let html = '';
-
-  // Ringkasan pertumbuhan terakhir (BB/TB/LK)
+  // Data pertumbuhan
   try {
     const growthData = await Api.getGrowthRecords();
-    const latest = growthData.records && growthData.records[0];
+    const records = growthData.records || [];
+    growthCount = records.length;
+    const latest = records[0];
+
     if (latest) {
       const parts = [];
       if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
       if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
       if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
-      html += `
+      latestGrowthHtml = `
         <div class="card" style="cursor:default;">
           <p class="cat">📏 Pertumbuhan Terakhir</p>
           <div class="g-metric-row">${parts.join('')}</div>
           <small>${formatDate(latest.record_date)}</small>
         </div>`;
-    } else {
-      html += '<p class="info-text">Belum ada data pertumbuhan. Catat berat & tinggi anak!</p>';
     }
   } catch (err) {
-    console.error('Failed to load growth summary:', err);
+    console.error('Failed to load growth:', err);
   }
 
-  // Ringkasan progres skrining per domain
+  // Data skrining
   try {
-    const progData = await Api.getScreeningProgress();
-    const progress = progData.progress || [];
-    if (progress.length > 0) {
-      html += progress
-        .map((p) => {
-          const icon = p.latest_result === 'sesuai' ? '✅' : (p.latest_result === 'meragukan' ? '⚠️' : '❌');
-          return `
+    const screenData = await Api.getScreeningSessions(null, 50);
+    const sessions = screenData.sessions || [];
+    screenCount = sessions.length;
+
+    if (screenCount > 0) {
+      // Kelompokkan per domain
+      const byDomain = {};
+      sessions.forEach(s => {
+        if (!byDomain[s.domain]) byDomain[s.domain] = s;
+      });
+      screeningHtml = Object.entries(byDomain).map(([dom, s]) => {
+        const icon = s.result === 'sesuai' ? '✅' : (s.result === 'meragukan' ? '⚠️' : '❌');
+        return `
         <div class="card" style="cursor:default;">
-          <p class="cat">${domainLabel(p.domain)}</p>
-          <p class="desc">${icon} Skor terakhir: <b>${p.latest_score != null ? p.latest_score + '%' : '-'}</b> · ${p.sessions_count}x skrining</p>
-          <small>${p.latest_date ? formatDate(p.latest_date) : ''}</small>
+          <p class="cat">${domainLabel(dom)}</p>
+          <p class="desc">${icon} Skor: <b>${s.score_percentage || '-'}%</b></p>
+          <small>${s.completed_at ? formatDate(s.completed_at) : ''}</small>
         </div>`;
-        })
-        .join('');
+      }).join('');
     }
   } catch (err) {
-    console.error('Failed to load screening progress:', err);
+    console.error('Failed to load screening:', err);
   }
 
-  container.innerHTML = html || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
+  // Update stats
+  document.getElementById('stat-growth').textContent = growthCount;
+  document.getElementById('stat-screening').textContent = screenCount;
+
+  // Render ringkasan
+  const container = document.getElementById('home-recent-tracking');
+  if (latestGrowthHtml || screeningHtml) {
+    container.innerHTML = (latestGrowthHtml + screeningHtml) || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
+  } else {
+    container.innerHTML = '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang anak!</p>';
+  }
 }
 
 function calculateAgeMonths(dob) {
