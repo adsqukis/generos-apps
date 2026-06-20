@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       startScreening(btn.dataset.domain);
     }
-  });
+  }, true); // ← capture phase! fire before anything else
 
   // Screening answer buttons — document-level delegation
   document.addEventListener('click', (e) => {
