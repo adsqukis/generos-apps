@@ -8,9 +8,13 @@ let articlesCache = [];
 let foodsCache = [];
 
 // ============================
-// INIT
+// INIT — jalan langsung karena script di akhir <body> (DOM sudah siap)
 // ============================
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
+  // Guard: cek apakah sudah pernah diinit
+  if (window._appInitialized) return;
+  window._appInitialized = true;
+
   if (Api.getToken() && Api.getUser()) {
     navigate('home');
   } else {
@@ -45,20 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============ STATIC EVENT LISTENERS (replace inline onclick) ============
-  document.getElementById('btn-login').addEventListener('click', handleLogin);
-  document.getElementById('link-register').addEventListener('click', showRegisterForm);
-  document.getElementById('btn-register').addEventListener('click', handleRegister);
-  document.getElementById('link-login').addEventListener('click', showLoginForm);
-  document.getElementById('btn-settings').addEventListener('click', () => navigate('settings'));
-  document.getElementById('btn-go-tracking').addEventListener('click', () => navigate('tracking'));
-  document.getElementById('btn-go-food').addEventListener('click', () => navigate('food'));
-  document.getElementById('btn-go-knowledge').addEventListener('click', () => navigate('knowledge'));
-  document.getElementById('btn-go-screening').addEventListener('click', () => navigate('screening'));
-  document.getElementById('btn-go-stimulation').addEventListener('click', () => navigate('stimulation'));
-  document.getElementById('btn-submit-tracking').addEventListener('click', submitTracking);
-  document.getElementById('btn-cancel-tracking').addEventListener('click', cancelTrackingForm);
-  document.getElementById('btn-send-chat').addEventListener('click', sendChat);
-  document.getElementById('btn-logout').addEventListener('click', handleLogout);
+  safeAddListener('btn-login', 'click', handleLogin);
+  safeAddListener('link-register', 'click', showRegisterForm);
+  safeAddListener('btn-register', 'click', handleRegister);
+  safeAddListener('link-login', 'click', showLoginForm);
+  safeAddListener('btn-settings', 'click', () => navigate('settings'));
+  safeAddListener('btn-go-tracking', 'click', () => navigate('tracking'));
+  safeAddListener('btn-go-food', 'click', () => navigate('food'));
+  safeAddListener('btn-go-knowledge', 'click', () => navigate('knowledge'));
+  safeAddListener('btn-go-screening', 'click', () => navigate('screening'));
+  safeAddListener('btn-go-stimulation', 'click', () => navigate('stimulation'));
+  safeAddListener('btn-submit-tracking', 'click', submitTracking);
+  safeAddListener('btn-cancel-tracking', 'click', cancelTrackingForm);
+  safeAddListener('btn-send-chat', 'click', sendChat);
+  safeAddListener('btn-logout', 'click', handleLogout);
 
   // All back buttons (navigate home)
   document.querySelectorAll('.back-btn').forEach((btn) => {
@@ -67,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ============ EVENT DELEGATION FOR DYNAMIC CONTENT ============
   // Food list items
-  document.getElementById('food-list').addEventListener('click', (e) => {
+  safeAddListener('food-list', 'click', (e) => {
     const item = e.target.closest('.food-item');
     if (item && item.dataset.foodIdx !== undefined) {
       showFoodDetail(parseInt(item.dataset.foodIdx));
@@ -75,14 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Food detail back button
-  document.getElementById('food-detail').addEventListener('click', (e) => {
+  safeAddListener('food-detail', 'click', (e) => {
     if (e.target.dataset.action === 'back-food-list') {
       loadFoodMenu();
     }
   });
 
   // Article list items
-  document.getElementById('article-list').addEventListener('click', (e) => {
+  safeAddListener('article-list', 'click', (e) => {
     const card = e.target.closest('.card');
     if (card && card.dataset.articleId) {
       showArticleDetail(card.dataset.articleId);
@@ -90,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Article detail back button
-  document.getElementById('article-detail').addEventListener('click', (e) => {
+  safeAddListener('article-detail', 'click', (e) => {
     if (e.target.dataset.action === 'back-article-list') {
       loadArticles();
     }
   });
 
   // Tracking list items (AI insight)
-  document.getElementById('tracking-list').addEventListener('click', (e) => {
+  safeAddListener('tracking-list', 'click', (e) => {
     const card = e.target.closest('.card');
     if (card && card.dataset.entryId) {
       getAiInsightFor(card.dataset.entryId);
@@ -105,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Product list - buy buttons
-  document.getElementById('product-list').addEventListener('click', (e) => {
+  safeAddListener('product-list', 'click', (e) => {
     const btn = e.target.closest('[data-product-id]');
     if (btn && btn.dataset.productId) {
       buyProduct(btn.dataset.productId);
@@ -113,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Admin panel actions
-  document.getElementById('admin-panel-content').addEventListener('click', (e) => {
+  safeAddListener('admin-panel-content', 'click', (e) => {
     const action = e.target.dataset.action;
     if (action === 'submit-admin-article') submitAdminArticle();
     else if (action === 'submit-admin-food') submitAdminFood();
@@ -121,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Settings page admin buttons (show forms)
-  document.getElementById('settings-content').addEventListener('click', (e) => {
+  safeAddListener('settings-content', 'click', (e) => {
     const action = e.target.dataset.action;
     if (action === 'show-admin-add-article') showAdminAddArticle();
     else if (action === 'show-admin-add-food') showAdminAddFood();
@@ -130,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Screening domain selection — onclick property langsung (CSP-safe)
-  // Lebih reliable daripada addEventListener di beberapa browser
   document.querySelectorAll('.domain-btn').forEach((btn) => {
     btn.onclick = function(e) {
       e.preventDefault();
@@ -147,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Screening history items
-  document.getElementById('screening-history').addEventListener('click', (e) => {
+  safeAddListener('screening-history', 'click', (e) => {
     const item = e.target.closest('.screening-history-item');
     if (item && item.dataset.sessionId) {
       viewScreeningResult(item.dataset.sessionId);
@@ -155,12 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Stimulation domain filter
-  document.getElementById('stim-domain-filter').addEventListener('change', () => {
+  safeAddListener('stim-domain-filter', 'change', () => {
     loadStimulationActivities();
   });
 
   // Stimulation recommendations - complete/dismiss
-  document.getElementById('rec-list').addEventListener('click', (e) => {
+  safeAddListener('rec-list', 'click', (e) => {
     const btn = e.target.closest('.complete-btn, .dismiss-btn');
     if (btn && btn.dataset.recId) {
       const status = btn.classList.contains('complete-btn') ? 'completed' : 'dismissed';
@@ -168,8 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Result page - view stimulation
-  document.getElementById('result-content').addEventListener('click', (e) => {
+  // Result page - view stimulation & screening-again
+  safeAddListener('result-content', 'click', (e) => {
     if (e.target.dataset.action === 'go-stimulation') {
       navigate('stimulation');
     }
@@ -177,7 +180,21 @@ document.addEventListener('DOMContentLoaded', () => {
       navigate('screening');
     }
   });
-});
+}
+
+// Helper: safe add event listener (tidak throw jika element tidak ada)
+function safeAddListener(id, event, handler) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(event, handler);
+}
+
+// Fallback: init lewat DOMContentLoaded (untuk browser standard)
+// Tapi juga jalan langsung karena script di akhir <body>
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ============================
 // TOAST NOTIFICATION
