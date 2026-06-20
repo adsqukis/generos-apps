@@ -129,25 +129,21 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (action === 'show-admin-analytics') showAdminAnalytics();
   });
 
-  // Screening domain selection — document-level delegation (paling reliable)
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.domain-btn');
-    if (btn && btn.dataset.domain) {
-      console.log('[DELEGATE] domain click caught! domain:', btn.dataset.domain);
-      console.log('[DELEGATE] e.target:', e.target.tagName, e.target.className);
+  // Screening domain selection — onclick property langsung (CSP-safe)
+  // Lebih reliable daripada addEventListener di beberapa browser
+  document.querySelectorAll('.domain-btn').forEach((btn) => {
+    btn.onclick = function(e) {
       e.preventDefault();
-      startScreening(btn.dataset.domain);
-    }
-  }, true); // ← capture phase! fire before anything else
+      startScreening(this.dataset.domain);
+    };
+  });
 
-  // Screening answer buttons — document-level delegation
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.answer-btn');
-    if (btn && btn.dataset.answer) {
-      console.log('[DELEGATE] answer click caught!');
+  // Screening answer buttons — onclick property langsung
+  document.querySelectorAll('.answer-btn').forEach((btn) => {
+    btn.onclick = function(e) {
       e.preventDefault();
-      submitScreeningAnswer(btn.dataset.answer);
-    }
+      submitScreeningAnswer(this.dataset.answer);
+    };
   });
 
   // Screening history items
