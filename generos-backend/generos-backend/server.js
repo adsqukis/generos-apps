@@ -102,7 +102,7 @@ const { Pool } = require('pg');
     const schemaPath = path.join(__dirname, 'config', 'migrate.js');
     // Just extract and run the SQL
     const sql = fs.readFileSync(path.join(__dirname, 'config', 'migrate.js'), 'utf8');
-    const sqlMatch = sql.match(/const migrations = `([\\s\\S]*?)`;/);
+    const sqlMatch = sql.match(/const migrations = `([\s\S]*?)`;/);
     if (sqlMatch) {
       const statements = sqlMatch[1].split(';').filter(s => s.trim().length > 0 && !s.trim().startsWith('--'));
       let count = 0;
