@@ -490,6 +490,17 @@ async function loadDailySummary() {
       peeVal.textContent = '0';
       peeTime.textContent = '—';
     }
+
+    // Makan (MPASI)
+    const eatVal = document.getElementById('tracker-eating-value');
+    const eatTime = document.getElementById('tracker-eating-time');
+    if (s.eating && s.eating.count > 0) {
+      eatVal.textContent = `${s.eating.count}x`;
+      eatTime.textContent = fmtLast(s.eating.last_time);
+    } else {
+      eatVal.textContent = '0';
+      eatTime.textContent = '—';
+    }
   } catch (err) {
     console.error('Failed to load daily summary:', err);
     document.querySelectorAll('.tracker-value').forEach(el => el.textContent = '!');
@@ -597,6 +608,11 @@ function openQuickAdd(trackerType) {
       </div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
+    eating: { title: '🍚 Tambah Makan (MPASI)', html: `
+      <div class="form-group"><label>Menu Makanan</label><input type="text" id="qa-menu" placeholder="contoh: bubur ayam"></div>
+      <div class="form-group"><label>Jumlah (ml/porsi)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+    `},
   };
 
   const config = configs[trackerType] || configs.sleep;
@@ -658,6 +674,14 @@ async function submitQuickAdd() {
         await Api.createDailyPoop(payload);
         break;
       }
+      case 'eating': {
+        const menu = document.getElementById('qa-menu').value.trim();
+        const amt = document.getElementById('qa-amount').value;
+        payload.notes = (menu ? `${menu}` : '') + (document.getElementById('qa-notes').value.trim() ? ` · ${document.getElementById('qa-notes').value.trim()}` : '');
+        if (amt) payload.amount_ml = parseFloat(amt);
+        await Api.createDailyEating(payload);
+        break;
+      }
     }
     showToast('Data tersimpan', 'success');
     document.getElementById('quickadd-modal').classList.add('hidden');
@@ -698,6 +722,11 @@ async function openTrackerDetail(type) {
     pee: { title: '🚽 Riwayat BAK', icon: '🚽', fmt: (r) => {
       return `<b>${r.count || 1}x</b>`;
     }},
+    eating: { title: '🍚 Riwayat Makan', icon: '🍚', fmt: (r) => {
+      let text = `<b>${r.amount_ml || 0} ml</b>`;
+      if (r.notes) text += ` · ${escapeHtml(r.notes)}`;
+      return text;
+    }},
   };
 
   const cfg = labels[type] || labels.sleep;
@@ -715,6 +744,7 @@ async function openTrackerDetail(type) {
       case 'drink': records = (await Api.getDailyDrink(today)).records || []; break;
       case 'poop': records = (await Api.getDailyPoop(today)).records || []; break;
       case 'pee': records = (await Api.getDailyPee(today)).records || []; break;
+      case 'eating': records = (await Api.getDailyEating(today)).records || []; break;
     }
 
     if (records.length === 0) {
@@ -746,6 +776,7 @@ async function deleteTrackerRecord(type, id) {
       case 'drink': await Api.deleteDailyDrink(id); break;
       case 'poop': await Api.deleteDailyPoop(id); break;
       case 'pee': await Api.deleteDailyPee(id); break;
+      case 'eating': await Api.deleteDailyFeeding(id); break;
     }
     showToast('Data dihapus', 'success');
     openTrackerDetail(type); // refresh list

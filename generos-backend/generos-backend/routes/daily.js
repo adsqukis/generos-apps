@@ -83,11 +83,15 @@ router.delete('/sleep/:id', [param('id').isUUID().withMessage('ID tidak valid')]
 // ============================
 router.get('/feeding', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT * FROM feeding_records WHERE user_id = $1 AND record_date = $2
-       ORDER BY created_at ASC`,
-      [req.user.id, getDate(req)]
-    );
+    let query = `SELECT * FROM feeding_records WHERE user_id = $1 AND record_date = $2`;
+    const params = [req.user.id, getDate(req)];
+    // Optional filter by feeding_type (e.g., ?type=MPASI)
+    if (req.query.type) {
+      query += ` AND feeding_type = $3`;
+      params.push(req.query.type);
+    }
+    query += ` ORDER BY created_at ASC`;
+    const result = await pool.query(query, params);
     res.json({ records: result.rows });
   } catch (err) {
     console.error('Get feeding error:', err);
@@ -309,7 +313,7 @@ router.delete('/poop/:id', [param('id').isUUID().withMessage('ID tidak valid')],
 router.get('/summary', async (req, res) => {
   const date = getDate(req);
   try {
-    const [sleep, feeding, drink, pee, poop, growth] = await Promise.all([
+    const [sleep, feeding, eating, drink, pee, poop, growth] = await Promise.all([
       pool.query(
         `SELECT COALESCE(SUM(duration_minutes), 0) AS total_minutes, COUNT(*) AS count,
                 MAX(sleep_end) AS last_time
@@ -319,7 +323,13 @@ router.get('/summary', async (req, res) => {
       pool.query(
         `SELECT COUNT(*) AS count, COALESCE(SUM(amount_ml), 0) AS total_ml,
                 MAX(created_at) AS last_time
-         FROM feeding_records WHERE user_id = $1 AND record_date = $2`,
+         FROM feeding_records WHERE user_id = $1 AND record_date = $2 AND feeding_type != 'MPASI'`,
+        [req.user.id, date]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS count, COALESCE(SUM(amount_ml), 0) AS total_ml,
+                MAX(created_at) AS last_time
+         FROM feeding_records WHERE user_id = $1 AND record_date = $2 AND feeding_type = 'MPASI'`,
         [req.user.id, date]
       ),
       pool.query(
@@ -357,6 +367,11 @@ router.get('/summary', async (req, res) => {
         count: parseInt(feeding.rows[0].count) || 0,
         total_ml: parseFloat(feeding.rows[0].total_ml) || 0,
         last_time: feeding.rows[0].last_time,
+      },
+      eating: {
+        count: parseInt(eating.rows[0].count) || 0,
+        total_ml: parseFloat(eating.rows[0].total_ml) || 0,
+        last_time: eating.rows[0].last_time,
       },
       drink: {
         count: parseInt(drink.rows[0].count) || 0,

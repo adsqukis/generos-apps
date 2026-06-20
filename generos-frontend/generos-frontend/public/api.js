@@ -245,12 +245,22 @@ const Api = {
     return this.request(`/daily/sleep/${id}`, { method: 'DELETE' });
   },
 
-  async getDailyFeeding(date) {
-    return this.request(`/daily/feeding?date=${date}`);
+  async getDailyFeeding(date, type) {
+    let q = `?date=${date}`;
+    if (type) q += `&type=${encodeURIComponent(type)}`;
+    return this.request(`/daily/feeding${q}`);
+  },
+
+  async getDailyEating(date) {
+    return this.getDailyFeeding(date, 'MPASI');
   },
 
   async createDailyFeeding(payload) {
     return this.request('/daily/feeding', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async createDailyEating(payload) {
+    return this.request('/daily/feeding', { method: 'POST', body: JSON.stringify({ ...payload, feeding_type: 'MPASI' }) });
   },
 
   async deleteDailyFeeding(id) {
