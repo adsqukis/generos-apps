@@ -8,6 +8,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
+const path = require('path');
+const fs = require('fs');
+const pool = require('./config/db');
 
 const authRoutes = require('./routes/auth');
 const trackingRoutes = require('./routes/tracking');
@@ -92,8 +95,6 @@ app.use('/api/tracking', (req, res, next) => {
 // ============================
 // AUTO MIGRATE (for Railway first-deploy)
 // ============================
-const fs = require('fs');
-const path = require('path');
 const { Pool } = require('pg');
 
 (async () => {
