@@ -90,6 +90,33 @@ app.use('/api/tracking', (req, res, next) => {
 });
 
 // ============================
+// AUTO MIGRATE (for Railway first-deploy)
+// ============================
+const fs = require('fs');
+const path = require('path');
+const { Pool } = require('pg');
+
+(async () => {
+  try {
+    const migratePool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    const schemaPath = path.join(__dirname, 'config', 'migrate.js');
+    // Just extract and run the SQL
+    const sql = fs.readFileSync(path.join(__dirname, 'config', 'migrate.js'), 'utf8');
+    const sqlMatch = sql.match(/const migrations = `([\\s\\S]*?)`;/);
+    if (sqlMatch) {
+      const statements = sqlMatch[1].split(';').filter(s => s.trim().length > 0 && !s.trim().startsWith('--'));
+      let count = 0;
+      for (const stmt of statements) {
+        try { await migratePool.query(stmt.trim() + ';'); count++; }
+        catch(e) { if (!e.message.includes('already exists')) console.warn('[migrate]', e.message.slice(0,100)); }
+      }
+      console.log(`✓ Auto migrate: ${count} statements executed`);
+    }
+    await migratePool.end();
+  } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
+})();
+
+// ============================
 // HEALTH CHECK (for Railway)
 // ============================
 app.get('/', (req, res) => {
