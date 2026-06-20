@@ -316,6 +316,23 @@ const Api = {
     return this.request('/daily/ai', { method: 'POST', body: JSON.stringify({ message }) });
   },
 
+  // ============ SLEEP DETAIL ============
+  async getSleepAnalytics(days) {
+    const q = days ? `?days=${days}` : '';
+    return this.request(`/daily/sleep/analytics${q}`);
+  },
+
+  async getSleepHistory(from, to) {
+    let q = '?';
+    if (from) q += `from=${from}&`;
+    if (to) q += `to=${to}&`;
+    return this.request(`/daily/sleep/history${q}`);
+  },
+
+  async getSleepArticles() {
+    return this.request('/daily/sleep/articles');
+  },
+
   // ============ SCREENING ============
   async getScreeningDomains() {
     return this.request('/screening/domains');

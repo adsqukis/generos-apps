@@ -561,4 +561,144 @@ router.post(
   }
 );
 
+// ============================
+// SLEEP ANALYTICS & HISTORY
+// ============================
+
+// GET /sleep/analytics?days=7 — data agregat + insight
+router.get('/sleep/analytics', async (req, res) => {
+  const days = Math.min(parseInt(req.query.days) || 7, 90);
+  const user = req.user;
+  try {
+    // Data per-hari untuk chart
+    const daily = await pool.query(
+      `SELECT record_date,
+              COALESCE(SUM(duration_minutes), 0) AS total_minutes,
+              COUNT(*) AS session_count
+       FROM sleep_records
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - $2::int
+       GROUP BY record_date ORDER BY record_date ASC`,
+      [user.id, days - 1]
+    );
+
+    // Rata-rata
+    const avg = await pool.query(
+      `SELECT COALESCE(ROUND(AVG(daily_total)), 0) AS avg_minutes,
+              COALESCE(ROUND(AVG(session_count)), 0) AS avg_sessions
+       FROM (
+         SELECT record_date, SUM(duration_minutes) AS daily_total, COUNT(*) AS session_count
+         FROM sleep_records WHERE user_id = $1 AND record_date >= CURRENT_DATE - $2::int
+         GROUP BY record_date
+       ) sub`,
+      [user.id, days - 1]
+    );
+
+    // Rata-rata durasi per sesi
+    const perSession = await pool.query(
+      `SELECT COALESCE(ROUND(AVG(duration_minutes)), 0) AS avg_per_session
+       FROM sleep_records WHERE user_id = $1 AND record_date >= CURRENT_DATE - $2::int
+       AND duration_minutes > 0`,
+      [user.id, days - 1]
+    );
+
+    // Minggu lalu vs minggu ini (trend)
+    const thisWeek = await pool.query(
+      `SELECT COALESCE(SUM(duration_minutes), 0) AS total FROM sleep_records
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - 6`,
+      [user.id]
+    );
+    const lastWeek = await pool.query(
+      `SELECT COALESCE(SUM(duration_minutes), 0) AS total FROM sleep_records
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - 13 AND record_date < CURRENT_DATE - 6`,
+      [user.id]
+    );
+
+    const trendPct = lastWeek.rows[0].total > 0
+      ? Math.round(((thisWeek.rows[0].total - lastWeek.rows[0].total) / lastWeek.rows[0].total) * 100)
+      : 0;
+
+    const avgMin = parseInt(avg.rows[0].avg_minutes);
+    const avgSess = parseInt(avg.rows[0].avg_sessions);
+    const avgPerSession = parseInt(perSession.rows[0].avg_per_session);
+
+    // Sleep score sederhana (0-100)
+    // Durasi ideal 12-16 jam = 720-960 menit
+    const idealMin = 720; // 12 jam
+    const idealMax = 960; // 16 jam
+    let score = 100;
+    if (avgMin > 0) {
+      if (avgMin < idealMin) score = Math.round((avgMin / idealMin) * 80);
+      else if (avgMin > idealMax) score = Math.round((idealMax / avgMin) * 80);
+      else score = 90 + Math.round(((avgMin - idealMin) / (idealMax - idealMin)) * 10);
+    }
+
+    const scoreLabel = score >= 90 ? 'Sangat Baik' : score >= 75 ? 'Baik' : score >= 60 ? 'Perlu Perhatian' : 'Risiko';
+
+    res.json({
+      daily: daily.rows.map(r => ({
+        date: r.record_date,
+        total_minutes: parseInt(r.total_minutes),
+        session_count: parseInt(r.session_count),
+      })),
+      avg: {
+        avg_minutes: avgMin,
+        avg_sessions: avgSess,
+        avg_per_session: avgPerSession,
+        avg_hours_display: `${Math.floor(avgMin / 60)}j ${avgMin % 60}m`,
+      },
+      trend: { change_pct: trendPct, direction: trendPct > 0 ? 'up' : trendPct < 0 ? 'down' : 'stable' },
+      score: { value: score, label: scoreLabel },
+      days,
+    });
+  } catch (err) {
+    console.error('Sleep analytics error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// GET /sleep/history?from=&to= — riwayat dengan filter tanggal
+router.get('/sleep/history', async (req, res) => {
+  const from = req.query.from || new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+  const to = req.query.to || new Date().toISOString().split('T')[0];
+  try {
+    const result = await pool.query(
+      `SELECT * FROM sleep_records WHERE user_id = $1 AND record_date >= $2 AND record_date <= $3
+       ORDER BY record_date DESC, sleep_start DESC`,
+      [req.user.id, from, to]
+    );
+    res.json({ records: result.rows, from, to });
+  } catch (err) {
+    console.error('Sleep history error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// GET /sleep/articles — tips tidur (static dari knowledge base)
+router.get('/sleep/articles', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, title, summary FROM knowledge_base
+       WHERE (category = 'sleep' OR title ILIKE '%tidur%' OR title ILIKE '%sleep%')
+       ORDER BY created_at DESC LIMIT 4`
+    );
+    
+    // Fallback static jika tabel knowledge_base tidak ada
+    if (result.rows.length === 0) {
+      return res.json({ articles: [
+        { id: null, title: 'Cara Membuat Bayi Tidur Nyenyak', summary: 'Tips dan trik membantu bayi tidur lebih nyenyak di malam hari.' },
+        { id: null, title: '5 Kesalahan yang Membuat Bayi Sering Terbangun', summary: 'Hindari kesalahan umum ini agar bayi tidur lebih pulas.' },
+        { id: null, title: 'Rutinitas Tidur Bayi yang Direkomendasikan Dokter', summary: 'Pola tidur sehat untuk tumbuh kembang optimal.' },
+        { id: null, title: 'Berapa Jam Tidur Ideal Bayi Usia 0-12 Bulan?', summary: 'Panduan lengkap kebutuhan tidur bayi berdasarkan usia.' },
+      ]});
+    }
+    res.json({ articles: result.rows });
+  } catch (e) {
+    // Fallback jika tabel tidak ada
+    res.json({ articles: [
+      { id: null, title: 'Cara Membuat Bayi Tidur Nyenyak', summary: 'Tips dan trik membantu bayi tidur lebih nyenyak di malam hari.' },
+      { id: null, title: '5 Kesalahan yang Membuat Bayi Sering Terbangun', summary: 'Hindari kesalahan umum ini agar bayi tidur lebih pulas.' },
+    ]});
+  }
+});
+
 module.exports = router;

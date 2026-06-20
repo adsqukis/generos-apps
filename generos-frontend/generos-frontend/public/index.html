@@ -446,6 +446,97 @@
             </div>
         </div>
 
+        <!-- ============ SLEEP DETAIL PAGE ============ -->
+        <div id="page-sleep" class="page hidden">
+            <div class="header">
+                <button class="back-btn" id="btn-back-sleep">←</button>
+                <h1>😴 Tidur</h1>
+            </div>
+            <div class="container">
+
+                <!-- Sleep Recommendation -->
+                <div class="card info-card sleep-rec" id="sleep-recommendation" style="cursor:default;">
+                    <p class="cat">💤 Kebutuhan Tidur</p>
+                    <p id="sleep-rec-text" class="desc">Memuat...</p>
+                </div>
+
+                <!-- Manual Entry -->
+                <div class="sleep-form-card">
+                    <h3>📝 Catat Manual</h3>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="sl-date">
+                    </div>
+                    <div class="sleep-time-row">
+                        <div class="form-group">
+                            <label>Jam Mulai</label>
+                            <input type="time" id="sl-start">
+                        </div>
+                        <div class="form-group">
+                            <label>Jam Selesai</label>
+                            <input type="time" id="sl-end">
+                        </div>
+                    </div>
+                    <div id="sl-duration-display" class="sleep-dur-preview">Durasi: <b>—</b></div>
+                    <div class="form-group">
+                        <label>Catatan (opsional)</label>
+                        <textarea id="sl-notes" placeholder="contoh: tidur siang"></textarea>
+                    </div>
+                    <button class="btn-primary" id="btn-save-sleep">Simpan Catatan Tidur</button>
+                </div>
+
+                <!-- Today Records -->
+                <h3>📋 Catatan Hari Ini</h3>
+                <div id="sleep-today-total" class="sleep-total-badge">Total: —</div>
+                <div id="sleep-today-records"><p class="info-text">Memuat...</p></div>
+
+                <!-- All Records Button -->
+                <button class="btn-secondary" id="btn-sleep-history-toggle">📅 Lihat Semua Catatan</button>
+                <div id="sleep-history-section" class="hidden" style="margin-top:12px;">
+                    <div class="sleep-filter-row">
+                        <input type="date" id="sl-hist-from" class="sleep-filter-date">
+                        <span style="color:var(--text-light);font-size:13px;">s/d</span>
+                        <input type="date" id="sl-hist-to" class="sleep-filter-date">
+                        <button class="btn-sm" id="btn-sleep-hist-filter">Filter</button>
+                    </div>
+                    <div id="sleep-history-list"></div>
+                </div>
+
+                <!-- 7-Day Analytics -->
+                <h3 style="margin-top:20px;">📊 Grafik 7 Hari Terakhir</h3>
+                <div class="sleep-analytics-card">
+                    <div class="sleep-summary-row">
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Rata-rata</span>
+                            <span class="sleep-stat-val" id="sl-avg-dur">-</span>
+                        </div>
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Frekuensi</span>
+                            <span class="sleep-stat-val" id="sl-avg-freq">-</span>
+                        </div>
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Skor</span>
+                            <span class="sleep-stat-val" id="sl-score">-</span>
+                        </div>
+                    </div>
+                    <div id="sleep-chart" class="sleep-chart">
+                        <p class="info-text">Memuat grafik...</p>
+                    </div>
+                </div>
+
+                <!-- AI Sleep Insight -->
+                <div class="card info-card" style="cursor:default;margin-top:16px;">
+                    <p class="cat">🤖 Insight Tidur</p>
+                    <p id="sleep-insight" class="desc">Memuat analisis...</p>
+                </div>
+
+                <!-- Sleep Articles -->
+                <h3>📖 Tips untuk Si Kecil</h3>
+                <div id="sleep-articles"><p class="info-text">Memuat...</p></div>
+
+            </div>
+        </div>
+
         <!-- ============ NAVIGATION BAR ============ -->
         <div id="nav-bar" class="nav-bar hidden">
             <button class="nav-btn" data-page="home">

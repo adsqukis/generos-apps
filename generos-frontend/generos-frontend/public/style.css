@@ -1425,3 +1425,248 @@ textarea {
 .tracker-record-del:active {
   background: #FECACA;
 }
+
+/* ============================
+   SLEEP DETAIL PAGE
+   ============================ */
+.sleep-form-card {
+  background: var(--primary-light);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.sleep-form-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+.sleep-time-row {
+  display: flex;
+  gap: 12px;
+}
+.sleep-time-row .form-group {
+  flex: 1;
+}
+.sleep-dur-preview {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-light);
+  padding: 8px;
+  background: var(--white);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.sleep-dur-preview b {
+  color: var(--primary);
+  font-size: 16px;
+}
+.sleep-total-badge {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 8px 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+.sleep-record-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.sleep-rec-time {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  min-width: 90px;
+}
+.sleep-rec-dur {
+  font-size: 13px;
+  color: var(--text-light);
+  flex: 1;
+}
+.sleep-rec-note {
+  font-size: 11px;
+  color: var(--text-light);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sleep-rec-del {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Analytics Card */
+.sleep-analytics-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+.sleep-summary-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sleep-stat {
+  flex: 1;
+  text-align: center;
+  background: var(--primary-light);
+  border-radius: 10px;
+  padding: 10px 4px;
+}
+.sleep-stat-label {
+  display: block;
+  font-size: 10px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+.sleep-stat-val {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Bar Chart */
+.sleep-chart {
+  min-height: 200px;
+  position: relative;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 200px;
+  padding: 0 4px;
+  position: relative;
+  border-bottom: 2px solid var(--border);
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar {
+  width: 100%;
+  max-width: 40px;
+  background: var(--primary);
+  border-radius: 6px 6px 0 0;
+  min-height: 4px;
+  transition: height 0.3s;
+}
+.bar-today .bar {
+  background: #0066CC;
+  box-shadow: 0 0 8px rgba(0,61,165,0.3);
+}
+.bar-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.bar-label {
+  font-size: 9px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+.bar-ideal-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed var(--success);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Sleep History */
+.sleep-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.sleep-filter-date {
+  flex: 1;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.btn-sm {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sleep-hist-group {
+  margin-bottom: 12px;
+}
+.sleep-hist-date {
+  font-size: 13px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.sleep-hist-item {
+  font-size: 13px;
+  color: var(--text);
+  padding: 4px 0 4px 8px;
+  border-left: 2px solid var(--border);
+  margin-bottom: 2px;
+}
+.sleep-hist-item small {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-left: 6px;
+}
+
+/* Article horizontal cards */
+.article-horiz {
+  display: flex;
+  gap: 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.article-horiz-body {
+  flex: 1;
+}
+.article-horiz-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.article-horiz-summary {
+  font-size: 11px;
+  color: var(--text-light);
+  line-height: 1.4;
+}

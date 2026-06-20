@@ -111,6 +111,42 @@ function initApp() {
     });
   });
 
+  // === SLEEP PAGE Listeners ===
+  safeAddListener('btn-back-sleep', 'click', () => navigate('home'));
+  safeAddListener('btn-save-sleep', 'click', saveSleepRecord);
+  safeAddListener('sl-start', 'change', updateSleepDurPreview);
+  safeAddListener('sl-end', 'change', updateSleepDurPreview);
+  safeAddListener('btn-sleep-history-toggle', 'click', toggleSleepHistory);
+  safeAddListener('btn-sleep-hist-filter', 'click', loadSleepHistory);
+  // Delete sleep records via delegation
+  safeAddListener('sleep-today-records', 'click', (e) => {
+    const del = e.target.closest('.sleep-rec-del');
+    if (del && del.dataset.id) deleteSleepRecord(del.dataset.id);
+  });
+  // Default history dates
+  const histFrom = document.getElementById('sl-hist-from');
+  const histTo = document.getElementById('sl-hist-to');
+  if (histFrom) {
+    const d = new Date(); d.setDate(d.getDate() - 30);
+    histFrom.value = d.toISOString().split('T')[0];
+  }
+  if (histTo) histTo.value = new Date().toISOString().split('T')[0];
+
+  // === TRACKER CARD → DETAIL PAGE ===
+  // Klik kartu tracker (tidur/makan/dll) buka detail page
+  const trackerPageMap = { sleep: 'sleep' };
+  document.querySelectorAll('.tracker-card').forEach(card => {
+    const type = card.dataset.tracker;
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.tracker-add')) return; // biarkan tombol + jalan sendiri
+      const page = trackerPageMap[type];
+      if (page) navigate(page);
+      // Untuk tipe lain, nanti bisa ditambahkan (feeding→feeding, dll)
+    });
+  });
+
+  // Navigate to sleep from anywhere
+
   // All back buttons (navigate home)
   document.querySelectorAll('.back-btn').forEach((btn) => {
     btn.addEventListener('click', () => navigate('home'));
@@ -283,6 +319,7 @@ function navigate(page) {
   if (page === 'settings') loadSettings();
   if (page === 'screening') loadScreeningPage();
   if (page === 'stimulation') loadStimulationPage();
+  if (page === 'sleep') loadSleepPage();
 }
 
 // ============================
@@ -1892,5 +1929,283 @@ async function updateRecommendationStatus(recId, status) {
     loadStimulationRecommendations();
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// SLEEP DETAIL PAGE
+// ============================
+
+// Sleep need by age (jam per hari)
+const sleepNeeds = [
+  { max: 3, label: '0-3 bulan', range: '14-17 jam' },
+  { max: 6, label: '4-6 bulan', range: '12-16 jam' },
+  { max: 12, label: '7-12 bulan', range: '12-15 jam' },
+  { max: 24, label: '1-2 tahun', range: '11-14 jam' },
+  { max: 36, label: '2-3 tahun', range: '10-13 jam' },
+  { max: 72, label: '3-6 tahun', range: '10-12 jam' },
+  { max: 999, label: '6+ tahun', range: '9-11 jam' },
+];
+
+function getSleepNeed(ageMonths) {
+  for (const n of sleepNeeds) {
+    if (ageMonths <= n.max) return n;
+  }
+  return sleepNeeds[sleepNeeds.length - 1];
+}
+
+async function loadSleepPage() {
+  const user = Api.getUser();
+  if (!user) return;
+  const age = calculateAgeMonths(user.child_dob);
+  const today = new Date().toISOString().split('T')[0];
+  const childName = user.child_name || 'Anak';
+
+  document.getElementById('sl-date').value = today;
+  document.getElementById('sl-start').value = '';
+  document.getElementById('sl-end').value = '';
+
+  // Recommendation
+  const need = getSleepNeed(age);
+  document.getElementById('sleep-rec-text').textContent =
+    `Pada usia ${need.label}, ${childName} membutuhkan ${need.range} tidur per hari termasuk tidur siang dan malam.`;
+
+  // Today records
+  await loadSleepToday();
+
+  // Analytics
+  await loadSleepAnalytics();
+
+  // Articles
+  await loadSleepArticles();
+}
+
+// === Save Manual Entry ===
+async function saveSleepRecord() {
+  const date = document.getElementById('sl-date').value;
+  const start = document.getElementById('sl-start').value;
+  const end = document.getElementById('sl-end').value;
+
+  if (!date || !start || !end) {
+    showToast('Isi tanggal, jam mulai, dan jam selesai', 'error');
+    return;
+  }
+
+  const [sh, sm] = start.split(':');
+  const [eh, em] = end.split(':');
+  let minutes = (parseInt(eh) * 60 + parseInt(em)) - (parseInt(sh) * 60 + parseInt(sm));
+  if (minutes < 0) minutes += 1440;
+  const notes = document.getElementById('sl-notes').value.trim() || null;
+
+  try {
+    await Api.createDailySleep({
+      record_date: date,
+      sleep_start: start,
+      sleep_end: end,
+      duration_minutes: minutes,
+      notes,
+    });
+    showToast('Catatan tidur tersimpan', 'success');
+    document.getElementById('sl-start').value = '';
+    document.getElementById('sl-end').value = '';
+    document.getElementById('sl-notes').value = '';
+    document.getElementById('sl-duration-display').innerHTML = 'Durasi: <b>—</b>';
+    await loadSleepToday();
+    await loadSleepAnalytics();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// === Auto-calc duration ===
+function updateSleepDurPreview() {
+  const start = document.getElementById('sl-start').value;
+  const end = document.getElementById('sl-end').value;
+  const el = document.getElementById('sl-duration-display');
+  if (!start || !end) { el.innerHTML = 'Durasi: <b>—</b>'; return; }
+  const [sh, sm] = start.split(':');
+  const [eh, em] = end.split(':');
+  let minutes = (parseInt(eh) * 60 + parseInt(em)) - (parseInt(sh) * 60 + parseInt(sm));
+  if (minutes < 0) minutes += 1440;
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  el.innerHTML = `Durasi: <b>${hrs} jam ${mins} menit</b>`;
+}
+
+// === Today Records ===
+async function loadSleepToday() {
+  const today = new Date().toISOString().split('T')[0];
+  const container = document.getElementById('sleep-today-records');
+  const totalEl = document.getElementById('sleep-today-total');
+  try {
+    const data = await Api.getDailySleep(today);
+    const records = data.records || [];
+    let totalMin = 0;
+    records.forEach(r => { if (r.duration_minutes) totalMin += r.duration_minutes; });
+    const hrs = Math.floor(totalMin / 60);
+    const mins = totalMin % 60;
+    totalEl.textContent = `Total: ${hrs}j ${mins}m`;
+
+    if (records.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada catatan tidur hari ini.</p>';
+      return;
+    }
+
+    container.innerHTML = records.map(r => {
+      const start = r.sleep_start ? r.sleep_start.slice(0, 5) : '?';
+      const end = r.sleep_end ? r.sleep_end.slice(0, 5) : '?';
+      const dur = r.duration_minutes
+        ? `${Math.floor(r.duration_minutes / 60)}j ${r.duration_minutes % 60}m`
+        : '-';
+      return `<div class="sleep-record-item">
+        <div class="sleep-rec-time">${start} - ${end}</div>
+        <div class="sleep-rec-dur">${dur}</div>
+        ${r.notes ? `<div class="sleep-rec-note">${escapeHtml(r.notes)}</div>` : ''}
+        <button class="sleep-rec-del" data-id="${r.id}">✕</button>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="info-text">Gagal memuat data.</p>';
+  }
+}
+
+// === Analytics ===
+async function loadSleepAnalytics() {
+  try {
+    const data = await Api.getSleepAnalytics(7);
+    const avg = data.avg || {};
+    document.getElementById('sl-avg-dur').textContent = avg.avg_hours_display || '-';
+    document.getElementById('sl-avg-freq').textContent = `${avg.avg_sessions || 0}x/hari`;
+    const sc = data.score || {};
+    document.getElementById('sl-score').textContent = sc.label || '-';
+
+    // Insight
+    const daily = data.daily || [];
+    if (daily.length > 0) {
+      const totalMin = daily.reduce((s, d) => s + d.total_minutes, 0);
+      const avgMin = Math.round(totalMin / daily.length);
+      const trend = data.trend || {};
+      const trendText = trend.change_pct !== 0
+        ? ` ${trend.change_pct > 0 ? 'Naik' : 'Turun'} ${Math.abs(trend.change_pct)}% dibanding minggu lalu.`
+        : '';
+      document.getElementById('sleep-insight').textContent =
+        `Rata-rata tidur ${Math.floor(avgMin / 60)}j ${avgMin % 60}m per hari. Skor kualitas: ${sc.label || '-'}.${trendText}`;
+    } else {
+      document.getElementById('sleep-insight').textContent = 'Belum cukup data untuk analisis. Catat tidur setiap hari untuk melihat pola.';
+    }
+
+    // Bar chart
+    renderSleepChart(daily);
+  } catch (err) {
+    console.error('Sleep analytics error:', err);
+  }
+}
+
+// === Bar Chart Render ===
+function renderSleepChart(daily) {
+  const container = document.getElementById('sleep-chart');
+  if (!daily || daily.length === 0) {
+    container.innerHTML = '<p class="info-text">Belum ada data 7 hari terakhir.</p>';
+    return;
+  }
+  const maxMin = Math.max(...daily.map(d => d.total_minutes), 900); // 15 jam min height
+  const idealMin = 720; // 12 jam
+  const idealMax = 960; // 16 jam
+
+  container.innerHTML = '<div class="bar-chart">' + daily.map(d => {
+    const pct = Math.min(Math.round((d.total_minutes / maxMin) * 100), 100);
+    const label = d.date ? d.date.slice(5) : '';
+    const hrs = Math.floor(d.total_minutes / 60);
+    const mins = d.total_minutes % 60;
+    const isToday = d.date === new Date().toISOString().split('T')[0];
+    return `<div class="bar-col ${isToday ? 'bar-today' : ''}">
+      <div class="bar-val">${hrs}j</div>
+      <div class="bar" style="height:${pct}%"></div>
+      <div class="bar-label">${label}</div>
+    </div>`;
+  }).join('') + '<div class="bar-ideal-line" style="top:' + (100 - Math.round((idealMin / maxMin) * 100)) + '%" title="Ideal min 12j"></div></div>';
+}
+
+// === History Toggle ===
+function toggleSleepHistory() {
+  const section = document.getElementById('sleep-history-section');
+  const btn = document.getElementById('btn-sleep-history-toggle');
+  if (section.classList.contains('hidden')) {
+    section.classList.remove('hidden');
+    btn.textContent = '📅 Tutup Riwayat';
+    loadSleepHistory();
+  } else {
+    section.classList.add('hidden');
+    btn.textContent = '📅 Lihat Semua Catatan';
+  }
+}
+
+async function loadSleepHistory() {
+  const from = document.getElementById('sl-hist-from').value;
+  const to = document.getElementById('sl-hist-to').value;
+  const container = document.getElementById('sleep-history-list');
+  container.innerHTML = '<p class="info-text">Memuat...</p>';
+  try {
+    const data = await Api.getSleepHistory(from || undefined, to || undefined);
+    const records = data.records || [];
+    if (records.length === 0) {
+      container.innerHTML = '<p class="info-text">Tidak ada catatan di rentang ini.</p>';
+      return;
+    }
+    // Group by date
+    const byDate = {};
+    records.forEach(r => {
+      const d = r.record_date;
+      if (!byDate[d]) byDate[d] = [];
+      byDate[d].push(r);
+    });
+    container.innerHTML = Object.entries(byDate).map(([date, recs]) => {
+      const total = recs.reduce((s, r) => s + (r.duration_minutes || 0), 0);
+      const hrs = Math.floor(total / 60);
+      const mins = total % 60;
+      return `<div class="sleep-hist-group">
+        <div class="sleep-hist-date"><b>${formatDate(date)}</b> — ${hrs}j ${mins}m</div>
+        ${recs.map(r => `<div class="sleep-hist-item">
+          ${r.sleep_start?.slice(0,5) || '?'} - ${r.sleep_end?.slice(0,5) || '?'}
+          ${r.duration_minutes ? `· ${Math.floor(r.duration_minutes/60)}j ${r.duration_minutes%60}m` : ''}
+          ${r.notes ? `<small>${escapeHtml(r.notes)}</small>` : ''}
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="info-text">Gagal memuat riwayat.</p>';
+  }
+}
+
+// === Delete sleep record ===
+async function deleteSleepRecord(id) {
+  try {
+    await Api.deleteDailySleep(id);
+    showToast('Catatan dihapus', 'success');
+    await loadSleepToday();
+    await loadSleepAnalytics();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// === Articles ===
+async function loadSleepArticles() {
+  const container = document.getElementById('sleep-articles');
+  try {
+    const data = await Api.getSleepArticles();
+    const articles = data.articles || [];
+    if (articles.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada artikel.</p>';
+      return;
+    }
+    container.innerHTML = articles.map(a => `<div class="article-horiz" ${a.id ? `data-article-id="${a.id}"` : ''}>
+      <div class="article-horiz-body">
+        <div class="article-horiz-title">${escapeHtml(a.title)}</div>
+        <div class="article-horiz-summary">${escapeHtml(a.summary)}</div>
+      </div>
+    </div>`).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="info-text">Gagal memuat artikel.</p>';
   }
 }
