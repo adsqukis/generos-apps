@@ -133,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.domain-btn');
     if (btn && btn.dataset.domain) {
+      console.log('[DELEGATE] domain click caught! domain:', btn.dataset.domain);
+      console.log('[DELEGATE] e.target:', e.target.tagName, e.target.className);
       e.preventDefault();
       startScreening(btn.dataset.domain);
     }
@@ -142,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.answer-btn');
     if (btn && btn.dataset.answer) {
+      console.log('[DELEGATE] answer click caught!');
       e.preventDefault();
       submitScreeningAnswer(btn.dataset.answer);
     }
