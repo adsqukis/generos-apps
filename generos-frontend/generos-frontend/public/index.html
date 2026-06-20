@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generos Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="phone">
+        <div id="toast" class="toast hidden"></div>
+
+        <!-- ============ LOGIN PAGE ============ -->
+        <div id="page-login" class="page login active">
+            <div class="login-logo">🧠</div>
+            <h1>Generos Care</h1>
+            <p class="subtitle">Teman tumbuh kembang anak Anda</p>
+
+            <div id="login-form" class="form-box">
+                <div class="form-group">
+                    <label>Nomor Telpon atau Email</label>
+                    <input type="text" id="login-identifier" placeholder="08xx xxxx xxxx atau email@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Masukkan password">
+                </div>
+                <button class="btn-primary" onclick="handleLogin()">Login</button>
+                <p class="link-text">Belum punya akun? <a onclick="showRegisterForm()">Daftar di sini</a></p>
+            </div>
+
+            <div id="register-form" class="form-box hidden">
+                <div class="form-group">
+                    <label>Nomor Telpon atau Email</label>
+                    <input type="text" id="reg-identifier" placeholder="08xx xxxx xxxx atau email@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Min. 6 karakter">
+                </div>
+                <div class="form-group">
+                    <label>Nama Anda</label>
+                    <input type="text" id="reg-fullname" placeholder="Nama lengkap">
+                </div>
+                <div class="form-group">
+                    <label>Nama Anak</label>
+                    <input type="text" id="reg-childname" placeholder="Nama anak">
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Lahir Anak</label>
+                    <input type="date" id="reg-childdob">
+                </div>
+                <button class="btn-primary" onclick="handleRegister()">Daftar</button>
+                <p class="link-text">Sudah punya akun? <a onclick="showLoginForm()">Login di sini</a></p>
+            </div>
+        </div>
+
+        <!-- ============ HOME PAGE ============ -->
+        <div id="page-home" class="page hidden">
+            <div class="header">
+                <h1><span class="logo">🧠</span> Generos Care</h1>
+                <button class="icon-btn" onclick="navigate('settings')">⚙️</button>
+            </div>
+            <div class="container">
+                <div class="profile-card">
+                    <p id="home-greeting">Selamat datang</p>
+                    <h2 id="home-child-info">Memuat...</h2>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div id="stat-weekly">-</div>
+                        <p>Tracking minggu ini</p>
+                    </div>
+                    <div class="stat-box">
+                        <div id="stat-consistency">-</div>
+                        <p>Konsistensi</p>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="navigate('tracking')">➕ Catat Perkembangan</button>
+
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="navigate('food')">🍲 Menu Makanan</button>
+                    <button class="menu-btn" onclick="navigate('knowledge')">📚 Artikel</button>
+                </div>
+
+                <h3>Tracking Terbaru</h3>
+                <div id="home-recent-tracking">Memuat...</div>
+            </div>
+        </div>
+
+        <!-- ============ TRACKING PAGE ============ -->
+        <div id="page-tracking" class="page hidden">
+            <div class="header">
+                <button class="back-btn" onclick="navigate('home')">←</button>
+                <h1>Catat Perkembangan</h1>
+            </div>
+            <div class="container">
+                <div id="tracking-categories">
+                    <p class="info-text">Pilih kategori:</p>
+                    <button class="btn-secondary cat-btn" data-type="speech">💬 Bicara</button>
+                    <button class="btn-secondary cat-btn" data-type="behavior">😊 Perilaku</button>
+                    <button class="btn-secondary cat-btn" data-type="illness">🤒 Kesehatan</button>
+                    <button class="btn-secondary cat-btn" data-type="sleep">😴 Tidur</button>
+                    <button class="btn-secondary cat-btn" data-type="motor">🚶 Motorik</button>
+                </div>
+
+                <div id="tracking-form" class="hidden">
+                    <p class="info-text" id="tracking-selected-cat"></p>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="tracking-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi</label>
+                        <textarea id="tracking-description" placeholder="Ceritakan apa yang terjadi..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tingkat perhatian</label>
+                        <div class="severity-buttons">
+                            <button class="severity-btn" data-severity="normal">Normal</button>
+                            <button class="severity-btn" data-severity="concern">Monitor</button>
+                            <button class="severity-btn" data-severity="red_flag">Concern</button>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="submitTracking()">Simpan</button>
+                    <button class="btn-secondary" onclick="cancelTrackingForm()">Batal</button>
+                </div>
+
+                <div id="tracking-list" style="margin-top: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- ============ FOOD MENU PAGE ============ -->
+        <div id="page-food" class="page hidden">
+            <div class="header">
+                <button class="back-btn" onclick="navigate('home')">←</button>
+                <h1>🍲 Menu Makanan</h1>
+            </div>
+            <div class="container">
+                <p class="info-text">Dukung tumbuh kembang dengan nutrisi tepat</p>
+                <div id="food-list">Memuat...</div>
+                <div id="food-detail" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ============ KNOWLEDGE BASE PAGE ============ -->
+        <div id="page-knowledge" class="page hidden">
+            <div class="header">
+                <button class="back-btn" onclick="navigate('home')">←</button>
+                <h1>📚 Pengetahuan</h1>
+            </div>
+            <div class="container">
+                <div id="article-list">Memuat...</div>
+                <div id="article-detail" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ============ CHAT PAGE ============ -->
+        <div id="page-chat" class="page hidden">
+            <div class="header">
+                <button class="back-btn" onclick="navigate('home')">←</button>
+                <h1>💬 Chat Assistant</h1>
+            </div>
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ketik pertanyaan...">
+                    <button onclick="sendChat()">Kirim</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SHOP PAGE ============ -->
+        <div id="page-shop" class="page hidden">
+            <div class="header">
+                <h1>🛍️ Belanja Generos</h1>
+            </div>
+            <div class="container">
+                <div id="product-list">Memuat...</div>
+            </div>
+        </div>
+
+        <!-- ============ SETTINGS PAGE ============ -->
+        <div id="page-settings" class="page hidden">
+            <div class="header">
+                <button class="back-btn" onclick="navigate('home')">←</button>
+                <h1>⚙️ Pengaturan</h1>
+            </div>
+            <div class="container">
+                <div id="settings-content"></div>
+                <button class="btn-danger" onclick="handleLogout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- ============ NAVIGATION BAR ============ -->
+        <div id="nav-bar" class="nav-bar hidden">
+            <button class="nav-btn" data-page="home">
+                <span>🏠</span><span>Beranda</span>
+            </button>
+            <button class="nav-btn" data-page="tracking">
+                <span>📊</span><span>Tracking</span>
+            </button>
+            <button class="nav-btn" data-page="food">
+                <span>🍲</span><span>Makanan</span>
+            </button>
+            <button class="nav-btn" data-page="knowledge">
+                <span>📚</span><span>Artikel</span>
+            </button>
+            <button class="nav-btn" data-page="chat">
+                <span>💬</span><span>Chat</span>
+            </button>
+            <button class="nav-btn" data-page="shop">
+                <span>🛍️</span><span>Belanja</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
