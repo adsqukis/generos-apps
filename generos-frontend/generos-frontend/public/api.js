@@ -205,4 +205,78 @@ const Api = {
   async getClickAnalytics() {
     return this.request('/shop/analytics/clicks');
   },
+
+  // ============ SCREENING ============
+  async getScreeningDomains() {
+    return this.request('/screening/domains');
+  },
+
+  async setScreeningDomains(domains) {
+    return this.request('/screening/domains', {
+      method: 'POST',
+      body: JSON.stringify({ domains }),
+    });
+  },
+
+  async getScreeningQuestions(domain, age) {
+    return this.request(`/screening/questions?domain=${domain}&age=${age}`);
+  },
+
+  async createScreeningSession(domain, childAgeMonths) {
+    return this.request('/screening/sessions', {
+      method: 'POST',
+      body: JSON.stringify({ domain, child_age_months: childAgeMonths }),
+    });
+  },
+
+  async submitScreeningAnswer(sessionId, questionId, answer) {
+    return this.request(`/screening/sessions/${sessionId}/answer`, {
+      method: 'POST',
+      body: JSON.stringify({ question_id: questionId, answer }),
+    });
+  },
+
+  async completeScreeningSession(sessionId) {
+    return this.request(`/screening/sessions/${sessionId}/complete`, {
+      method: 'POST',
+    });
+  },
+
+  async getScreeningSessions(domain, limit) {
+    let query = '/screening/sessions?';
+    if (domain) query += `domain=${domain}&`;
+    if (limit) query += `limit=${limit}`;
+    return this.request(query);
+  },
+
+  async getScreeningSession(id) {
+    return this.request(`/screening/sessions/${id}`);
+  },
+
+  // ============ STIMULATION ============
+  async getStimulationGeneral(age, domain) {
+    let query = `/stimulation/general?age=${age}`;
+    if (domain) query += `&domain=${domain}`;
+    return this.request(query);
+  },
+
+  async getStimulationRecommendations(status) {
+    let query = '/stimulation/recommendations';
+    if (status) query += `?status=${status}`;
+    return this.request(query);
+  },
+
+  async updateRecommendation(id, status) {
+    return this.request(`/stimulation/recommendations/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  async generateStimulationFromTracking(domain, kendala, childAgeMonths) {
+    return this.request('/stimulation/from-tracking', {
+      method: 'POST',
+      body: JSON.stringify({ domain, kendala, child_age_months: childAgeMonths }),
+    });
+  },
 };

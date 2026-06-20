@@ -604,3 +604,265 @@ textarea {
   color: var(--text);
   margin-bottom: 8px;
 }
+
+/* ============ SCREENING ============ */
+.domain-btn {
+  width: 100%;
+  background: var(--white);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 18px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s;
+}
+
+.domain-btn:hover, .domain-btn:active {
+  background: var(--primary-light);
+  transform: scale(1.02);
+}
+
+.progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.question-card {
+  background: var(--primary-light);
+  border-radius: 16px;
+  padding: 28px 20px;
+  margin-bottom: 20px;
+  border: 2px solid var(--primary);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.answer-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.answer-btn {
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.yes-btn {
+  background: #D1FAE5;
+  border-color: #10B981;
+  color: #065F46;
+}
+
+.yes-btn:active {
+  background: #A7F3D0;
+}
+
+.no-btn {
+  background: #FEE2E2;
+  border-color: #EF4444;
+  color: #991B1B;
+}
+
+.no-btn:active {
+  background: #FECACA;
+}
+
+/* Result Page */
+.result-card {
+  text-align: center;
+  padding: 24px 16px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.result-card.sesuai {
+  background: #D1FAE5;
+  border: 2px solid #10B981;
+}
+
+.result-card.meragukan {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+}
+
+.result-card.menyimpang {
+  background: #FEE2E2;
+  border: 2px solid #EF4444;
+}
+
+.result-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.result-score {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.result-label {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.result-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.result-detail {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+.result-domain-label {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* History screening */
+.screening-history-item {
+  background: var(--primary-light);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--primary);
+  cursor: pointer;
+}
+
+.screening-history-item .domain {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.screening-history-item .score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.screening-history-item .date {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ============ STIMULATION ============ */
+.stim-filter {
+  margin-bottom: 12px;
+}
+
+.stim-filter select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--white);
+}
+
+.stim-card {
+  background: var(--primary-light);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.stim-card .title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stim-card .desc {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.stim-card .meta {
+  font-size: 11px;
+  color: var(--text-light);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stim-card .meta span {
+  background: var(--white);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.stim-card .rec-domain {
+  display: inline-block;
+  background: var(--primary);
+  color: var(--white);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.stim-card .complete-btn {
+  background: #D1FAE5;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #065F46;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.stim-card .dismiss-btn {
+  background: #FEE2E2;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #991B1B;
+  cursor: pointer;
+  margin-top: 6px;
+  margin-left: 6px;
+}

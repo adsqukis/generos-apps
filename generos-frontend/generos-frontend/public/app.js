@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-go-tracking').addEventListener('click', () => navigate('tracking'));
   document.getElementById('btn-go-food').addEventListener('click', () => navigate('food'));
   document.getElementById('btn-go-knowledge').addEventListener('click', () => navigate('knowledge'));
+  document.getElementById('btn-go-screening').addEventListener('click', () => navigate('screening'));
+  document.getElementById('btn-go-stimulation').addEventListener('click', () => navigate('stimulation'));
   document.getElementById('btn-submit-tracking').addEventListener('click', submitTracking);
   document.getElementById('btn-cancel-tracking').addEventListener('click', cancelTrackingForm);
   document.getElementById('btn-send-chat').addEventListener('click', sendChat);
@@ -126,6 +128,51 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (action === 'show-admin-add-product') showAdminAddProduct();
     else if (action === 'show-admin-analytics') showAdminAnalytics();
   });
+
+  // Screening domain selection
+  document.getElementById('screening-domain-select').addEventListener('click', (e) => {
+    const btn = e.target.closest('.domain-btn');
+    if (btn && btn.dataset.domain) {
+      startScreening(btn.dataset.domain);
+    }
+  });
+
+  // Screening answer buttons
+  document.getElementById('screening-questions').addEventListener('click', (e) => {
+    const btn = e.target.closest('.answer-btn');
+    if (btn && btn.dataset.answer) {
+      submitScreeningAnswer(btn.dataset.answer);
+    }
+  });
+
+  // Screening history items
+  document.getElementById('screening-history').addEventListener('click', (e) => {
+    const item = e.target.closest('.screening-history-item');
+    if (item && item.dataset.sessionId) {
+      viewScreeningResult(item.dataset.sessionId);
+    }
+  });
+
+  // Stimulation domain filter
+  document.getElementById('stim-domain-filter').addEventListener('change', () => {
+    loadStimulationActivities();
+  });
+
+  // Stimulation recommendations - complete/dismiss
+  document.getElementById('rec-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('.complete-btn, .dismiss-btn');
+    if (btn && btn.dataset.recId) {
+      const status = btn.classList.contains('complete-btn') ? 'completed' : 'dismissed';
+      updateRecommendationStatus(btn.dataset.recId, status);
+    }
+  });
+
+  // Result page - view stimulation
+  document.getElementById('result-content').addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'go-stimulation') {
+      navigate('stimulation');
+    }
+  });
 });
 
 // ============================
@@ -166,6 +213,8 @@ function navigate(page) {
   if (page === 'chat') loadChatHistory();
   if (page === 'shop') loadProducts();
   if (page === 'settings') loadSettings();
+  if (page === 'screening') loadScreeningPage();
+  if (page === 'stimulation') loadStimulationPage();
 }
 
 // ============================
@@ -750,6 +799,294 @@ async function showAdminAnalytics() {
       data.analytics
         .map((item) => `<div class="card" style="border-left:none;"><p class="title">${escapeHtml(item.name)}</p><p class="desc">${item.click_count} klik</p></div>`)
         .join('');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// DOMAIN LABEL HELPERS
+// ============================
+const domainLabels = {
+  cognitive: 'Kecerdasan 🧠',
+  speech: 'Bicara 💬',
+  immunity: 'Imunitas 🛡️',
+  motor: 'Motorik 🚶',
+};
+
+const domainEmojis = {
+  cognitive: '🧠',
+  speech: '💬',
+  immunity: '🛡️',
+  motor: '🚶',
+};
+
+function domainLabel(domain) {
+  return domainLabels[domain] || domain;
+}
+
+// ============================
+// SCREENING FUNCTIONS
+// ============================
+
+// State
+let screeningQuestions = [];
+let screeningCurrentIndex = 0;
+let screeningSessionId = null;
+let screeningDomain = null;
+
+function loadScreeningPage() {
+  // Reset form
+  document.getElementById('screening-domain-select').classList.remove('hidden');
+  document.getElementById('screening-questions').classList.add('hidden');
+  document.getElementById('screening-scoring').classList.add('hidden');
+  screeningQuestions = [];
+  screeningCurrentIndex = 0;
+  screeningSessionId = null;
+  screeningDomain = null;
+
+  loadScreeningHistory();
+}
+
+async function loadScreeningHistory() {
+  try {
+    const data = await Api.getScreeningSessions(null, 5);
+    const container = document.getElementById('screening-history');
+
+    if (!data.sessions || data.sessions.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = '<h3 style="margin-bottom:12px;">📋 Riwayat Skrining</h3>' +
+      data.sessions.map(s => {
+        const label = domainLabel(s.domain);
+        const zoneIcon = s.result === 'sesuai' ? '✅' : (s.result === 'meragukan' ? '⚠️' : '❌');
+        return `
+          <div class="screening-history-item" data-session-id="${s.id}">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="domain">${label}</span>
+              <span class="score">${zoneIcon} ${s.score_percentage}%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span class="date">${formatDate(s.completed_at || s.started_at)}</span>
+              <span style="font-size:11px;color:var(--text-light);">${s.total_questions} pertanyaan</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+  } catch (err) {
+    console.error('Failed to load screening history:', err);
+  }
+}
+
+async function startScreening(domain) {
+  screeningDomain = domain;
+  const user = Api.getUser();
+  const age = calculateAgeMonths(user.child_dob);
+
+  if (age === '-' || age < 0) {
+    showToast('Data usia anak tidak valid', 'error');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('screening-domain-select').classList.add('hidden');
+  document.getElementById('screening-questions').classList.remove('hidden');
+  document.getElementById('screening-question-text').textContent = 'Memuat pertanyaan...';
+  document.getElementById('screening-progress').textContent = `🔄 ${domainLabel(domain)}`;
+
+  try {
+    // Get questions
+    const qData = await Api.getScreeningQuestions(domain, age);
+    if (!qData.questions || qData.questions.length === 0) {
+      showToast('Belum ada pertanyaan untuk usia ini', 'error');
+      loadScreeningPage();
+      return;
+    }
+
+    screeningQuestions = qData.questions;
+
+    // Create session
+    const sessionData = await Api.createScreeningSession(domain, age);
+    screeningSessionId = sessionData.session.id;
+
+    // Show first question
+    screeningCurrentIndex = 0;
+    showScreeningQuestion();
+  } catch (err) {
+    showToast(err.message, 'error');
+    loadScreeningPage();
+  }
+}
+
+function showScreeningQuestion() {
+  const q = screeningQuestions[screeningCurrentIndex];
+  if (!q) return;
+
+  document.getElementById('screening-progress').textContent =
+    `📋 ${domainLabel(screeningDomain)} — Pertanyaan ${screeningCurrentIndex + 1}/${screeningQuestions.length}`;
+  document.getElementById('screening-question-text').textContent = q.question_text;
+}
+
+async function submitScreeningAnswer(answer) {
+  if (!screeningSessionId || !screeningQuestions[screeningCurrentIndex]) return;
+
+  const q = screeningQuestions[screeningCurrentIndex];
+
+  try {
+    await Api.submitScreeningAnswer(screeningSessionId, q.id, answer);
+
+    // Next question or complete
+    screeningCurrentIndex++;
+    if (screeningCurrentIndex < screeningQuestions.length) {
+      showScreeningQuestion();
+    } else {
+      // All answered - complete session
+      document.getElementById('screening-questions').classList.add('hidden');
+      document.getElementById('screening-scoring').classList.remove('hidden');
+
+      const result = await Api.completeScreeningSession(screeningSessionId);
+      showToast('Skrining selesai!', 'success');
+
+      // Navigate to result page
+      viewScreeningResult(screeningSessionId);
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function viewScreeningResult(sessionId) {
+  try {
+    const data = await Api.getScreeningSession(sessionId);
+    const session = data.session;
+    const domain = session.domain;
+    const score = session.score_percentage;
+    const result = session.result;
+
+    // Zone config
+    const zoneConfig = {
+      sesuai: {
+        icon: '✅',
+        label: 'Sesuai',
+        desc: 'Perkembangan anak sesuai dengan tahap usianya. Lanjutkan stimulasi rutin!',
+        color: '#10B981',
+      },
+      meragukan: {
+        icon: '⚠️',
+        label: 'Meragukan',
+        desc: 'Ada beberapa aspek yang perlu diperhatikan. Lakukan stimulasi lebih intensif dan konsultasi dengan dokter jika perlu.',
+        color: '#F59E0B',
+      },
+      menyimpang: {
+        icon: '❌',
+        label: 'Menyimpang',
+        desc: 'Perkembangan anak memerlukan perhatian khusus. Segera konsultasi dengan dokter anak atau tumbuh kembang.',
+        color: '#EF4444',
+      },
+    };
+
+    const zone = zoneConfig[result] || zoneConfig.meragukan;
+
+    // Navigate to result page
+    navigate('screening-result');
+
+    document.getElementById('result-content').innerHTML = `
+      <div class="result-domain-label">${domainLabel(domain)} — Usia ${session.child_age_months} bulan</div>
+      <div class="result-card ${result}">
+        <div class="result-icon">${zone.icon}</div>
+        <div class="result-score" style="color:${zone.color}">${score}%</div>
+        <div class="result-label" style="color:${zone.color}">${zone.label}</div>
+        <div class="result-detail">${session.answered_yes} dari ${session.total_questions} pertanyaan terjawab "Ya"</div>
+        <div class="result-desc">${zone.desc}</div>
+      </div>
+      <button class="btn-primary" data-action="go-stimulation">🧩 Lihat Aktivitas Stimulasi</button>
+      <button class="btn-secondary" onclick="navigate('screening')">📋 Skrining Lainnya</button>
+    `;
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// STIMULATION FUNCTIONS
+// ============================
+
+async function loadStimulationPage() {
+  loadStimulationRecommendations();
+  loadStimulationActivities();
+}
+
+async function loadStimulationRecommendations() {
+  try {
+    const data = await Api.getStimulationRecommendations('pending');
+    const container = document.getElementById('rec-list');
+
+    if (!data.recommendations || data.recommendations.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada rekomendasi. Lakukan skrining dulu!</p>';
+      return;
+    }
+
+    container.innerHTML = data.recommendations.map(r => `
+      <div class="stim-card" style="border-left-color: #F59E0B;">
+        <span class="rec-domain">${domainLabel(r.domain)}</span>
+        <div class="title">${escapeHtml(r.title)}</div>
+        <div class="desc">${escapeHtml(r.description)}</div>
+        <div class="meta">
+          ${r.duration ? `<span>⏱ ${r.duration}</span>` : ''}
+          ${r.difficulty ? `<span>📊 ${r.difficulty}</span>` : ''}
+          ${r.materials ? `<span>📦 ${escapeHtml(r.materials)}</span>` : ''}
+        </div>
+        <div style="margin-top:6px;">
+          <button class="complete-btn" data-rec-id="${r.id}">✅ Selesai</button>
+          <button class="dismiss-btn" data-rec-id="${r.id}">✖ Tutup</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load recommendations:', err);
+  }
+}
+
+async function loadStimulationActivities() {
+  const user = Api.getUser();
+  const age = calculateAgeMonths(user.child_dob);
+  const domain = document.getElementById('stim-domain-filter').value;
+
+  if (age === '-') return;
+
+  try {
+    const data = await Api.getStimulationGeneral(age, domain || undefined);
+    const container = document.getElementById('stim-list');
+
+    if (!data.activities || data.activities.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada aktivitas untuk usia ini.</p>';
+      return;
+    }
+
+    container.innerHTML = data.activities.map(a => `
+      <div class="stim-card">
+        <span class="rec-domain">${domainLabel(a.domain)}</span>
+        <div class="title">${escapeHtml(a.title)}</div>
+        <div class="desc">${escapeHtml(a.description)}</div>
+        <div class="meta">
+          ${a.duration ? `<span>⏱ ${a.duration}</span>` : ''}
+          ${a.difficulty ? `<span>📊 ${a.difficulty}</span>` : ''}
+          ${a.materials ? `<span>📦 ${escapeHtml(a.materials)}</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load activities:', err);
+  }
+}
+
+async function updateRecommendationStatus(recId, status) {
+  try {
+    await Api.updateRecommendation(recId, status);
+    showToast(status === 'completed' ? 'Aktivitas selesai! 🎉' : 'Rekomendasi ditutup', 'success');
+    loadStimulationRecommendations();
   } catch (err) {
     showToast(err.message, 'error');
   }

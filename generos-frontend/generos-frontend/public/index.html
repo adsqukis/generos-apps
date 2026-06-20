@@ -83,6 +83,8 @@
                 <div class="menu-grid">
                     <button class="menu-btn" id="btn-go-food">🍲 Menu Makanan</button>
                     <button class="menu-btn" id="btn-go-knowledge">📚 Artikel</button>
+                    <button class="menu-btn" id="btn-go-screening">📋 Skrining</button>
+                    <button class="menu-btn" id="btn-go-stimulation">🧩 Stimulasi</button>
                 </div>
 
                 <h3>Tracking Terbaru</h3>
@@ -191,6 +193,84 @@
             <div class="container">
                 <div id="settings-content"></div>
                 <button class="btn-danger" id="btn-logout">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- ============ SCREENING PAGE ============ -->
+        <div id="page-screening" class="page hidden">
+            <div class="header">
+                <button class="back-btn" id="btn-back-screening">←</button>
+                <h1>📋 Skrining</h1>
+            </div>
+            <div class="container">
+
+                <!-- Step 1: Domain Selection -->
+                <div id="screening-domain-select">
+                    <p class="info-text">Pilih area perkembangan yang mau diskrining:</p>
+                    <button class="domain-btn" data-domain="cognitive">🧠 Kecerdasan</button>
+                    <button class="domain-btn" data-domain="speech">💬 Bicara</button>
+                    <button class="domain-btn" data-domain="immunity">🛡️ Imunitas</button>
+                    <button class="domain-btn" data-domain="motor">🚶 Motorik</button>
+                </div>
+
+                <!-- Step 2: Questions -->
+                <div id="screening-questions" class="hidden">
+                    <p id="screening-progress" class="progress-label">Pertanyaan 1/10</p>
+                    <div class="question-card">
+                        <p id="screening-question-text" class="question-text">Memuat...</p>
+                    </div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn yes-btn" data-answer="yes">✅ Ya, bisa</button>
+                        <button class="answer-btn no-btn" data-answer="no">❌ Belum bisa</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Loading / Scoring -->
+                <div id="screening-scoring" class="hidden" style="text-align:center;padding:40px 0;">
+                    <p style="font-size:24px;margin-bottom:12px;">⏳</p>
+                    <p class="info-text">Menghitung hasil skrining...</p>
+                </div>
+
+                <!-- Screening History -->
+                <div id="screening-history" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- ============ SCREENING RESULT PAGE ============ -->
+        <div id="page-screening-result" class="page hidden">
+            <div class="header">
+                <button class="back-btn" id="btn-back-result">←</button>
+                <h1>📊 Hasil Skrining</h1>
+            </div>
+            <div class="container">
+                <div id="result-content"></div>
+            </div>
+        </div>
+
+        <!-- ============ STIMULATION PAGE ============ -->
+        <div id="page-stimulation" class="page hidden">
+            <div class="header">
+                <button class="back-btn" id="btn-back-stimulation">←</button>
+                <h1>🧩 Stimulasi</h1>
+            </div>
+            <div class="container">
+                <div id="stimulation-recommendations">
+                    <h3>💡 Rekomendasi untuk Anda</h3>
+                    <div id="rec-list"><p class="info-text">Memuat...</p></div>
+                </div>
+                <div id="stimulation-general" style="margin-top: 20px;">
+                    <h3>📚 Semua Aktivitas</h3>
+                    <div class="stim-filter">
+                        <select id="stim-domain-filter">
+                            <option value="">Semua area</option>
+                            <option value="cognitive">🧠 Kecerdasan</option>
+                            <option value="speech">💬 Bicara</option>
+                            <option value="immunity">🛡️ Imunitas</option>
+                            <option value="motor">🚶 Motorik</option>
+                        </select>
+                    </div>
+                    <div id="stim-list"><p class="info-text">Memuat...</p></div>
+                </div>
             </div>
         </div>
 
