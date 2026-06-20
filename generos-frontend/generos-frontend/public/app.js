@@ -129,20 +129,23 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (action === 'show-admin-analytics') showAdminAnalytics();
   });
 
-  // Screening domain selection
-  document.getElementById('screening-domain-select').addEventListener('click', (e) => {
-    const btn = e.target.closest('.domain-btn');
-    if (btn && btn.dataset.domain) {
-      startScreening(btn.dataset.domain);
-    }
+  // Screening domain selection — direct attachment ke tiap tombol
+  // (event delegation bermasalah di browser automation, direct lebih reliable)
+  document.querySelectorAll('.domain-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const domain = e.currentTarget.dataset.domain;
+      if (domain) startScreening(domain);
+    });
   });
 
-  // Screening answer buttons
-  document.getElementById('screening-questions').addEventListener('click', (e) => {
-    const btn = e.target.closest('.answer-btn');
-    if (btn && btn.dataset.answer) {
-      submitScreeningAnswer(btn.dataset.answer);
-    }
+  // Screening answer buttons — direct attachment
+  document.querySelectorAll('.answer-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const answer = e.currentTarget.dataset.answer;
+      if (answer) submitScreeningAnswer(answer);
+    });
   });
 
   // Screening history items
