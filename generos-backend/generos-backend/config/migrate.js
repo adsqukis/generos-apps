@@ -130,6 +130,108 @@ CREATE TABLE IF NOT EXISTS product_clicks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_clicks_product ON product_clicks(product_id);
+
+-- ============================
+-- SCREENING & STIMULASI v2
+-- ============================
+
+-- User domain preferences (domain mana yg dipilih user untuk anaknya)
+CREATE TABLE IF NOT EXISTS user_domains (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  domain VARCHAR(50) NOT NULL, -- cognitive, speech, immunity, motor
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, domain)
+);
+
+-- Master screening questions per domain per age
+CREATE TABLE IF NOT EXISTS screening_questions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  domain VARCHAR(50) NOT NULL, -- cognitive, speech, immunity, motor
+  age_min INTEGER NOT NULL, -- usia minimal dalam bulan
+  age_max INTEGER NOT NULL, -- usia maksimal dalam bulan
+  question_text TEXT NOT NULL,
+  question_type VARCHAR(20) DEFAULT 'yesno', -- yesno, multiple
+  options JSONB DEFAULT '[]', -- untuk multiple choice
+  sort_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_screening_q_domain_age ON screening_questions(domain, age_min, age_max);
+CREATE INDEX IF NOT EXISTS idx_screening_q_active ON screening_questions(is_active);
+
+-- Screening sessions (1 session = 1 domain, 1 waktu)
+CREATE TABLE IF NOT EXISTS screening_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  domain VARCHAR(50) NOT NULL,
+  child_age_months INTEGER NOT NULL,
+  total_questions INTEGER DEFAULT 0,
+  answered_yes INTEGER DEFAULT 0,
+  score_percentage DECIMAL(5,2),
+  result VARCHAR(20), -- sesuai, meragukan, menyimpang
+  status VARCHAR(20) DEFAULT 'in_progress', -- in_progress, completed
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  completed_at TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_screening_session_user ON screening_sessions(user_id, domain);
+
+-- Individual answers per screening question
+CREATE TABLE IF NOT EXISTS screening_answers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID NOT NULL REFERENCES screening_sessions(id) ON DELETE CASCADE,
+  question_id UUID NOT NULL REFERENCES screening_questions(id),
+  answer VARCHAR(50), -- 'yes', 'no', atau nilai untuk multiple choice
+  answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_screening_answer_session ON screening_answers(session_id);
+
+-- Master stimulation activities
+CREATE TABLE IF NOT EXISTS stimulation_activities (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  domain VARCHAR(50) NOT NULL, -- cognitive, speech, immunity, motor, general
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  age_min INTEGER NOT NULL,
+  age_max INTEGER NOT NULL,
+  duration VARCHAR(50), -- "5-10 menit"
+  difficulty VARCHAR(20) DEFAULT 'mudah', -- mudah, sedang, sulit
+  materials TEXT, -- bahan-bahan yang diperlukan
+  image_url VARCHAR(500),
+  category VARCHAR(50), -- general, screening_result, tracking_kendala
+  sort_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_stim_activity_domain_age ON stimulation_activities(domain, age_min, age_max);
+CREATE INDEX IF NOT EXISTS idx_stim_activity_active ON stimulation_activities(is_active);
+
+-- Stimulation recommendations (given to users)
+CREATE TABLE IF NOT EXISTS stimulation_recommendations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  activity_id UUID NOT NULL REFERENCES stimulation_activities(id),
+  source VARCHAR(50) NOT NULL, -- 'general', 'screening', 'tracking'
+  session_id UUID REFERENCES screening_sessions(id) ON DELETE SET NULL,
+  reason TEXT, -- kenapa direkomendasikan
+  status VARCHAR(20) DEFAULT 'pending', -- pending, completed, dismissed
+  completed_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_stim_rec_user ON stimulation_recommendations(user_id, status);
+
+-- Tambah domain column ke tracking_entries biar bisa filter per domain
+ALTER TABLE tracking_entries ADD COLUMN IF NOT EXISTS domain VARCHAR(50);
+CREATE INDEX IF NOT EXISTS idx_tracking_domain ON tracking_entries(domain);
+
+-- Add sort_order column ke stimulation_activities (kalau belum ada)
+ALTER TABLE stimulation_activities ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 `;
 
 async function runMigrations() {

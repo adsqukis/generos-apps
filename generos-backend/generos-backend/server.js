@@ -117,6 +117,21 @@ const { Pool } = require('pg');
     }
     await migratePool.end();
   } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
+
+  // Auto seed screening data if empty
+  try {
+    const checkData = await pool.query('SELECT COUNT(*) as cnt FROM screening_questions');
+    if (parseInt(checkData.rows[0].cnt) === 0) {
+      console.log('🌱 Seeding screening data...');
+      const seedFn = require('./config/seed-screening');
+      await seedFn();
+      console.log('✓ Seeding completed');
+    } else {
+      console.log(`✓ Screening data exists (${checkData.rows[0].cnt} questions)`);
+    }
+  } catch(e) {
+    console.warn('[seed] Skipped:', e.message.slice(0,100));
+  }
 })();
 
 // ============================
@@ -140,6 +155,8 @@ app.use('/api/food', foodRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/screening', require('./routes/screening'));
+app.use('/api/stimulation', require('./routes/stimulation'));
 
 // ============================
 // 404 HANDLER
