@@ -246,7 +246,10 @@ router.get('/sessions', async (req, res) => {
     }
 
     query += ` ORDER BY started_at DESC`;
-    if (limit) query += ` LIMIT $${params.length + 1}`;
+    if (limit) {
+      query += ` LIMIT $${params.length + 1}`;
+      params.push(limit);
+    }
 
     const result = await pool.query(query, params);
     res.json({ sessions: result.rows });
