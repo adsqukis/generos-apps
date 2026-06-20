@@ -147,6 +147,16 @@ function initApp() {
 
   // Navigate to sleep from anywhere
 
+  // SLEEP article click → buka artikel
+  safeAddListener('sleep-articles', 'click', async (e) => {
+    const card = e.target.closest('.article-horiz');
+    if (card && card.dataset.articleId) {
+      navigate('knowledge');
+      // Tunggu sebentar biar page load, lalu buka detail
+      setTimeout(() => showArticleDetailById(card.dataset.articleId), 300);
+    }
+  });
+
   // All back buttons (navigate home)
   document.querySelectorAll('.back-btn').forEach((btn) => {
     btn.addEventListener('click', () => navigate('home'));
@@ -1378,8 +1388,22 @@ async function loadArticles() {
     `
       )
       .join('');
+
+    // Jika ada pending article dari sleep page (fallback)
+    if (window._pendingArticleId) {
+      const id = window._pendingArticleId;
+      window._pendingArticleId = null;
+      showArticleDetailById(id);
+    }
   } catch (err) {
     console.error('Failed to load articles:', err);
+  }
+}
+
+function showArticleDetailById(id) {
+  const card = document.querySelector(`[data-article-id="${id}"]`);
+  if (card) {
+    showArticleDetail(id);
   }
 }
 
