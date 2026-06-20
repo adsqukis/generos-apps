@@ -406,6 +406,11 @@ async function loadDailySummary() {
   try {
     const data = await Api.getDailySummary(today);
     const s = data.summary || {};
+    const fmtLast = (val) => {
+      if (!val) return '—';
+      if (val.includes('T')) return val.split('T')[1].slice(0, 5); // ISO → HH:MM
+      return val.slice(0, 5); // already TIME format
+    };
 
     // Tidur
     const sleepVal = document.getElementById('tracker-sleep-value');
@@ -414,7 +419,7 @@ async function loadDailySummary() {
       const hrs = Math.floor(s.sleep.total_minutes / 60);
       const min = s.sleep.total_minutes % 60;
       sleepVal.textContent = `${hrs}j ${min}m`;
-      sleepTime.textContent = s.sleep.last_record ? s.sleep.last_record.slice(0, 5) : '-';
+      sleepTime.textContent = fmtLast(s.sleep.last_time);
     } else {
       sleepVal.textContent = 'Belum';
       sleepTime.textContent = '—';
@@ -425,7 +430,7 @@ async function loadDailySummary() {
     const feedTime = document.getElementById('tracker-feeding-time');
     if (s.feeding && s.feeding.count > 0) {
       feedVal.textContent = `${s.feeding.count}x`;
-      feedTime.textContent = s.feeding.last_record ? s.feeding.last_record.slice(0, 5) : '-';
+      feedTime.textContent = fmtLast(s.feeding.last_time);
     } else {
       feedVal.textContent = '0';
       feedTime.textContent = '—';
@@ -436,7 +441,7 @@ async function loadDailySummary() {
     const drinkTime = document.getElementById('tracker-drink-time');
     if (s.drink && s.drink.count > 0) {
       drinkVal.textContent = `${s.drink.total_ml || 0} ml`;
-      drinkTime.textContent = s.drink.last_record ? s.drink.last_record.slice(0, 5) : '-';
+      drinkTime.textContent = fmtLast(s.drink.last_time);
     } else {
       drinkVal.textContent = '0';
       drinkTime.textContent = '—';
@@ -445,9 +450,9 @@ async function loadDailySummary() {
     // BAB
     const poopVal = document.getElementById('tracker-poop-value');
     const poopTime = document.getElementById('tracker-poop-time');
-    if (s.poop && s.poop.count > 0) {
-      poopVal.textContent = `${s.poop.count}x`;
-      poopTime.textContent = s.poop.last_record ? s.poop.last_record.slice(0, 5) : '-';
+    if (s.poop && s.poop.total > 0) {
+      poopVal.textContent = `${s.poop.total}x`;
+      poopTime.textContent = fmtLast(s.poop.last_time);
     } else {
       poopVal.textContent = '0';
       poopTime.textContent = '—';
@@ -456,9 +461,9 @@ async function loadDailySummary() {
     // BAK
     const peeVal = document.getElementById('tracker-pee-value');
     const peeTime = document.getElementById('tracker-pee-time');
-    if (s.pee && s.pee.count > 0) {
-      peeVal.textContent = `${s.pee.count}x`;
-      peeTime.textContent = s.pee.last_record ? s.pee.last_record.slice(0, 5) : '-';
+    if (s.pee && s.pee.total > 0) {
+      peeVal.textContent = `${s.pee.total}x`;
+      peeTime.textContent = fmtLast(s.pee.last_time);
     } else {
       peeVal.textContent = '0';
       peeTime.textContent = '—';
