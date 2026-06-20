@@ -104,13 +104,16 @@ const { Pool } = require('pg');
     const sql = fs.readFileSync(path.join(__dirname, 'config', 'migrate.js'), 'utf8');
     const sqlMatch = sql.match(/const migrations = `([\s\S]*?)`;/);
     if (sqlMatch) {
-      const statements = sqlMatch[1].split(';').filter(s => s.trim().length > 0 && !s.trim().startsWith('--'));
-      let count = 0;
-      for (const stmt of statements) {
-        try { await migratePool.query(stmt.trim() + ';'); count++; }
-        catch(e) { if (!e.message.includes('already exists')) console.warn('[migrate]', e.message.slice(0,100)); }
+      try {
+        await migratePool.query(sqlMatch[1]);
+        console.log('✓ Auto migrate: tables created');
+      } catch(e) {
+        if (e.message.includes('already exists')) {
+          console.log('✓ Auto migrate: tables already exist');
+        } else {
+          console.warn('[migrate]', e.message.slice(0,200));
+        }
       }
-      console.log(`✓ Auto migrate: ${count} statements executed`);
     }
     await migratePool.end();
   } catch(e) { console.warn('[migrate] Skipped:', e.message.slice(0,100)); }
