@@ -141,19 +141,27 @@ function initApp() {
   if (histTo) histTo.value = new Date().toISOString().split('T')[0];
 
   // === TRACKER CARD → DETAIL PAGE ===
-  // Klik kartu tracker (tidur/makan/dll) buka detail page
-  const trackerPageMap = { sleep: 'sleep' };
+  const trackerPageMap = { sleep: 'sleep', feeding: 'tracker-detail', drink: 'tracker-detail', poop: 'tracker-detail', pee: 'tracker-detail', eating: 'tracker-detail' };
   document.querySelectorAll('.tracker-card').forEach(card => {
     const type = card.dataset.tracker;
     card.addEventListener('click', function(e) {
-      if (e.target.closest('.tracker-add')) return; // biarkan tombol + jalan sendiri
+      if (e.target.closest('.tracker-add')) return;
       const page = trackerPageMap[type];
+      if (page === 'tracker-detail') {
+        window._activeTrackerType = type;
+      }
       if (page) navigate(page);
-      // Untuk tipe lain, nanti bisa ditambahkan (feeding→feeding, dll)
     });
   });
 
-  // Sleep articles click → navigate to knowledge page
+  // === GENERIC TRACKER PAGE Listeners ===
+  safeAddListener('btn-back-tracker', 'click', () => navigate('home'));
+  safeAddListener('btn-save-tracker', 'click', saveTrackerRecord);
+  // Delete via delegation
+  safeAddListener('tracker-today-records', 'click', (e) => {
+    const del = e.target.closest('.sleep-rec-del');
+    if (del && del.dataset.id) deleteTrackerRecordGeneric(del.dataset.id);
+  });
   safeAddListener('sleep-articles', 'click', (e) => {
     const card = e.target.closest('.article-horiz');
     if (card) navigate('knowledge');
@@ -332,6 +340,7 @@ function navigate(page) {
   if (page === 'screening') loadScreeningPage();
   if (page === 'stimulation') loadStimulationPage();
   if (page === 'sleep') loadSleepPage();
+  if (page === 'tracker-detail') loadTrackerDetailPage();
 }
 
 // ============================
@@ -2233,5 +2242,316 @@ async function loadSleepArticles() {
     </div>`).join('');
   } catch (err) {
     container.innerHTML = '<p class="info-text">Gagal memuat artikel.</p>';
+  }
+}
+
+// ============================
+// GENERIC TRACKER DETAIL PAGE
+// feeding, drink, poop, pee, eating
+// ============================
+
+const TRACKER_CONFIGS = {
+  feeding: {
+    name: '🍼 Menyusui', title: 'Menyusui', formTitle: 'Catat Menyusui',
+    todayApi: (d) => Api.getDailyFeeding(d, 'ASI'),
+    createApi: (p) => Api.createDailyFeeding({ ...p, feeding_type: 'ASI' }),
+    deleteApi: (id) => Api.deleteDailyFeeding(id),
+    analyticsApi: () => Api.getTrackerAnalytics('feeding'),
+    articlesApi: () => Api.getTrackerArticles('feeding'),
+    formFields: () => `
+      <div class="form-group"><label>Tanggal</label><input type="date" id="g-sl-date"></div>
+      <div class="sleep-time-row">
+        <div class="form-group"><label>Jam Mulai</label><input type="time" id="g-sl-start"></div>
+        <div class="form-group"><label>Jam Selesai</label><input type="time" id="g-sl-end"></div>
+      </div>
+      <div class="form-group"><label>Jumlah (ml)</label><input type="number" id="g-amount" placeholder="100"></div>
+      <div class="form-group"><label>Durasi (menit)</label><input type="number" id="g-duration" placeholder="15"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="g-notes" placeholder="Catatan..."></textarea></div>`,
+    getPayload: () => {
+      const d = document.getElementById('g-sl-date').value;
+      const start = document.getElementById('g-sl-start').value;
+      const end = document.getElementById('g-sl-end').value;
+      let minutes = null;
+      if (start && end) {
+        const [sh,sm]=start.split(':'); const [eh,em]=end.split(':');
+        minutes = (parseInt(eh)*60+parseInt(em))-(parseInt(sh)*60+parseInt(sm));
+        if (minutes < 0) minutes += 1440;
+      }
+      return { record_date: d, sleep_start: start || null, sleep_end: end || null,
+        duration_minutes: minutes, amount_ml: parseFloat(document.getElementById('g-amount').value) || null, notes: document.getElementById('g-notes').value.trim() || null };
+    },
+    formatRecord: (r) => {
+      const start = r.sleep_start?.slice(0,5)||'?', end = r.sleep_end?.slice(0,5)||'?';
+      let text = `<b>${start} - ${end}</b>`;
+      if (r.amount_ml) text += ` · ${r.amount_ml} ml`;
+      if (r.duration_minutes) text += ` · ${Math.floor(r.duration_minutes/60)}j ${r.duration_minutes%60}m`;
+      return { time: `${start} - ${end}`, detail: text };
+    },
+    formatTotal: (records) => {
+      const totalMl = records.reduce((s,r) => s + (r.amount_ml||0), 0);
+      const count = records.length;
+      return `${count}x (${totalMl} ml)`;
+    },
+    formatAnalytics: (avg) => ({ val: `${avg.avg_value} ml`, freq: `${avg.avg_count}x/hari` }),
+    formatInsight: (avg, score, daily) => {
+      if (!daily || daily.length === 0) return 'Belum cukup data.';
+      const avgMl = Math.round(daily.reduce((s,d) => s + d.total_value, 0) / daily.length);
+      return `Rata-rata ${avgMl} ml per hari. Skor: ${score.label || '-'}.`;
+    },
+  },
+  drink: {
+    name: '💧 Minum', title: 'Minum', formTitle: 'Catat Minum',
+    todayApi: (d) => Api.getDailyDrink(d),
+    createApi: (p) => Api.createDailyDrink(p),
+    deleteApi: (id) => Api.deleteDailyDrink(id),
+    analyticsApi: () => Api.getTrackerAnalytics('drink'),
+    articlesApi: () => Api.getTrackerArticles('drink'),
+    formFields: () => `
+      <div class="form-group"><label>Tanggal</label><input type="date" id="g-sl-date"></div>
+      <div class="form-group"><label>Jumlah (ml)</label><input type="number" id="g-amount" value="100"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="g-notes" placeholder="Catatan..."></textarea></div>`,
+    getPayload: () => ({
+      record_date: document.getElementById('g-sl-date').value,
+      amount_ml: parseFloat(document.getElementById('g-amount').value) || 100,
+      notes: document.getElementById('g-notes').value.trim() || null,
+    }),
+    formatRecord: (r) => ({ time: '', detail: `<b>${r.amount_ml || 0} ml</b>` }),
+    formatTotal: (records) => `${records.reduce((s,r) => s + (r.amount_ml||0), 0)} ml (${records.length}x)`,
+    formatAnalytics: (avg) => ({ val: `${avg.avg_value} ml`, freq: `${avg.avg_count}x/hari` }),
+    formatInsight: (avg, score, daily) => {
+      if (!daily || daily.length === 0) return 'Belum cukup data.';
+      const avgMl = Math.round(daily.reduce((s,d) => s + d.total_value, 0) / daily.length);
+      return `Rata-rata ${avgMl} ml per hari. Skor: ${score.label || '-'}.`;
+    },
+  },
+  poop: {
+    name: '💩 BAB', title: 'BAB', formTitle: 'Catat BAB',
+    todayApi: (d) => Api.getDailyPoop(d),
+    createApi: (p) => Api.createDailyPoop(p),
+    deleteApi: (id) => Api.deleteDailyPoop(id),
+    analyticsApi: () => Api.getTrackerAnalytics('poop'),
+    articlesApi: () => Api.getTrackerArticles('poop'),
+    formFields: () => `
+      <div class="form-group"><label>Tanggal</label><input type="date" id="g-sl-date"></div>
+      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="g-count" value="1"></div>
+      <div class="form-group"><label>Konsistensi</label>
+        <select id="g-consistency"><option value="normal">Normal</option><option value="cair">Cair (diare)</option><option value="keras">Keras (sembelit)</option><option value="lendir">Berlendir</option></select>
+      </div>
+      <div class="form-group"><label>Catatan</label><textarea id="g-notes" placeholder="Catatan..."></textarea></div>`,
+    getPayload: () => ({
+      record_date: document.getElementById('g-sl-date').value,
+      count: parseInt(document.getElementById('g-count').value) || 1,
+      consistency: document.getElementById('g-consistency').value,
+      notes: document.getElementById('g-notes').value.trim() || null,
+    }),
+    formatRecord: (r) => {
+      let text = `<b>${r.count || 1}x</b>`;
+      if (r.consistency) text += ` · ${r.consistency}`;
+      return { time: '', detail: text };
+    },
+    formatTotal: (records) => `${records.reduce((s,r) => s + (r.count||0), 0)}x`,
+    formatAnalytics: (avg) => ({ val: `${avg.avg_value}x/hari`, freq: `${avg.avg_count}x/hari` }),
+    formatInsight: (avg, score, daily) => {
+      if (!daily || daily.length === 0) return 'Belum cukup data.';
+      const avgC = Math.round(daily.reduce((s,d) => s + d.total_value, 0) / daily.length);
+      return `Rata-rata ${avgC}x per hari. Skor: ${score.label || '-'}.`;
+    },
+  },
+  pee: {
+    name: '🚽 BAK', title: 'BAK', formTitle: 'Catat BAK',
+    todayApi: (d) => Api.getDailyPee(d),
+    createApi: (p) => Api.createDailyPee(p),
+    deleteApi: (id) => Api.deleteDailyPee(id),
+    analyticsApi: () => Api.getTrackerAnalytics('pee'),
+    articlesApi: () => Api.getTrackerArticles('pee'),
+    formFields: () => `
+      <div class="form-group"><label>Tanggal</label><input type="date" id="g-sl-date"></div>
+      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="g-count" value="1"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="g-notes" placeholder="Catatan..."></textarea></div>`,
+    getPayload: () => ({
+      record_date: document.getElementById('g-sl-date').value,
+      count: parseInt(document.getElementById('g-count').value) || 1,
+      notes: document.getElementById('g-notes').value.trim() || null,
+    }),
+    formatRecord: (r) => ({ time: '', detail: `<b>${r.count || 1}x</b>` }),
+    formatTotal: (records) => `${records.reduce((s,r) => s + (r.count||0), 0)}x`,
+    formatAnalytics: (avg) => ({ val: `${avg.avg_value}x/hari`, freq: `${avg.avg_count}x/hari` }),
+    formatInsight: (avg, score, daily) => {
+      if (!daily || daily.length === 0) return 'Belum cukup data.';
+      const avgC = Math.round(daily.reduce((s,d) => s + d.total_value, 0) / daily.length);
+      return `Rata-rata ${avgC}x per hari. Skor: ${score.label || '-'}.`;
+    },
+  },
+  eating: {
+    name: '🍚 Makan', title: 'Makan (MPASI)', formTitle: 'Catat Makan',
+    todayApi: (d) => Api.getDailyFeeding(d, 'MPASI'),
+    createApi: (p) => Api.createDailyFeeding({ ...p, feeding_type: 'MPASI' }),
+    deleteApi: (id) => Api.deleteDailyFeeding(id),
+    analyticsApi: () => Api.getTrackerAnalytics('feeding'),
+    articlesApi: () => Api.getTrackerArticles('feeding'),
+    formFields: () => `
+      <div class="form-group"><label>Tanggal</label><input type="date" id="g-sl-date"></div>
+      <div class="form-group"><label>Menu</label><input type="text" id="g-menu" placeholder="contoh: bubur ayam"></div>
+      <div class="form-group"><label>Jumlah (ml)</label><input type="number" id="g-amount" value="100"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="g-notes" placeholder="Catatan..."></textarea></div>`,
+    getPayload: () => {
+      const menu = document.getElementById('g-menu').value.trim();
+      const notes = document.getElementById('g-notes').value.trim();
+      return {
+        record_date: document.getElementById('g-sl-date').value,
+        amount_ml: parseFloat(document.getElementById('g-amount').value) || null,
+        notes: (menu ? menu : '') + (notes ? ` · ${notes}` : ''),
+      };
+    },
+    formatRecord: (r) => ({ time: '', detail: `<b>${r.amount_ml || 0} ml</b>${r.notes ? ' · '+escapeHtml(r.notes) : ''}` }),
+    formatTotal: (records) => `${records.length}x (${records.reduce((s,r) => s + (r.amount_ml||0), 0)} ml)`,
+    formatAnalytics: (avg) => ({ val: `${avg.avg_value} ml`, freq: `${avg.avg_count}x/hari` }),
+    formatInsight: (avg, score, daily) => {
+      if (!daily || daily.length === 0) return 'Belum cukup data.';
+      const avgMl = Math.round(daily.reduce((s,d) => s + d.total_value, 0) / daily.length);
+      return `Rata-rata ${avgMl} ml per hari. Skor: ${score.label || '-'}.`;
+    },
+  },
+};
+
+// === Load Generic Tracker Detail ===
+async function loadTrackerDetailPage() {
+  const type = window._activeTrackerType || 'sleep';
+  const cfg = TRACKER_CONFIGS[type];
+  if (!cfg) return;
+  const today = new Date().toISOString().split('T')[0];
+
+  document.getElementById('tracker-page-title').textContent = cfg.name;
+  document.getElementById('tracker-form-title').textContent = cfg.formTitle;
+  document.getElementById('tracker-form-fields').innerHTML = cfg.formFields();
+  document.getElementById('g-sl-date').value = today;
+
+  await loadTrackerToday(type, cfg);
+  await loadTrackerAnalytics(type, cfg);
+  await loadTrackerArticles(type, cfg);
+}
+
+// === Today Records ===
+async function loadTrackerToday(type, cfg) {
+  const today = new Date().toISOString().split('T')[0];
+  const container = document.getElementById('tracker-today-records');
+  const totalEl = document.getElementById('tracker-today-total');
+  try {
+    const data = await cfg.todayApi(today);
+    const records = data.records || [];
+    totalEl.textContent = `Total: ${cfg.formatTotal(records)}`;
+
+    if (records.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada catatan hari ini.</p>';
+      return;
+    }
+    container.innerHTML = records.map(r => {
+      const f = cfg.formatRecord(r);
+      const time = r.created_at ? formatTime(r.created_at) : '';
+      return `<div class="sleep-record-item">
+        <div class="sleep-rec-time">${f.time || time}</div>
+        <div class="sleep-rec-dur">${f.detail}</div>
+        <button class="sleep-rec-del" data-id="${r.id}">✕</button>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="info-text">Gagal memuat data.</p>';
+  }
+}
+
+// === Analytics ===
+async function loadTrackerAnalytics(type, cfg) {
+  try {
+    const data = await cfg.analyticsApi();
+    const avg = data.avg || {};
+    const fa = cfg.formatAnalytics(avg);
+    document.getElementById('tr-avg-val').textContent = fa.val;
+    document.getElementById('tr-avg-freq').textContent = fa.freq;
+    const sc = data.score || {};
+    document.getElementById('tr-score').textContent = sc.label || '-';
+    document.getElementById('tracker-insight').textContent = cfg.formatInsight(avg, sc, data.daily);
+
+    // Bar chart
+    const daily = data.daily || [];
+    const container = document.getElementById('tracker-chart');
+    if (daily.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada data 7 hari terakhir.</p>';
+      return;
+    }
+    const maxVal = Math.max(...daily.map(d => d.total_value), 1);
+    container.innerHTML = '<div class="bar-chart">' + daily.map(d => {
+      const pct = Math.min(Math.round((d.total_value / maxVal) * 100), 100);
+      const label = d.date ? d.date.slice(5) : '';
+      const isToday = d.date === new Date().toISOString().split('T')[0];
+      return `<div class="bar-col ${isToday ? 'bar-today' : ''}">
+        <div class="bar-val">${d.total_value}</div>
+        <div class="bar" style="height:${pct}%"></div>
+        <div class="bar-label">${label}</div>
+      </div>`;
+    }).join('') + '</div>';
+  } catch (err) {
+    console.error('Tracker analytics error:', err);
+  }
+}
+
+// === Articles ===
+async function loadTrackerArticles(type, cfg) {
+  const container = document.getElementById('tracker-articles');
+  try {
+    const data = await cfg.articlesApi();
+    const articles = data.articles || [];
+    if (articles.length === 0) {
+      container.innerHTML = '<p class="info-text">Belum ada artikel.</p>';
+      return;
+    }
+    container.innerHTML = articles.map(a => `<div class="article-horiz" style="cursor:pointer;">
+      <div class="article-horiz-body">
+        <div class="article-horiz-title">${escapeHtml(a.title)}</div>
+        <div class="article-horiz-summary">${escapeHtml(a.summary)}</div>
+      </div>
+    </div>`).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="info-text">Gagal memuat artikel.</p>';
+  }
+}
+
+// === Save Generic Record ===
+async function saveTrackerRecord() {
+  const type = window._activeTrackerType || 'sleep';
+  const cfg = TRACKER_CONFIGS[type];
+  if (!cfg) return;
+
+  const payload = cfg.getPayload();
+  if (!payload.record_date) {
+    showToast('Mohon isi tanggal', 'error');
+    return;
+  }
+
+  try {
+    await cfg.createApi(payload);
+    showToast('Data tersimpan', 'success');
+    document.getElementById('g-notes').value = '';
+    if (document.getElementById('g-amount')) document.getElementById('g-amount').value = '';
+    if (document.getElementById('g-sl-start')) document.getElementById('g-sl-start').value = '';
+    if (document.getElementById('g-sl-end')) document.getElementById('g-sl-end').value = '';
+    await loadTrackerToday(type, cfg);
+    await loadTrackerAnalytics(type, cfg);
+  } catch (err) {
+    showToast(err.message || 'Gagal menyimpan', 'error');
+  }
+}
+
+// === Delete Generic Record ===
+async function deleteTrackerRecordGeneric(id) {
+  const type = window._activeTrackerType || 'sleep';
+  const cfg = TRACKER_CONFIGS[type];
+  if (!cfg) return;
+  try {
+    await cfg.deleteApi(id);
+    showToast('Data dihapus', 'success');
+    await loadTrackerToday(type, cfg);
+    await loadTrackerAnalytics(type, cfg);
+  } catch (err) {
+    showToast('Gagal menghapus', 'error');
   }
 }

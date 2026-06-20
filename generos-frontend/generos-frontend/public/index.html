@@ -537,6 +537,59 @@
             </div>
         </div>
 
+        <!-- ============ GENERIC TRACKER DETAIL PAGE ============ -->
+        <div id="page-tracker-detail" class="page hidden">
+            <div class="header">
+                <button class="back-btn" id="btn-back-tracker">←</button>
+                <h1 id="tracker-page-title">Tracker</h1>
+            </div>
+            <div class="container">
+                <!-- Manual Entry -->
+                <div class="sleep-form-card">
+                    <h3>📝 <span id="tracker-form-title">Catat</span></h3>
+                    <div id="tracker-form-fields"></div>
+                    <button class="btn-primary" id="btn-save-tracker">Simpan</button>
+                </div>
+
+                <!-- Today Records -->
+                <h3>📋 Catatan Hari Ini</h3>
+                <div id="tracker-today-total" class="sleep-total-badge">Total: —</div>
+                <div id="tracker-today-records"><p class="info-text">Memuat...</p></div>
+
+                <!-- Analytics -->
+                <h3 style="margin-top:20px;">📊 Grafik 7 Hari Terakhir</h3>
+                <div class="sleep-analytics-card">
+                    <div class="sleep-summary-row">
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Rata-rata</span>
+                            <span class="sleep-stat-val" id="tr-avg-val">-</span>
+                        </div>
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Frekuensi</span>
+                            <span class="sleep-stat-val" id="tr-avg-freq">-</span>
+                        </div>
+                        <div class="sleep-stat">
+                            <span class="sleep-stat-label">Skor</span>
+                            <span class="sleep-stat-val" id="tr-score">-</span>
+                        </div>
+                    </div>
+                    <div id="tracker-chart" class="sleep-chart">
+                        <p class="info-text">Memuat grafik...</p>
+                    </div>
+                </div>
+
+                <!-- AI Insight -->
+                <div class="card info-card" style="cursor:default;margin-top:16px;">
+                    <p class="cat">🤖 Insight</p>
+                    <p id="tracker-insight" class="desc">Memuat analisis...</p>
+                </div>
+
+                <!-- Articles -->
+                <h3>📖 Tips untuk Si Kecil</h3>
+                <div id="tracker-articles"><p class="info-text">Memuat...</p></div>
+            </div>
+        </div>
+
         <!-- ============ NAVIGATION BAR ============ -->
         <div id="nav-bar" class="nav-bar hidden">
             <button class="nav-btn" data-page="home">

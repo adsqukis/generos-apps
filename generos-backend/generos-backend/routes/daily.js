@@ -702,3 +702,144 @@ router.get('/sleep/articles', async (req, res) => {
 });
 
 module.exports = router;
+
+// ============================
+// GENERIC TRACKER ANALYTICS & ARTICLES
+// feeding, drink, pee, poop
+// ============================
+
+// Map tracker type → SQL config
+const TRACKER_ANALYTICS = {
+  feeding: {
+    table: 'feeding_records',
+    valueCol: 'amount_ml',
+    countCol: 'COUNT(*)',
+    sumCol: 'COALESCE(SUM(amount_ml), 0)',
+    idealMin: 400,  // ml per hari ASI/sufor
+    idealMax: 1000,
+    unit: 'ml',
+    articles: [
+      { title: 'Panduan Menyusui yang Benar', summary: 'Posisi dan teknik menyusui yang nyaman untuk ibu dan bayi.' },
+      { title: 'Tanda Bayi Cukup ASI', summary: 'Kenali tanda-tanda bayi mendapatkan ASI yang cukup.' },
+    ],
+  },
+  drink: {
+    table: 'drink_records',
+    valueCol: 'amount_ml',
+    countCol: 'COUNT(*)',
+    sumCol: 'COALESCE(SUM(amount_ml), 0)',
+    idealMin: 200,
+    idealMax: 800,
+    unit: 'ml',
+    articles: [
+      { title: 'Kapan Bayi Boleh Minum Air Putih?', summary: 'Panduan usia yang tepat untuk memberikan air putih.' },
+      { title: 'Cara Membiasakan Anak Minum Air', summary: 'Tips agar anak suka minum air putih.' },
+    ],
+  },
+  pee: {
+    table: 'pee_records',
+    valueCol: 'count',
+    countCol: 'COALESCE(SUM(count), 0)',
+    sumCol: 'COALESCE(SUM(count), 0)',
+    idealMin: 4,
+    idealMax: 12,
+    unit: 'x',
+    articles: [
+      { title: 'Frekuensi BAK Normal Bayi', summary: 'Panduan frekuensi buang air kecil bayi berdasarkan usia.' },
+      { title: 'Warna Urine Bayi', summary: 'Apa arti warna urine bayi dan kapan perlu waspada.' },
+    ],
+  },
+  poop: {
+    table: 'poop_records',
+    valueCol: 'count',
+    countCol: 'COALESCE(SUM(count), 0)',
+    sumCol: 'COALESCE(SUM(count), 0)',
+    idealMin: 1,
+    idealMax: 6,
+    unit: 'x',
+    articles: [
+      { title: 'Frekuensi BAB Normal Bayi', summary: 'Panduan frekuensi buang air besar bayi sesuai usia.' },
+      { title: 'Warna dan Tekstur Feses Bayi', summary: 'Kenali arti warna feses bayi untuk deteksi dini masalah kesehatan.' },
+    ],
+  },
+};
+
+// GET /daily/:type/analytics?days=7
+router.get('/:type/analytics', async (req, res) => {
+  const { type } = req.params;
+  const cfg = TRACKER_ANALYTICS[type];
+  if (!cfg) return res.status(404).json({ error: 'Tipe tracker tidak dikenal' });
+
+  const days = Math.min(parseInt(req.query.days) || 7, 90);
+  const typeFilter = type === 'feeding' ? ` AND feeding_type IS DISTINCT FROM 'MPASI'` : '';
+  try {
+    // Daily data
+    const daily = await pool.query(
+      `SELECT record_date, ${cfg.sumCol} AS total_value, ${cfg.countCol} AS count
+       FROM ${cfg.table}
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - $2::int${typeFilter}
+       GROUP BY record_date ORDER BY record_date ASC`,
+      [req.user.id, days - 1]
+    );
+
+    // Average
+    const avg = await pool.query(
+      `SELECT COALESCE(ROUND(AVG(daily_val)), 0) AS avg_value,
+              COALESCE(ROUND(AVG(daily_cnt)), 0) AS avg_count
+       FROM (SELECT record_date, ${cfg.sumCol} AS daily_val, ${cfg.countCol} AS daily_cnt
+             FROM ${cfg.table}
+             WHERE user_id = $1 AND record_date >= CURRENT_DATE - $2::int${typeFilter}
+             GROUP BY record_date) sub`,
+      [req.user.id, days - 1]
+    );
+
+    // Trend
+    const thisWeek = await pool.query(
+      `SELECT COALESCE(${cfg.sumCol}, 0) AS total FROM ${cfg.table}
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - 6${typeFilter}`,
+      [req.user.id]
+    );
+    const lastWeek = await pool.query(
+      `SELECT COALESCE(${cfg.sumCol}, 0) AS total FROM ${cfg.table}
+       WHERE user_id = $1 AND record_date >= CURRENT_DATE - 13 AND record_date < CURRENT_DATE - 6${typeFilter}`,
+      [req.user.id]
+    );
+    const trendPct = lastWeek.rows[0].total > 0
+      ? Math.round(((thisWeek.rows[0].total - lastWeek.rows[0].total) / lastWeek.rows[0].total) * 100)
+      : 0;
+
+    const avgVal = parseInt(avg.rows[0].avg_value);
+    const avgCnt = parseInt(avg.rows[0].avg_count);
+
+    // Score
+    let score = 100;
+    if (avgVal > 0) {
+      if (avgVal < cfg.idealMin) score = Math.round((avgVal / cfg.idealMin) * 80);
+      else if (avgVal > cfg.idealMax) score = Math.round((cfg.idealMax / avgVal) * 80);
+    }
+    const scoreLabel = score >= 90 ? 'Baik' : score >= 60 ? 'Perlu Perhatian' : 'Risiko';
+
+    res.json({
+      daily: daily.rows.map(r => ({
+        date: r.record_date,
+        total_value: parseInt(r.total_value),
+        count: parseInt(r.count),
+      })),
+      avg: { avg_value: avgVal, avg_count: avgCnt, unit: cfg.unit },
+      trend: { change_pct: trendPct, direction: trendPct > 0 ? 'up' : trendPct < 0 ? 'down' : 'stable' },
+      score: { value: score, label: scoreLabel },
+      days,
+    });
+  } catch (err) {
+    console.error(`Analytics error (${type}):`, err.message);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// GET /daily/:type/articles — tips statis
+router.get('/:type/articles', (req, res) => {
+  const { type } = req.params;
+  const cfg = TRACKER_ANALYTICS[type];
+  if (!cfg) return res.status(404).json({ error: 'Tipe tracker tidak dikenal' });
+  res.json({ articles: cfg.articles });
+});

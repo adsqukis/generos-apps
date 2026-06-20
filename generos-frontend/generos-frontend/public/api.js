@@ -348,6 +348,15 @@ const Api = {
     return this.request('/daily/sleep/articles');
   },
 
+  // === GENERIC TRACKER ANALYTICS ===
+  async getTrackerAnalytics(type, days = 7) {
+    return this.request(`/daily/${type}/analytics?days=${days}`);
+  },
+
+  async getTrackerArticles(type) {
+    return this.request(`/daily/${type}/articles`);
+  },
+
   // ============ SCREENING ============
   async getScreeningDomains() {
     return this.request('/screening/domains');
