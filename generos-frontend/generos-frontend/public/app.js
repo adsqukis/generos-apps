@@ -129,23 +129,22 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (action === 'show-admin-analytics') showAdminAnalytics();
   });
 
-  // Screening domain selection — direct attachment ke tiap tombol
-  // (event delegation bermasalah di browser automation, direct lebih reliable)
-  document.querySelectorAll('.domain-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const domain = e.currentTarget.dataset.domain;
-      if (domain) startScreening(domain);
-    });
+  // Screening domain selection — document-level delegation (paling reliable)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.domain-btn');
+    if (btn && btn.dataset.domain) {
+      e.preventDefault();
+      startScreening(btn.dataset.domain);
+    }
   });
 
-  // Screening answer buttons — direct attachment
-  document.querySelectorAll('.answer-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const answer = e.currentTarget.dataset.answer;
-      if (answer) submitScreeningAnswer(answer);
-    });
+  // Screening answer buttons — document-level delegation
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.answer-btn');
+    if (btn && btn.dataset.answer) {
+      e.preventDefault();
+      submitScreeningAnswer(btn.dataset.answer);
+    }
   });
 
   // Screening history items
@@ -174,6 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('result-content').addEventListener('click', (e) => {
     if (e.target.dataset.action === 'go-stimulation') {
       navigate('stimulation');
+    }
+    if (e.target.dataset.action === 'go-screening-again') {
+      navigate('screening');
     }
   });
 });
@@ -1005,7 +1007,7 @@ async function viewScreeningResult(sessionId) {
         <div class="result-desc">${zone.desc}</div>
       </div>
       <button class="btn-primary" data-action="go-stimulation">🧩 Lihat Aktivitas Stimulasi</button>
-      <button class="btn-secondary" onclick="navigate('screening')">📋 Skrining Lainnya</button>
+      <button class="btn-secondary" data-action="go-screening-again">📋 Skrining Lainnya</button>
     `;
   } catch (err) {
     showToast(err.message, 'error');
