@@ -35,30 +35,35 @@ const Api = {
       ...options.headers,
     };
 
+    let response;
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers,
       });
+    } catch (err) {
+      console.error('Network error:', err);
+      throw new Error('Koneksi gagal. Periksa internet Anda.');
+    }
 
-      // Handle expired token - try refresh once
-      if (response.status === 401 && this.getToken()) {
-        const refreshed = await this.tryRefreshToken();
-        if (refreshed) {
-          headers.Authorization = `Bearer ${this.getToken()}`;
+    // Handle expired token - try refresh once
+    if (response.status === 401 && this.getToken()) {
+      const refreshed = await this.tryRefreshToken();
+      if (refreshed) {
+        headers.Authorization = `Bearer ${this.getToken()}`;
+        try {
           const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers,
           });
           return await this.handleResponse(retryResponse);
+        } catch (err) {
+          throw new Error('Koneksi gagal. Periksa internet Anda.');
         }
       }
-
-      return await this.handleResponse(response);
-    } catch (err) {
-      console.error('API request failed:', err);
-      throw new Error('Koneksi gagal. Periksa internet Anda.');
     }
+
+    return await this.handleResponse(response);
   },
 
   async handleResponse(response) {
