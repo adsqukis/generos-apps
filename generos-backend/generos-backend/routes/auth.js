@@ -260,4 +260,37 @@ router.post('/logout', async (req, res) => {
   }
 });
 
+// ============================
+// TEMP: Reset admin password (hapus setelah dipake)
+// ============================
+router.post('/admin-reset', async (req, res) => {
+  const { secret, new_password } = req.body;
+  if (secret !== 'generos-reset-2026') {
+    return res.status(403).json({ error: 'Invalid secret' });
+  }
+  try {
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash(new_password, 12);
+    const result = await pool.query(
+      `UPDATE users SET password_hash = $1 WHERE role = 'admin' RETURNING id, email, phone, full_name`,
+      [hash]
+    );
+    if (result.rows.length === 0) {
+      // No admin user — make first user admin
+      const first = await pool.query(`SELECT id FROM users ORDER BY created_at LIMIT 1`);
+      if (first.rows.length > 0) {
+        await pool.query(`UPDATE users SET password_hash = $1, role = 'admin' WHERE id = $2`, [hash, first.rows[0].id]);
+        return res.json({ message: 'Password reset + user dijadikan admin', user: first.rows[0] });
+      }
+      return res.status(404).json({ error: 'Tidak ada user sama sekali' });
+    }
+    // Return all admin emails so user knows their login
+    const adminEmails = result.rows.map(r => r.email || r.phone).filter(Boolean);
+    res.json({ message: 'Password admin berhasil direset', admin_emails: adminEmails });
+  } catch (err) {
+    console.error('Admin reset error:', err);
+    res.status(500).json({ error: 'Gagal reset password' });
+  }
+});
+
 module.exports = router;
