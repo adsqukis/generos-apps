@@ -412,6 +412,11 @@ function navigate(page) {
     if (settingsBtn) {
       settingsBtn.style.display = (user && user.role === 'admin') ? '' : 'none';
     }
+    // Hide top-right gear icon for admin (using nav instead)
+    const headerSettings = document.getElementById('btn-settings');
+    if (headerSettings) {
+      headerSettings.style.display = (user && user.role === 'admin') ? 'none' : '';
+    }
   }
 
   // Load data per page
