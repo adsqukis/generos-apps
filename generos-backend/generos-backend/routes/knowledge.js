@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    let query = `SELECT id, title, slug, category, summary, content, red_flags, when_to_see_doctor, published_at FROM articles WHERE is_active = true`;
+    let query = `SELECT id, title, slug, category, summary, content, image_url, red_flags, when_to_see_doctor, published_at FROM articles WHERE is_active = true`;
     const params = [];
 
     if (category) {
@@ -52,7 +52,7 @@ router.get('/search', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT id, title, slug, category, summary FROM articles 
+      `SELECT id, title, slug, category, summary, image_url FROM articles 
        WHERE is_active = true AND (title ILIKE $1 OR summary ILIKE $1 OR content ILIKE $1)
        ORDER BY published_at DESC LIMIT 20`,
       [`%${safeQuery}%`]
