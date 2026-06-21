@@ -1854,7 +1854,6 @@ async function loadProducts() {
       <div class="product-card" data-id="${product.id}">
         <div class="product-card-image-wrap">
           ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(product.name)}" loading="lazy">` : ''}
-          <div class="product-card-badge-store">Generos</div>
         </div>
         <div class="product-card-content">
           <h3 class="product-card-title">${escapeHtml(product.name)}</h3>
