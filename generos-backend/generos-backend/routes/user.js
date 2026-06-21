@@ -138,24 +138,3 @@ router.get('/count', async (req, res) => {
     res.status(500).json({ error: 'Terjadi kesalahan server' });
   }
 });
-
-// ============================
-// ADMIN: Delete all non-admin users
-// ============================
-router.delete('/cleanup', async (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Hanya admin yang dapat menghapus data pengguna' });
-  }
-  try {
-    const result = await pool.query(
-      `DELETE FROM users WHERE role = 'user' RETURNING id, full_name, email, phone`
-    );
-    res.json({
-      message: `Berhasil menghapus ${result.rows.length} user`,
-      deleted_count: result.rows.length,
-    });
-  } catch (err) {
-    console.error('Cleanup users error:', err);
-    res.status(500).json({ error: 'Terjadi kesalahan server' });
-  }
-});
