@@ -213,6 +213,8 @@ const { Pool } = require('pg');
       ALTER TABLE users ADD COLUMN IF NOT EXISTS father_name VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS mother_name VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS parent_notes TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS wa_number VARCHAR(20) DEFAULT '6281234567890';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_support VARCHAR(255) DEFAULT 'support@generos.id';
     `);
     await ucPool.end();
     console.log('✓ User extra columns ready');
