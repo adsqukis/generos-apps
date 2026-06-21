@@ -258,6 +258,7 @@ function initApp() {
     if (action === 'show-admin-add-article') showAdminAddArticle();
     else if (action === 'show-admin-add-product') showAdminAddProduct();
     else if (action === 'show-admin-analytics') showAdminAnalytics();
+    else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
   });
 
   // Screening domain selection — onclick property langsung (CSP-safe)
@@ -359,7 +360,7 @@ function navigate(page) {
   if (page === 'video') loadVideoPage();
   if (page === 'knowledge') loadArticles();
   if (page === 'chat') loadChatHistory();
-  if (page === 'child-data') loadChildDataPage();
+  if (page === 'shop') loadProducts();
   if (page === 'settings') loadSettings();
   if (page === 'screening') loadScreeningPage();
   if (page === 'stimulation') loadStimulationPage();
@@ -1740,22 +1741,75 @@ async function buyProduct(productId) {
 function loadSettings() {
   const user = Api.getUser();
   const container = document.getElementById('settings-content');
-
   if (!user) return;
 
-  let html = `
-    <div class="card" style="border-left: none;">
+  container.innerHTML = `
+    <div id="cd-settings-wrapper">
+      <div class="cd-card" style="padding: 24px; border-radius: 24px;">
+        <div class="cd-header" style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+          <div id="cd-avatar-settings" class="cd-avatar" style="width:72px;height:72px;border-radius:50%;background:#FFF0E8;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#E8682E;margin-bottom:8px;overflow:hidden;">·</div>
+          <div id="cd-name-settings" style="font-size:18px;font-weight:700;color:#1A1A1A;">${escapeHtml(user.child_name || 'Belum diisi')}</div>
+          <div id="cd-age-settings" style="font-size:13px;color:#888;margin-top:2px;">Memuat...</div>
+        </div>
+        <div class="cd-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div class="cd-stat" style="background:#F9F9FB;border-radius:12px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Berat Badan</div>
+            <div id="cd-stat-bb-s" style="font-size:16px;font-weight:600;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-stat" style="background:#F9F9FB;border-radius:12px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Tinggi Badan</div>
+            <div id="cd-stat-tb-s" style="font-size:16px;font-weight:600;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-stat" style="background:#F9F9FB;border-radius:12px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Status Gizi</div>
+            <div id="cd-stat-gizi-s" style="font-size:14px;font-weight:600;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-stat" style="background:#F9F9FB;border-radius:12px;padding:8px 12px;">
+            <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Perkembangan</div>
+            <div id="cd-stat-dev-s" style="font-size:14px;font-weight:600;color:#1A1A1A;">-</div>
+          </div>
+        </div>
+        <button id="btn-edit-child-settings" data-action="edit-child-data" style="background:none;border:none;color:#E8682E;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;width:100%;text-align:center;">✏️ Edit Data Anak</button>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="cd-mini-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
+            <div style="font-size:24px;margin-bottom:4px;">⚖️</div>
+            <div style="font-size:11px;color:#888;">Berat Badan</div>
+            <div id="cd-mini-bb-s" style="font-size:16px;font-weight:700;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
+            <div style="font-size:24px;margin-bottom:4px;">📏</div>
+            <div style="font-size:11px;color:#888;">Tinggi Badan</div>
+            <div id="cd-mini-tb-s" style="font-size:16px;font-weight:700;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
+            <div style="font-size:24px;margin-bottom:4px;">🥗</div>
+            <div style="font-size:11px;color:#888;">Status Gizi</div>
+            <div id="cd-mini-gizi-s" style="font-size:14px;font-weight:600;color:#1A1A1A;">-</div>
+          </div>
+          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
+            <div style="font-size:24px;margin-bottom:4px;">🧩</div>
+            <div style="font-size:11px;color:#888;">Perkembangan</div>
+            <div id="cd-mini-dev-s" style="font-size:14px;font-weight:700;color:#1A1A1A;">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <button id="btn-add-child-data-settings" data-action="add-child-data" style="width:100%;padding:14px;background:#E8682E;color:white;border:none;border-radius:16px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(232,104,46,0.25);">+ Tambah Data Anak</button>
+    </div>
+    <div class="card" style="border-left:none;margin-top:16px;">
       <p class="cat">Nama Anda</p>
       <p class="title">${escapeHtml(user.full_name)}</p>
     </div>
-    <div class="card" style="border-left: none;">
-      <p class="cat">Nama Anak</p>
-      <p class="title">${escapeHtml(user.child_name)}</p>
-    </div>
   `;
 
+  // Load child profile data
+  loadChildProfileSettings();
+
   if (user.role === 'admin') {
-    html += `
+    const adminHtml = `
       <div class="admin-section" style="margin-top: 20px;">
         <h4>🔧 Admin Panel</h4>
         <button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Artikel</button>
@@ -1764,9 +1818,44 @@ function loadSettings() {
         <div id="admin-panel-content"></div>
       </div>
     `;
+    container.insertAdjacentHTML('beforeend', adminHtml);
   }
+}
 
-  container.innerHTML = html;
+async function loadChildProfileSettings() {
+  try {
+    const data = await Api.getChildProfile();
+    const child = data.child || {};
+    const g = data.growth || {};
+
+    // Avatar
+    const avatar = document.getElementById('cd-avatar-settings');
+    if (avatar) {
+      if (child.photo) {
+        avatar.innerHTML = `<img src="${escapeHtml(child.photo)}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else {
+        avatar.textContent = (child.name || 'A')[0].toUpperCase();
+      }
+    }
+
+    setText('cd-name-settings', child.name || 'Belum diisi');
+    setText('cd-age-settings', child.age || '-');
+    setText('cd-stat-bb-s', g.weight_kg ? `${g.weight_kg} kg` : '-');
+    setText('cd-stat-tb-s', g.height_cm ? `${g.height_cm} cm` : '-');
+    setText('cd-stat-gizi-s', data.nutrition_status || '-');
+    setText('cd-stat-dev-s', data.development_status || '-');
+    setText('cd-mini-bb-s', g.weight_kg ? `${g.weight_kg} kg` : '-');
+    setText('cd-mini-tb-s', g.height_cm ? `${g.height_cm} cm` : '-');
+    setText('cd-mini-gizi-s', data.nutrition_status || '-');
+    setText('cd-mini-dev-s', data.development_status || '-');
+  } catch (err) {
+    console.error('Load child profile settings error:', err);
+  }
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
 }
 
 // ============================

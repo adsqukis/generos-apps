@@ -204,166 +204,89 @@
         </div>
 
         <!-- ============ DATA ANAK PAGE ============ -->
-        <div id="page-child-data" class="page hidden" style="padding: 16px;">
-            <!-- Header -->
-            <div class="header" style="padding: 0 0 16px 0; display: flex; align-items: center; gap: 12px;">
-                <button class="back-btn" id="btn-back-child-data" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px;">←</button>
-                <h1 style="font-size: 20px; font-weight: 700; margin: 0;">Data Anak</h1>
-            </div>
-
-            <!-- MAIN CARD -->
-            <div class="child-card" style="max-width: 420px; background: #fff; border-radius: 24px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 16px;">
-                <div class="child-card-header" style="text-align: center; margin-bottom: 20px;">
-                    <div class="child-avatar" id="cd-avatar" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #E8682E, #F4A261); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 12px;">·</div>
-                    <div class="child-name" id="cd-name" style="font-size: 20px; font-weight: 700; color: #1a1a2e;">Memuat...</div>
-                    <div class="child-age" id="cd-age" style="font-size: 14px; color: #888; margin-top: 4px;">-</div>
+        <!-- MULTI-STEP FORM MODAL (Data Anak) -->
+        <div id="child-form-modal" class="modal-overlay hidden" style="z-index: 1000;">
+            <div class="child-form-box" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 92%; max-width: 420px; max-height: 90vh; overflow-y: auto; background: #fff; border-radius: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); padding: 0;">
+                <div class="modal-head" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; border-radius: 24px 24px 0 0; z-index: 2;">
+                    <h3 id="child-form-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Data Dasar</h3>
+                    <button class="modal-close" id="cd-close-modal" style="background: none; border: none; font-size: 20px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #888;">✕</button>
                 </div>
-                <div class="child-stats-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                    <div style="background: #f8f9fa; border-radius: 12px; padding: 12px;">
-                        <div style="font-size: 12px; color: #888; margin-bottom: 4px;">BB</div>
-                        <div id="cd-stat-bb" style="font-size: 18px; font-weight: 700; color: #1a1a2e;">-</div>
-                        <div style="font-size: 12px; color: #888; margin-top: 8px; margin-bottom: 4px;">TB</div>
-                        <div id="cd-stat-tb" style="font-size: 18px; font-weight: 700; color: #1a1a2e;">-</div>
+                <div style="padding: 20px 24px 24px;">
+                    <!-- Step 1: Data Dasar -->
+                    <div class="child-form-step" id="cd-step-1" style="display: block;">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Foto Anak</label>
+                            <input type="file" id="cd-photo" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #ddd; border-radius: 12px; font-size: 14px; background: #fafafa;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Lengkap</label>
+                            <input type="text" id="cd-fullname" placeholder="Nama lengkap anak" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Panggilan</label>
+                            <input type="text" id="cd-nickname" placeholder="Nama panggilan" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Tanggal Lahir</label>
+                            <input type="date" id="cd-dob" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Jenis Kelamin</label>
+                            <select id="cd-gender" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; background: #fff;">
+                                <option value="">Pilih jenis kelamin</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="background: #f8f9fa; border-radius: 12px; padding: 12px;">
-                        <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Status Gizi</div>
-                        <div id="cd-stat-gizi" style="font-size: 16px; font-weight: 600; color: #1a1a2e;">-</div>
-                        <div style="font-size: 12px; color: #888; margin-top: 8px; margin-bottom: 4px;">Perkembangan</div>
-                        <div id="cd-stat-perkembangan" style="font-size: 16px; font-weight: 600; color: #1a1a2e;">-</div>
+                    <!-- Step 2: Data Kelahiran -->
+                    <div class="child-form-step hidden" id="cd-step-2" style="display: none;">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Berat Lahir (kg)</label>
+                            <input type="number" step="0.01" min="0" id="cd-birth-weight" placeholder="Contoh: 3.2" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Panjang Lahir (cm)</label>
+                            <input type="number" step="0.1" min="0" id="cd-birth-height" placeholder="Contoh: 50" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Lingkar Kepala Lahir (cm)</label>
+                            <input type="number" step="0.1" min="0" id="cd-birth-head" placeholder="Contoh: 34" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
                     </div>
-                </div>
-                <button class="child-edit-btn" id="btn-edit-child" style="background: none; border: none; color: #E8682E; font-size: 14px; font-weight: 600; cursor: pointer; padding: 4px 0; display: block; width: 100%; text-align: center;">✏️ Edit Data</button>
-            </div>
-
-            <!-- 4 MINI CARDS -->
-            <div class="mini-cards-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <div class="mini-card" style="background: #fff; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); padding: 16px; text-align: center;">
-                    <div style="font-size: 28px; margin-bottom: 8px;">⚖️</div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Berat Badan</div>
-                    <div id="cd-mini-bb" style="font-size: 20px; font-weight: 700; color: #1a1a2e;">-</div>
-                </div>
-                <div class="mini-card" style="background: #fff; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); padding: 16px; text-align: center;">
-                    <div style="font-size: 28px; margin-bottom: 8px;">📏</div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Tinggi Badan</div>
-                    <div id="cd-mini-tb" style="font-size: 20px; font-weight: 700; color: #1a1a2e;">-</div>
-                </div>
-                <div class="mini-card" style="background: #fff; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); padding: 16px; text-align: center;">
-                    <div style="font-size: 28px; margin-bottom: 8px;">🥗</div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Status Gizi</div>
-                    <div id="cd-mini-gizi" style="font-size: 18px; font-weight: 600; color: #1a1a2e;">-</div>
-                </div>
-                <div class="mini-card" style="background: #fff; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); padding: 16px; text-align: center;">
-                    <div style="font-size: 28px; margin-bottom: 8px;">🧩</div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Perkembangan</div>
-                    <div id="cd-mini-perkembangan" style="font-size: 18px; font-weight: 600; color: #1a1a2e;">-</div>
-                </div>
-            </div>
-
-            <!-- STICKY BOTTOM BUTTON -->
-            <button id="btn-add-child-data" style="position:sticky;bottom:16px;width:100%;padding:16px;background:#E8682E;color:white;border:none;border-radius:16px;font-size:16px;font-weight:600;cursor:pointer;">+ Tambah Data Anak</button>
-
-            <!-- MULTI-STEP FORM MODAL -->
-            <div id="child-form-modal" class="modal-overlay hidden" style="z-index: 1000;">
-                <div class="child-form-box" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 92%; max-width: 420px; max-height: 90vh; overflow-y: auto; background: #fff; border-radius: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); padding: 0;">
-                    <div class="modal-head" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; border-radius: 24px 24px 0 0; z-index: 2;">
-                        <h3 id="child-form-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Data Dasar</h3>
-                        <button class="modal-close" id="cd-close-modal" style="background: none; border: none; font-size: 20px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #888;">✕</button>
+                    <!-- Step 3: Informasi Orang Tua -->
+                    <div class="child-form-step hidden" id="cd-step-3" style="display: none;">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Ayah</label>
+                            <input type="text" id="cd-father-name" placeholder="Nama ayah" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Ibu</label>
+                            <input type="text" id="cd-mother-name" placeholder="Nama ibu" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Catatan Orang Tua</label>
+                            <textarea id="cd-parent-notes" placeholder="Catatan tambahan tentang anak..." style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; resize: vertical; min-height: 80px; box-sizing: border-box; font-family: inherit;"></textarea>
+                        </div>
                     </div>
-
-                    <div style="padding: 20px 24px 24px;">
-                        <!-- Step 1: Data Dasar -->
-                        <div class="child-form-step" id="cd-step-1" style="display: block;">
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Foto Anak</label>
-                                <input type="file" id="cd-photo" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #ddd; border-radius: 12px; font-size: 14px; background: #fafafa;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Lengkap</label>
-                                <input type="text" id="cd-fullname" placeholder="Nama lengkap anak" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Panggilan</label>
-                                <input type="text" id="cd-nickname" placeholder="Nama panggilan" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Tanggal Lahir</label>
-                                <input type="date" id="cd-dob" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Jenis Kelamin</label>
-                                <select id="cd-gender" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box; background: #fff;">
-                                    <option value="">Pilih jenis kelamin</option>
-                                    <option value="Laki-laki">Laki-laki</option>
-                                    <option value="Perempuan">Perempuan</option>
-                                </select>
-                            </div>
+                    <!-- Step 4: Konfirmasi -->
+                    <div class="child-form-step hidden" id="cd-step-4" style="display: none;">
+                        <div style="background: #f8f9fa; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                            <h4 style="margin: 0 0 12px; font-size: 16px; font-weight: 700; color: #1a1a2e;">📋 Review Data Anak</h4>
+                            <div id="cd-review-content" style="font-size: 14px; color: #333; line-height: 1.8;"></div>
                         </div>
-
-                        <!-- Step 2: Data Kelahiran -->
-                        <div class="child-form-step hidden" id="cd-step-2" style="display: none;">
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Berat Lahir (kg)</label>
-                                <input type="number" step="0.01" min="0" id="cd-birth-weight" placeholder="Contoh: 3.2" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Panjang Lahir (cm)</label>
-                                <input type="number" step="0.1" min="0" id="cd-birth-height" placeholder="Contoh: 50" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Lingkar Kepala Lahir (cm)</label>
-                                <input type="number" step="0.1" min="0" id="cd-birth-head" placeholder="Contoh: 34" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
+                    </div>
+                    <!-- Step Nav -->
+                    <div class="child-form-nav" style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
+                        <div class="step-dots" style="display: flex; justify-content: center; gap: 8px;">
+                            <span class="step-dot" data-step="1" style="width: 10px; height: 10px; border-radius: 50%; background: #E8682E; display: inline-block;"></span>
+                            <span class="step-dot" data-step="2" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
+                            <span class="step-dot" data-step="3" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
+                            <span class="step-dot" data-step="4" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
                         </div>
-
-                        <!-- Step 3: Informasi Orang Tua -->
-                        <div class="child-form-step hidden" id="cd-step-3" style="display: none;">
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Ayah</label>
-                                <input type="text" id="cd-father-name" placeholder="Nama ayah" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Nama Ibu</label>
-                                <input type="text" id="cd-mother-name" placeholder="Nama ibu" style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; box-sizing: border-box;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label style="display: block; font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px;">Catatan Orang Tua</label>
-                                <textarea id="cd-parent-notes" placeholder="Catatan tambahan tentang anak..." style="width: 100%; padding: 12px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; outline: none; resize: vertical; min-height: 80px; box-sizing: border-box; font-family: inherit;"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Step 4: Konfirmasi -->
-                        <div class="child-form-step hidden" id="cd-step-4" style="display: none;">
-                            <div style="background: #f8f9fa; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
-                                <h4 style="margin: 0 0 12px; font-size: 16px; font-weight: 700; color: #1a1a2e;">📋 Review Data Anak</h4>
-                                <div id="cd-review-content" style="font-size: 14px; color: #333; line-height: 1.8;">
-                                    <p style="margin: 4px 0;"><strong>Nama Lengkap:</strong> <span id="rv-fullname">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Nama Panggilan:</strong> <span id="rv-nickname">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Tanggal Lahir:</strong> <span id="rv-dob">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Jenis Kelamin:</strong> <span id="rv-gender">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Berat Lahir:</strong> <span id="rv-birth-weight">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Panjang Lahir:</strong> <span id="rv-birth-height">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Lingkar Kepala Lahir:</strong> <span id="rv-birth-head">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Nama Ayah:</strong> <span id="rv-father">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Nama Ibu:</strong> <span id="rv-mother">-</span></p>
-                                    <p style="margin: 4px 0;"><strong>Catatan:</strong> <span id="rv-notes">-</span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step Nav -->
-                        <div class="child-form-nav" style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
-                            <!-- Step Dots -->
-                            <div class="step-dots" style="display: flex; justify-content: center; gap: 8px;">
-                                <span class="step-dot" data-step="1" style="width: 10px; height: 10px; border-radius: 50%; background: #E8682E; display: inline-block;"></span>
-                                <span class="step-dot" data-step="2" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
-                                <span class="step-dot" data-step="3" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
-                                <span class="step-dot" data-step="4" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
-                            </div>
-                            <!-- Prev/Next Buttons -->
-                            <div class="child-form-buttons" style="display: flex; gap: 12px;">
-                                <button id="cd-prev-step" style="flex: 1; padding: 14px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: #888; display: none;">← Sebelumnya</button>
-                                <button id="cd-next-step" style="flex: 1; padding: 14px; background: #E8682E; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;">Lanjut →</button>
-                            </div>
+                        <div class="child-form-buttons" style="display: flex; gap: 12px;">
+                            <button id="cd-prev-step" style="flex: 1; padding: 14px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: #888; display: none;">← Sebelumnya</button>
+                            <button id="cd-next-step" style="flex: 1; padding: 14px; background: #E8682E; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;">Lanjut →</button>
                         </div>
                     </div>
                 </div>
@@ -522,6 +445,15 @@
         </div>
 
         <!-- ============ SHOP PAGE ============ -->
+        <div id="page-shop" class="page hidden">
+            <div class="header">
+                <h1>🛍️ Belanja Generos</h1>
+            </div>
+            <div class="container">
+                <div id="product-list">Memuat...</div>
+            </div>
+        </div>
+
         <!-- ============ SETTINGS PAGE ============ -->
         <div id="page-settings" class="page hidden">
             <div class="header">
@@ -869,8 +801,8 @@
             <button class="nav-btn" data-page="chat">
                 <span>💬</span><span>Chat</span>
             </button>
-            <button class="nav-btn" data-page="child-data">
-                <span>👶</span><span>Data Anak</span>
+            <button class="nav-btn" data-page="shop">
+                <span>🛍️</span><span>Belanja</span>
             </button>
         </div>
     </div>
