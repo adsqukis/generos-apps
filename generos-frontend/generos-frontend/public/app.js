@@ -480,23 +480,54 @@ async function loadChildProfile(user, growthRecords) {
       document.getElementById('stat-tb').textContent = latest.height_cm != null ? `${latest.height_cm} cm` : '-';
       document.getElementById('stat-lk').textContent = latest.head_circumference_cm != null ? `${latest.head_circumference_cm} cm` : '-';
 
-      // Status gizi sederhana
+      // Status gizi — WHO BB/U (Berat Badan menurut Umur)
       const bb = parseFloat(latest.weight_kg);
       const nutStatus = document.getElementById('nutrition-status');
-      if (bb > 0) {
-        // Estimasi sederhana berdasarkan BB rata-rata per usia
-        if (bb < 2.5) nutStatus.textContent = '🔴 Risiko';
-        else if (bb < 5) nutStatus.textContent = '🟡 Perlu Perhatian';
-        else nutStatus.textContent = '✅ Gizi Baik';
+      if (bb > 0 && age > 0) {
+        const status = calculateNutritionStatus(bb, age);
+        nutStatus.textContent = status;
       } else {
         nutStatus.textContent = '✅ Gizi Baik';
       }
     } else {
-      // Fallback — tampilin apa yang ada dari user
+      // Fallback
       document.getElementById('stat-bb').textContent = '-';
       document.getElementById('stat-tb').textContent = '-';
       document.getElementById('stat-lk').textContent = '-';
     }
+}
+
+// Hitung status gizi berdasarkan BB & Usia (WHO BB/U reference)
+function calculateNutritionStatus(weightKg, ageMonths) {
+  // Median weight for age (kg) — unisex approximate WHO Child Growth Standards
+  const medians = [
+    { max: 1, med: 3.5, sd: 0.5 },    // 0-1 bulan
+    { max: 2, med: 4.5, sd: 0.6 },
+    { max: 3, med: 5.5, sd: 0.6 },
+    { max: 4, med: 6.2, sd: 0.7 },
+    { max: 5, med: 6.8, sd: 0.7 },
+    { max: 6, med: 7.3, sd: 0.8 },
+    { max: 9, med: 8.0, sd: 0.9 },
+    { max: 12, med: 8.8, sd: 1.0 },
+    { max: 15, med: 9.6, sd: 1.0 },
+    { max: 18, med: 10.2, sd: 1.1 },
+    { max: 24, med: 11.5, sd: 1.3 },
+    { max: 30, med: 12.5, sd: 1.4 },
+    { max: 36, med: 13.5, sd: 1.5 },
+    { max: 48, med: 15.2, sd: 1.8 },
+    { max: 60, med: 17.0, sd: 2.2 },
+    { max: 72, med: 19.0, sd: 2.6 },
+    { max: 999, med: 22.0, sd: 3.5 },
+  ];
+
+  const ref = medians.find(m => ageMonths <= m.max) || medians[medians.length - 1];
+  const diff = (weightKg - ref.med) / ref.sd; // Z-score approximate
+
+  if (diff < -3) return '🔴 Gizi Buruk';
+  if (diff < -2) return '🟡 Gizi Kurang';
+  if (diff > 3) return '🔴 Obesitas';
+  if (diff > 2) return '🟡 Risiko Gizi Lebih';
+  return '✅ Gizi Baik';
 }
 
 // === Age-based visibility — sembunyikan tracker sesuai usia ===
