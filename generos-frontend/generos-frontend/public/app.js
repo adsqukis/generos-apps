@@ -166,6 +166,21 @@ function initApp() {
     if (card) navigate('knowledge');
   });
 
+  // === DEVELOPMENT PAGE Listeners ===
+  safeAddListener('btn-back-dev', 'click', () => navigate('home'));
+  safeAddListener('btn-dev-screening', 'click', () => navigate('screening'));
+  safeAddListener('btn-dev-share', 'click', () => {
+    const text = document.getElementById('dev-insight-text')?.textContent || 'Perkembangan anak';
+    navigator.clipboard.writeText(text).then(() => showToast('Disalin!', 'success')).catch(() => {});
+  });
+  let devCurrentAge = null;
+  safeAddListener('dev-age-prev', 'click', () => {
+    if (devCurrentAge > 1) { devCurrentAge--; loadDevelopmentPageData(devCurrentAge); }
+  });
+  safeAddListener('dev-age-next', 'click', () => {
+    if (devCurrentAge < 72) { devCurrentAge++; loadDevelopmentPageData(devCurrentAge); }
+  });
+
   // All back buttons (navigate home)
   document.querySelectorAll('.back-btn').forEach((btn) => {
     btn.addEventListener('click', () => navigate('home'));
@@ -353,6 +368,7 @@ function navigate(page) {
   if (page === 'screening') loadScreeningPage();
   if (page === 'stimulation') loadStimulationPage();
   if (page === 'sleep') loadSleepPage();
+  if (page === 'development') loadDevelopmentPage();
   if (page === 'tracker-detail') loadTrackerDetailPage();
 }
 
@@ -2765,5 +2781,76 @@ async function deleteTrackerRecordGeneric(id) {
     await loadTrackerAnalytics(type, cfg);
   } catch (err) {
     showToast('Gagal menghapus', 'error');
+  }
+}
+
+// ============================
+// DEVELOPMENT PAGE
+// ============================
+async function loadDevelopmentPage() {
+  const user = Api.getUser();
+  if (!user) return;
+  const age = calculateAgeMonths(user.child_dob);
+  devCurrentAge = age;
+  await loadDevelopmentPageData(age);
+}
+
+async function loadDevelopmentPageData(age) {
+  const user = Api.getUser();
+  if (!user) return;
+  const childName = user.child_name || 'Anak';
+  const dob = user.child_dob ? new Date(user.child_dob) : null;
+  let extraDays = 0;
+  if (dob) {
+    const diff = new Date() - dob;
+    extraDays = Math.floor(diff / (1000 * 60 * 60 * 24)) % 30;
+  }
+  document.getElementById('dev-age-label').textContent = `${age} bulan ${extraDays} hari`;
+  try {
+    const data = await Api.request(`/development?age=${age}`);
+    if (!data) return;
+    document.getElementById('dev-today-text').textContent = data.tip || 'Memuat...';
+    const doList = document.getElementById('dev-do-list');
+    const dontList = document.getElementById('dev-dont-list');
+    doList.innerHTML = (data.recommended || []).map(r => `<li>${escapeHtml(r)}</li>`).join('');
+    dontList.innerHTML = (data.not_recommended || []).map(r => `<li>${escapeHtml(r)}</li>`).join('');
+    document.getElementById('dev-insight-text').textContent = data.insight || 'Memuat analisis...';
+    const warnCard = document.getElementById('dev-warning-card');
+    if (data.score && data.score.value !== null && data.score.value < 60) {
+      warnCard.style.display = 'block';
+      document.getElementById('dev-warning-text').textContent = `Skor perkembangan ${childName} adalah ${data.score.value} (${data.score.label}). Disarankan konsultasi dengan dokter anak.`;
+    } else {
+      warnCard.style.display = 'none';
+    }
+    const p = data.progress || {};
+    document.getElementById('dev-progress-count').textContent = `${p.completed || 0} / ${p.total || 0}`;
+    document.getElementById('dev-progress-fill').style.width = `${p.percentage || 0}%`;
+    document.getElementById('dev-progress-pct').textContent = `${p.percentage || 0}%`;
+    const bc = data.by_category || {};
+    const catMap = { motor: 'dev-cat-motor', speech: 'dev-cat-speech', social: 'dev-cat-social', cognitive: 'dev-cat-cognitive' };
+    const catListMap = { motor: 'dev-cat-motor-list', speech: 'dev-cat-speech-list', social: 'dev-cat-social-list', cognitive: 'dev-cat-cognitive-list' };
+    Object.entries(catMap).forEach(([cat, id]) => {
+      const c = bc[cat] || { completed: 0, total: 0, items: [] };
+      document.getElementById(id).textContent = `${c.completed}/${c.total}`;
+      document.getElementById(catListMap[cat]).innerHTML = (c.items || []).map(m => `<li class="${m.done ? 'done' : 'pending'}">${escapeHtml(m.title)}</li>`).join('');
+    });
+    const sc = data.score || {};
+    document.getElementById('dev-score-num').textContent = sc.value !== null ? `${sc.value}%` : '—';
+    document.getElementById('dev-score-label').textContent = sc.label || '-';
+    const circle = document.getElementById('dev-score-circle');
+    if (sc.value !== null) circle.style.borderColor = sc.value >= 75 ? '#10B981' : sc.value >= 60 ? '#F59E0B' : '#EF4444';
+    const timeline = data.timeline || [];
+    document.getElementById('dev-timeline').innerHTML = timeline.map(t => {
+      const cls = t.is_current ? 'current' : t.is_past ? 'past' : '';
+      return `<div class="dev-timeline-item ${cls}">
+        <div class="dev-timeline-age">${escapeHtml(t.label)}</div>
+        <div class="dev-timeline-ms">
+          ${(t.milestones || []).slice(0, 3).map(m => `<div class="tl-title">${t.is_past ? '✅' : t.is_current ? '⏳' : '○'} ${escapeHtml(m)}</div>`).join('')}
+          ${t.milestones && t.milestones.length > 3 ? `<div class="tl-detail">+${t.milestones.length - 3} lainnya</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    console.error('Development page error:', err);
   }
 }

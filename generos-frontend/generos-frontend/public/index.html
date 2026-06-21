@@ -614,13 +614,109 @@
             </div>
         </div>
 
+        <!-- ============ DEVELOPMENT PAGE (Perkembangan) ============ -->
+        <div id="page-development" class="page hidden">
+            <div class="header dev-header">
+                <button class="back-btn" id="btn-back-dev">←</button>
+                <h1>🌟 Perkembangan</h1>
+                <button class="icon-btn-round" id="btn-dev-share">📤</button>
+            </div>
+            <div class="container">
+
+                <!-- Section 1: Perkembangan Hari Ini -->
+                <div class="dev-today-card">
+                    <div class="dev-age-nav">
+                        <button class="dev-age-btn" id="dev-age-prev">‹</button>
+                        <div>
+                            <p class="dev-age-label" id="dev-age-label">Memuat...</p>
+                            <p class="dev-age-sub" id="dev-age-sub">Baca Perkembanganku Hari Ini</p>
+                        </div>
+                        <button class="dev-age-btn" id="dev-age-next">›</button>
+                    </div>
+                    <p class="dev-today-text" id="dev-today-text">Memuat...</p>
+                    <div class="dev-do-section">
+                        <p class="dev-do-title">✅ Yang Sebaiknya Dilakukan</p>
+                        <ul id="dev-do-list"></ul>
+                    </div>
+                    <div class="dev-dont-section">
+                        <p class="dev-dont-title">❌ Yang Sebaiknya Dihindari</p>
+                        <ul id="dev-dont-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Section 2: AI Insight -->
+                <div class="dev-insight-card">
+                    <p class="dev-insight-icon">🤖</p>
+                    <p class="dev-insight-text" id="dev-insight-text">Memuat analisis...</p>
+                </div>
+
+                <!-- Section 3: Early Warning -->
+                <div class="dev-warning-card" id="dev-warning-card" style="display:none;">
+                    <p class="dev-warning-title">⚠️ Cek Tanda Bahaya Si Kecil</p>
+                    <p class="dev-warning-text" id="dev-warning-text"></p>
+                    <button class="btn-primary" id="btn-dev-screening">📋 Skrining Lengkap</button>
+                </div>
+
+                <!-- Section 4: Milestone Progress -->
+                <div class="dev-progress-card">
+                    <p class="dev-section-title">📊 Pantau Perkembangan</p>
+                    <div class="dev-progress-bar-wrap">
+                        <div class="dev-progress-info">
+                            <span id="dev-progress-label">Pencapaian Perkembangan</span>
+                            <span id="dev-progress-count">0 / 0</span>
+                        </div>
+                        <div class="dev-progress-track">
+                            <div class="dev-progress-fill" id="dev-progress-fill" style="width:0%"></div>
+                        </div>
+                        <span class="dev-progress-pct" id="dev-progress-pct">0%</span>
+                    </div>
+                </div>
+
+                <!-- Section 5: Milestone Categories -->
+                <div id="dev-categories">
+                    <div class="dev-cat-card" data-cat="motor">
+                        <div class="dev-cat-head"><span class="dev-cat-icon">👣</span><span class="dev-cat-name">Motorik</span><span class="dev-cat-progress" id="dev-cat-motor">0/0</span></div>
+                        <ul class="dev-cat-list" id="dev-cat-motor-list"></ul>
+                    </div>
+                    <div class="dev-cat-card" data-cat="speech">
+                        <div class="dev-cat-head"><span class="dev-cat-icon">💬</span><span class="dev-cat-name">Bahasa</span><span class="dev-cat-progress" id="dev-cat-speech">0/0</span></div>
+                        <ul class="dev-cat-list" id="dev-cat-speech-list"></ul>
+                    </div>
+                    <div class="dev-cat-card" data-cat="social">
+                        <div class="dev-cat-head"><span class="dev-cat-icon">😊</span><span class="dev-cat-name">Sosial & Emosional</span><span class="dev-cat-progress" id="dev-cat-social">0/0</span></div>
+                        <ul class="dev-cat-list" id="dev-cat-social-list"></ul>
+                    </div>
+                    <div class="dev-cat-card" data-cat="cognitive">
+                        <div class="dev-cat-head"><span class="dev-cat-icon">🧠</span><span class="dev-cat-name">Kognitif</span><span class="dev-cat-progress" id="dev-cat-cognitive">0/0</span></div>
+                        <ul class="dev-cat-list" id="dev-cat-cognitive-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Section 6: Development Score -->
+                <div class="dev-score-card">
+                    <p class="dev-section-title">🎯 Skor Perkembangan</p>
+                    <div class="dev-score-circle" id="dev-score-circle">
+                        <span class="dev-score-num" id="dev-score-num">-</span>
+                        <span class="dev-score-label" id="dev-score-label">-</span>
+                    </div>
+                </div>
+
+                <!-- Section 7: Timeline -->
+                <div class="dev-timeline-card">
+                    <p class="dev-section-title">📅 Perjalanan Perkembangan</p>
+                    <div id="dev-timeline"></div>
+                </div>
+
+            </div>
+        </div>
+
         <!-- ============ NAVIGATION BAR ============ -->
         <div id="nav-bar" class="nav-bar hidden">
             <button class="nav-btn" data-page="home">
                 <span>🏠</span><span>Beranda</span>
             </button>
-            <button class="nav-btn" data-page="tracking">
-                <span>📈</span><span>Tumbuh Kembang</span>
+            <button class="nav-btn" data-page="development">
+                <span>🌟</span><span>Kembang</span>
             </button>
             <button class="nav-btn" data-page="video">
                 <span>🎬</span><span>Video</span>
