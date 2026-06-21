@@ -69,7 +69,7 @@ router.get('/profile', async (req, res) => {
     let devStatus = 'Belum ada skrining';
     try {
       const screenResult = await pool.query(
-        `SELECT score_percentage as score, domain FROM screening_sessions`
+        `SELECT score_percentage as score, domain FROM screening_sessions
          WHERE user_id = $1 ORDER BY completed_at DESC LIMIT 1`,
         [req.user.id]
       );
