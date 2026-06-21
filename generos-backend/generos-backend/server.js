@@ -226,14 +226,12 @@ const { Pool } = require('pg');
   // Fallback: alter columns for articles & products (in case main migration skipped)
   try {
     const fpPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
-    await fpPool.query(`
-      ALTER TABLE articles ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);
-      ALTER TABLE products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]';
-      ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10,2);
-      ALTER TABLE products ADD COLUMN IF NOT EXISTS rating DECIMAL(2,1) DEFAULT 0;
-    `);
+    await fpPool.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS image_url VARCHAR(500)`);
+    await fpPool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'`);
+    await fpPool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10,2)`);
+    await fpPool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS rating DECIMAL(2,1) DEFAULT 0`);
+    console.log('✓ Product columns: images, original_price, rating');
     await fpPool.end();
-    console.log('✓ Article/product columns ready');
   } catch(e) {
     console.warn('[fallback-migrate]', e.message.slice(0,200));
   }
