@@ -7,6 +7,16 @@ let selectedSeverity = 'normal';
 let articlesCache = [];
 
 // ============================
+// HELPERS
+// ============================
+function imgUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/uploads/')) return UPLOAD_BASE_URL + url;
+  return url;
+}
+
+// ============================
 // INIT — jalan langsung karena script di akhir <body> (DOM sudah siap)
 // ============================
 function initApp() {
@@ -1596,7 +1606,7 @@ async function loadVideoPage() {
 
       return `
         <div class="video-card" data-video-id="${v.id}">
-          <div class="video-thumb" style="${v.thumbnail_url ? `background-image:url('${v.thumbnail_url}');background-size:cover;background-position:center` : getThumbnailStyle(categoryName)}">
+          <div class="video-thumb" style="${v.thumbnail_url ? `background-image:url('${imgUrl(v.thumbnail_url)}');background-size:cover;background-position:center` : getThumbnailStyle(categoryName)}">
             <div class="play-overlay">▶️</div>
             ${duration ? `<span class="video-duration">${duration}</span>` : ''}
           </div>
@@ -1695,7 +1705,7 @@ async function loadArticles() {
         (article, idx) => `
       <div class="card" data-article-id="${article.id}">
         <p class="cat">${escapeHtml(article.category)}</p>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${escapeHtml(article.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin:6px 0;">` : ''}
+        ${article.image_url ? `<img src="${imgUrl(article.image_url)}" alt="${escapeHtml(article.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin:6px 0;">` : ''}
         <p class="title">${escapeHtml(article.title)}</p>
         <p class="desc">${escapeHtml(article.summary)}</p>
       </div>
@@ -1732,7 +1742,7 @@ async function showArticleDetail(id) {
 
     detail.innerHTML = `
       <button class="btn-secondary" data-action="back-article-list" style="text-align: center;">← Kembali</button>
-      ${article.image_url ? `<img src="${article.image_url}" alt="${escapeHtml(article.title)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin:8px 0;">` : ''}
+      ${article.image_url ? `<img src="${imgUrl(article.image_url)}" alt="${escapeHtml(article.title)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin:8px 0;">` : ''}
       <h2 style="color: #003DA5; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
       <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">${escapeHtml(article.content).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</p>
       ${article.red_flags ? `
@@ -1822,7 +1832,7 @@ async function loadProducts() {
         ${product.images && product.images.length > 0 ? `
           <div class="product-carousel" style="position:relative;width:100%;height:180px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
             ${product.images.map((img, i) => `
-              <img src="${img}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">
+              <img src="${imgUrl(img)}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">`
             `).join('')}
             ${product.images.length > 1 ? `
               <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;">
@@ -1832,7 +1842,7 @@ async function loadProducts() {
               <button class="carousel-next" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:28px;text-align:center;">❯</button>
             ` : ''}
           </div>
-        ` : product.image_url ? `<img src="${product.image_url}" alt="${escapeHtml(product.name)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : ''}
+        ` : product.image_url ? `<img src="${imgUrl(product.image_url)}" alt="${escapeHtml(product.name)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : ''}
         <h3>${escapeHtml(product.name)}</h3>
         <p class="price">Rp ${Number(product.price).toLocaleString('id-ID')}</p>
         <button data-product-id="${product.id}">🛒 Beli di Shopee</button>

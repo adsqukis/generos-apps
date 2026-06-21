@@ -3,3 +3,7 @@
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api'
   : 'https://generos-apss-production.up.railway.app/api';
+
+const UPLOAD_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : 'https://generos-apss-production.up.railway.app';
