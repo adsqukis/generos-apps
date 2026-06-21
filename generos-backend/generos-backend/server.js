@@ -229,6 +229,21 @@ const { Pool } = require('pg');
     } catch(e) {
       console.warn('[seed-videos] Skipped:', e.message.slice(0,100));
     }
+
+    // Auto seed article data if empty
+    try {
+      const checkArticles = await pool.query('SELECT COUNT(*) as cnt FROM articles');
+      if (parseInt(checkArticles.rows[0].cnt) === 0) {
+        console.log('🌱 Seeding articles data...');
+        const seedArticles = require('./config/seed-articles');
+        await seedArticles();
+        console.log('✓ Articles seeding completed');
+      } else {
+        console.log(`✓ Articles data exists (${checkArticles.rows[0].cnt} articles)`);
+      }
+    } catch(e) {
+      console.warn('[seed-articles] Skipped:', e.message.slice(0,100));
+    }
   }, 100);
 })();
 
