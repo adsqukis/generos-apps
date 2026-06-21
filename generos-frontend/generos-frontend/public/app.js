@@ -406,6 +406,12 @@ function navigate(page) {
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.page === page);
     });
+    // Show Settings nav button only for admin
+    const user = Api.getUser();
+    const settingsBtn = document.getElementById('nav-btn-settings');
+    if (settingsBtn) {
+      settingsBtn.style.display = (user && user.role === 'admin') ? '' : 'none';
+    }
   }
 
   // Load data per page
@@ -1914,15 +1920,27 @@ function loadSettings() {
     </div>
 
     <!-- Customer Service Settings -->
-    <div class="card" style="border-left:none;margin-top:16px;padding:16px;">
-      <p class="cat" style="margin-bottom:10px;">📞 Customer Service</p>
-      <div class="form-group"><label>No. WhatsApp</label>
-        <input type="text" id="cs-wa-input" style="width:100%;padding:10px;border:2px solid #E5E7EB;border-radius:8px;font-size:14px;" placeholder="6281234567890">
+    <div class="card" style="border-left:none;margin-top:16px;padding:12px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <p class="cat" style="margin:0;">📞 Customer Service</p>
+        <button id="btn-toggle-cs-edit" style="background:none;border:none;font-size:14px;cursor:pointer;color:#E8682E;padding:4px;">✏️</button>
       </div>
-      <div class="form-group" style="margin-top:10px;"><label>Email CS</label>
-        <input type="text" id="cs-email-input" style="width:100%;padding:10px;border:2px solid #E5E7EB;border-radius:8px;font-size:14px;" placeholder="support@generos.id">
+      <div style="font-size:13px;color:#555;margin-top:6px;">
+        <span id="cs-wa-display">Memuat...</span> · <span id="cs-email-display">Memuat...</span>
       </div>
-      <button class="btn-primary" data-action="save-cs-settings" style="margin-top:10px;">💾 Simpan CS Settings</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <a id="cs-wa-link" href="#" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#25D366;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;">💬 WhatsApp</a>
+        <a id="cs-email-link" href="#" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#E5E7EB;color:#333;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;">📧 Email</a>
+      </div>
+      <div id="cs-edit-form" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
+        <div class="form-group"><label style="font-size:12px;">No. WhatsApp</label>
+          <input type="text" id="cs-wa-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;font-size:13px;" placeholder="6281234567890">
+        </div>
+        <div class="form-group" style="margin-top:6px;"><label style="font-size:12px;">Email CS</label>
+          <input type="text" id="cs-email-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;font-size:13px;" placeholder="support@generos.id">
+        </div>
+        <button class="btn-primary" data-action="save-cs-settings" style="margin-top:6px;padding:8px 14px;font-size:12px;">💾 Simpan</button>
+      </div>
     </div>
 
     <!-- Settings Menu: Accordion Items -->
@@ -1983,6 +2001,15 @@ function loadSettings() {
     `;
     container.insertAdjacentHTML('beforeend', adminHtml);
   }
+
+  // Toggle CS edit form
+  const toggleBtn = document.getElementById('btn-toggle-cs-edit');
+  if (toggleBtn) {
+    toggleBtn.onclick = function() {
+      const form = document.getElementById('cs-edit-form');
+      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    };
+  }
 }
 
 async function loadChildProfileSettings() {
@@ -2039,18 +2066,37 @@ function setText(id, text) {
 async function loadCsSettings() {
   try {
     const data = await Api.getSettings();
+    const wa = data.settings.wa_number || '';
+    const email = data.settings.email_support || '';
+
+    // Update edit form inputs
     const waInput = document.getElementById('cs-wa-input');
     const emailInput = document.getElementById('cs-email-input');
-    if (waInput && data.settings.wa_number) waInput.value = data.settings.wa_number;
-    if (emailInput && data.settings.email_support) emailInput.value = data.settings.email_support;
-    // Update FAQ links
-    const waLink = document.querySelector('a[href*="wa.me"]');
-    if (waLink && data.settings.wa_number) {
-      waLink.href = `https://wa.me/${data.settings.wa_number}?text=Halo%20Generos%20Care`;
+    if (waInput) waInput.value = wa;
+    if (emailInput) emailInput.value = email;
+
+    // Update display
+    setText('cs-wa-display', wa || 'Belum diatur');
+    setText('cs-email-display', email || 'Belum diatur');
+
+    // Update quick-action links
+    const waLink = document.getElementById('cs-wa-link');
+    if (waLink && wa) {
+      waLink.href = `https://wa.me/${wa}?text=Halo%20Generos%20Care`;
     }
-    const emailLink = document.querySelector('a[href*="mailto"]');
-    if (emailLink && data.settings.email_support) {
-      emailLink.href = `mailto:${data.settings.email_support}`;
+    const emailLink = document.getElementById('cs-email-link');
+    if (emailLink && email) {
+      emailLink.href = `mailto:${email}`;
+    }
+
+    // Update FAQ links (existing)
+    const faqWa = document.querySelector('a[href*="wa.me"]');
+    if (faqWa && wa) {
+      faqWa.href = `https://wa.me/${wa}?text=Halo%20Generos%20Care`;
+    }
+    const faqEmail = document.querySelector('a[href*="mailto"]');
+    if (faqEmail && email) {
+      faqEmail.href = `mailto:${email}`;
     }
   } catch (err) {
     console.error('Load CS settings error:', err);
@@ -2063,7 +2109,10 @@ async function saveCsSettings() {
     const email = document.getElementById('cs-email-input').value.trim();
     const data = await Api.updateSettings({ wa_number: wa, email_support: email });
     showToast('CS Settings berhasil disimpan', 'success');
-    loadCsSettings(); // Refresh FAQ links
+    loadCsSettings(); // Refresh all display & links
+    // Close edit form
+    const form = document.getElementById('cs-edit-form');
+    if (form) form.style.display = 'none';
   } catch (err) {
     showToast(err.message, 'error');
   }
