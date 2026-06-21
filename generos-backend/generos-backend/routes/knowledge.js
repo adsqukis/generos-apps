@@ -105,7 +105,13 @@ router.post(
     }
 
     const { title, category, content, summary, red_flags, when_to_see_doctor, sources, image_url } = req.body;
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    let slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    // Handle duplicate slug — append suffix if already exists
+    const slugCheck = await pool.query('SELECT id FROM articles WHERE slug = $1', [slug]);
+    if (slugCheck.rows.length > 0) {
+      slug = slug + '-' + Date.now();
+    }
 
     try {
       const result = await pool.query(
@@ -118,7 +124,23 @@ router.post(
       res.status(201).json({ article: result.rows[0] });
     } catch (err) {
       console.error('Create article error:', err);
-      res.status(500).json({ error: 'Terjadi kesalahan server' });
+      // If duplicate slug still happens (race condition), retry with timestamp
+      if (err.code === '23505' && err.constraint === 'articles_slug_key') {
+        slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
+        try {
+          const retryResult = await pool.query(
+            `INSERT INTO articles (title, slug, category, content, summary, red_flags, when_to_see_doctor, sources, image_url, verified_by, verified_date, is_active)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP, true)
+             RETURNING *`,
+            [title, slug, category, content, summary, red_flags || null, when_to_see_doctor || null, JSON.stringify(sources || []), image_url || null, req.user.id]
+          );
+          return res.status(201).json({ article: retryResult.rows[0] });
+        } catch (retryErr) {
+          console.error('Create article retry error:', retryErr);
+          return res.status(500).json({ error: 'Terjadi kesalahan server. Coba dengan judul berbeda.' });
+        }
+      }
+      res.status(500).json({ error: 'Terjadi kesalahan server. Coba dengan judul berbeda.' });
     }
   }
 );
