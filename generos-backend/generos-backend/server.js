@@ -229,6 +229,8 @@ const { Pool } = require('pg');
     await fpPool.query(`
       ALTER TABLE articles ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);
       ALTER TABLE products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]';
+      ALTER TABLE products ADD COLUMN IF NOT EXISTS original_price DECIMAL(10,2);
+      ALTER TABLE products ADD COLUMN IF NOT EXISTS rating DECIMAL(2,1) DEFAULT 0;
     `);
     await fpPool.end();
     console.log('✓ Article/product columns ready');

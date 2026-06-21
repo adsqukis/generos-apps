@@ -101,14 +101,14 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description, price, image_url, shopee_link, category, images } = req.body;
+    const { name, description, price, original_price, rating, image_url, shopee_link, category, images } = req.body;
 
     try {
       const result = await pool.query(
-        `INSERT INTO products (name, description, price, image_url, images, shopee_link, category, created_by, is_active)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+        `INSERT INTO products (name, description, price, original_price, rating, image_url, images, shopee_link, category, created_by, is_active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true)
          RETURNING *`,
-        [name, description || null, price, image_url || null, JSON.stringify(images || []), shopee_link, category || null, req.user.id]
+        [name, description || null, price, original_price || null, rating || 0, image_url || null, JSON.stringify(images || []), shopee_link, category || null, req.user.id]
       );
 
       res.status(201).json({ product: result.rows[0] });
@@ -123,7 +123,7 @@ router.post(
 // ADMIN: Update product
 // ============================
 router.put('/products/:id', authenticateToken, requireAdmin, async (req, res) => {
-  const { name, description, price, image_url, images, shopee_link, category, is_active } = req.body;
+  const { name, description, price, original_price, rating, image_url, images, shopee_link, category, is_active } = req.body;
 
   try {
     const result = await pool.query(
@@ -131,15 +131,17 @@ router.put('/products/:id', authenticateToken, requireAdmin, async (req, res) =>
         name = COALESCE($1, name),
         description = COALESCE($2, description),
         price = COALESCE($3, price),
-        image_url = COALESCE($4, image_url),
-        images = COALESCE($5, images),
-        shopee_link = COALESCE($6, shopee_link),
-        category = COALESCE($7, category),
-        is_active = COALESCE($8, is_active),
+        original_price = COALESCE($4, original_price),
+        rating = COALESCE($5, rating),
+        image_url = COALESCE($6, image_url),
+        images = COALESCE($7, images),
+        shopee_link = COALESCE($8, shopee_link),
+        category = COALESCE($9, category),
+        is_active = COALESCE($10, is_active),
         updated_at = CURRENT_TIMESTAMP
-       WHERE id = $9
+       WHERE id = $11
        RETURNING *`,
-      [name, description, price, image_url, images ? JSON.stringify(images) : null, shopee_link, category, is_active, req.params.id]
+      [name, description, price, original_price, rating, image_url, images ? JSON.stringify(images) : null, shopee_link, category, is_active, req.params.id]
     );
 
     if (result.rows.length === 0) {

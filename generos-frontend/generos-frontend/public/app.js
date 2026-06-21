@@ -1846,10 +1846,9 @@ async function loadProducts() {
         const imgSrc = imgUrl(product.images && product.images[0] ? product.images[0] : product.image_url);
         const price = Number(product.price);
         const priceStr = 'Rp ' + price.toLocaleString('id-ID');
-
-        // Example rating & sold — bisa diganti kalau data real sudah ada
-        const rating = (4.5 + Math.random() * 0.5).toFixed(1);
-        const sold = Math.floor(Math.random() * 500 + 50);
+        const rating = parseFloat(product.rating) || 0;
+        const origPrice = product.original_price ? Number(product.original_price) : null;
+        const origPriceStr = origPrice ? 'Rp ' + origPrice.toLocaleString('id-ID') : null;
 
         return `
       <div class="product-card" data-id="${product.id}">
@@ -1859,12 +1858,8 @@ async function loadProducts() {
         </div>
         <div class="product-card-content">
           <h3 class="product-card-title">${escapeHtml(product.name)}</h3>
-          <div class="product-card-price">${priceStr}</div>
-          <div class="product-card-rating">
-            <span class="star">⭐</span>
-            <span>${rating}</span>
-            <span class="sold">| Terjual ${sold.toLocaleString('id-ID')}</span>
-          </div>
+          <div class="product-card-price">${priceStr}${origPriceStr ? ` <span class="product-card-discount">${origPriceStr}</span>` : ''}</div>
+          ${rating > 0 ? `<div class="product-card-rating"><span class="star">⭐</span><span>${rating.toFixed(1)}</span></div>` : ''}
           <button class="product-card-btn" data-product-id="${product.id}">Beli di Shopee</button>
         </div>
       </div>`;
@@ -2235,7 +2230,9 @@ function showAdminAddProduct() {
   panel.innerHTML = `
     <div class="admin-form-wrap">
       <div class="admin-form-group"><label>Nama Produk</label><input type="text" class="af-input" id="adm-prod-name"></div>
-      <div class="admin-form-group"><label>Harga (Rp)</label><input type="number" class="af-input" id="adm-prod-price"></div>
+      <div class="admin-form-group"><label>Harga Jual (Rp)</label><input type="number" class="af-input" id="adm-prod-price" placeholder="contoh: 125000"></div>
+      <div class="admin-form-group"><label>Harga Coret (Rp) — opsional</label><input type="number" class="af-input" id="adm-prod-original-price" placeholder="lebih tinggi dari harga jual, contoh: 150000"></div>
+      <div class="admin-form-group"><label>Rating ⭐ — opsional</label><input type="number" class="af-input" id="adm-prod-rating" min="1" max="5" step="0.1" placeholder="contoh: 4.8"></div>
       <div class="admin-form-group"><label>Link Shopee</label><input type="text" class="af-input" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
       <div class="admin-form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple class="af-file" id="adm-prod-images-input"><div class="af-file-status" id="adm-prod-images-preview"></div><span class="af-hint">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</span></div>
       <input type="hidden" id="adm-prod-images" value="[]">
@@ -2266,6 +2263,8 @@ async function submitAdminProduct() {
     await Api.createProduct({
       name: document.getElementById('adm-prod-name').value,
       price: parseFloat(document.getElementById('adm-prod-price').value),
+      original_price: document.getElementById('adm-prod-original-price').value ? parseFloat(document.getElementById('adm-prod-original-price').value) : null,
+      rating: document.getElementById('adm-prod-rating').value ? parseFloat(document.getElementById('adm-prod-rating').value) : 0,
       shopee_link: document.getElementById('adm-prod-link').value,
       image_url: document.getElementById('adm-prod-image').value || (images.length > 0 ? images[0] : null),
       images: images,
@@ -2679,7 +2678,9 @@ function showAdminEditProduct(e) {
     <div class="admin-form-wrap">
       <h4 class="af-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Produk</h4>
       <div class="admin-form-group"><label>Nama Produk</label><input type="text" class="af-input" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
-      <div class="admin-form-group"><label>Harga (Rp)</label><input type="number" class="af-input" id="adm-prod-price" value="${item.price || ''}"></div>
+      <div class="admin-form-group"><label>Harga Jual (Rp)</label><input type="number" class="af-input" id="adm-prod-price" value="${item.price || ''}"></div>
+      <div class="admin-form-group"><label>Harga Coret (Rp) — opsional</label><input type="number" class="af-input" id="adm-prod-original-price" value="${item.original_price || ''}" placeholder="lebih tinggi dari harga jual"></div>
+      <div class="admin-form-group"><label>Rating ⭐ — opsional</label><input type="number" class="af-input" id="adm-prod-rating" min="1" max="5" step="0.1" value="${item.rating || ''}" placeholder="contoh: 4.8"></div>
       <div class="admin-form-group"><label>Link Shopee</label><input type="text" class="af-input" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
       <div class="admin-form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple class="af-file" id="adm-prod-images-input"><div class="af-file-status" id="adm-prod-images-preview">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><span class="af-hint">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</span>${existingImages.length > 0 ? `<button type="button" class="af-del-btn" id="btn-remove-prod-images"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Semua Gambar</button>` : ''}</div>
       <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
@@ -2725,6 +2726,8 @@ async function submitAdminEditProduct() {
     await Api.updateProduct(id, {
       name: document.getElementById('adm-prod-name').value,
       price: parseFloat(document.getElementById('adm-prod-price').value),
+      original_price: document.getElementById('adm-prod-original-price').value ? parseFloat(document.getElementById('adm-prod-original-price').value) : null,
+      rating: document.getElementById('adm-prod-rating').value ? parseFloat(document.getElementById('adm-prod-rating').value) : 0,
       shopee_link: document.getElementById('adm-prod-link').value,
       description: document.getElementById('adm-prod-desc').value || null,
       image_url: images.length > 0 ? images[0] : null,
