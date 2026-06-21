@@ -3,9 +3,24 @@
 // ============================
 let cdCurrentStep = 1;
 let cdData = {};
+let cdSelectedAvatar = '';
+
+function selectAvatar(el) {
+  // Hapus selected dari semua
+  document.querySelectorAll('.avatar-opt').forEach(a => {
+    a.style.borderColor = 'transparent';
+    a.style.background = '#f5f5f5';
+  });
+  // Selected
+  el.style.borderColor = '#E8682E';
+  el.style.background = '#FFF0E8';
+  cdSelectedAvatar = el.dataset.avatar;
+  document.getElementById('cd-avatar').value = cdSelectedAvatar;
+}
 
 function openChildForm() {
   cdCurrentStep = 1;
+  cdSelectedAvatar = cdData.photo || '';
 
   // Pre-fill form with existing data from cdData (loaded via settings)
   document.getElementById('cd-fullname').value = cdData.name || '';
@@ -18,6 +33,23 @@ function openChildForm() {
   document.getElementById('cd-father-name').value = cdData.father_name || '';
   document.getElementById('cd-mother-name').value = cdData.mother_name || '';
   document.getElementById('cd-parent-notes').value = cdData.parent_notes || '';
+
+  // Pre-select avatar
+  if (cdSelectedAvatar) {
+    const opts = document.querySelectorAll('.avatar-opt');
+    opts.forEach(o => {
+      if (o.dataset.avatar === cdSelectedAvatar) {
+        o.style.borderColor = '#E8682E';
+        o.style.background = '#FFF0E8';
+      } else {
+        o.style.borderColor = 'transparent';
+        o.style.background = '#f5f5f5';
+      }
+    });
+    document.getElementById('cd-avatar').value = cdSelectedAvatar;
+  } else {
+    document.getElementById('cd-avatar').value = '';
+  }
 
   showStep(1);
   document.getElementById('child-form-modal').classList.remove('hidden');
@@ -81,6 +113,7 @@ function buildReview() {
   const html = `
     <div class="cd-review-section">
       <div class="cd-review-title">📋 Data Dasar</div>
+      <div class="cd-review-item"><span class="cd-review-label">Avatar</span><span class="cd-review-value" style="font-size:24px;">${data.child_photo || '❌'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Nama Lengkap</span><span class="cd-review-value">${escapeHtml(data.child_name) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Nama Panggilan</span><span class="cd-review-value">${escapeHtml(data.child_nickname) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Tanggal Lahir</span><span class="cd-review-value">${data.child_dob || '-'}</span></div>
@@ -109,6 +142,7 @@ function collectFormData() {
     child_nickname: document.getElementById('cd-nickname').value.trim(),
     child_dob: document.getElementById('cd-dob').value,
     child_gender: document.getElementById('cd-gender').value,
+    child_photo: cdSelectedAvatar,
     birth_weight: document.getElementById('cd-birth-weight').value || null,
     birth_height: document.getElementById('cd-birth-height').value || null,
     birth_head_circumference: document.getElementById('cd-birth-head').value || null,

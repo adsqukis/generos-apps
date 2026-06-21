@@ -2337,3 +2337,15 @@ textarea {
   text-align: right;
   max-width: 60%;
 }
+
+/* Avatar Picker */
+.avatar-opt {
+  transition: all 0.15s;
+}
+.avatar-opt:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.avatar-opt:active {
+  transform: scale(0.95);
+}

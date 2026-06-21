@@ -484,12 +484,16 @@ async function loadChildProfile(user, growthRecords) {
   document.getElementById('child-name').textContent = childName;
   document.getElementById('child-age').textContent = `${age} bulan ${extraDays} hari`;
 
-  // Avatar — gender-based
-  const gender = user.child_gender;
+  // Avatar — from photo/emoji/gender
   const avatarEl = document.getElementById('child-avatar');
-  if (gender === 'Laki-laki') {
+  const childPhoto = user.child_photo;
+  if (childPhoto && childPhoto.startsWith('http')) {
+    avatarEl.innerHTML = `<img src="${escapeHtml(childPhoto)}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (childPhoto) {
+    avatarEl.textContent = childPhoto;
+  } else if (user.child_gender === 'Laki-laki') {
     avatarEl.textContent = '👦';
-  } else if (gender === 'Perempuan') {
+  } else if (user.child_gender === 'Perempuan') {
     avatarEl.textContent = '👧';
   } else {
     avatarEl.textContent = (childName.charAt(0) || '·').toUpperCase();
@@ -1850,11 +1854,13 @@ async function loadChildProfileSettings() {
     cdData = child;
     const g = data.growth || {};
 
-    // Avatar — gender-based
+    // Avatar — photo/emoji/gender
     const avatar = document.getElementById('cd-avatar-settings');
     if (avatar) {
-      if (child.photo) {
+      if (child.photo && child.photo.startsWith('http')) {
         avatar.innerHTML = `<img src="${escapeHtml(child.photo)}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else if (child.photo) {
+        avatar.textContent = child.photo;
       } else if (child.gender === 'Laki-laki') {
         avatar.textContent = '👦';
       } else if (child.gender === 'Perempuan') {
