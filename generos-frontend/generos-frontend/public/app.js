@@ -1512,7 +1512,7 @@ async function loadScreeningProgressTab() {
         }
         const icon = p.latest_result === 'sesuai' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : p.latest_result === 'meragukan' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
         const history = (p.scores || [])
-          .map((s) => `<span class="g-metric">${s.score_percentage}% <small>(${formatDate(s.date)})</small></span>`)
+          .map((s) => `<span class="g-metric">${s.score_percentage != null ? s.score_percentage : '-'}% <small>(${formatDate(s.date)})</small></span>`)
           .join('');
         return `
         <div class="growth-card">
@@ -2850,7 +2850,7 @@ async function loadScreeningHistory() {
           <div class="screening-history-item" data-session-id="${s.id}">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span class="domain">${label}</span>
-              <span class="score">${zoneIcon} ${s.score_percentage}%</span>
+              <span class="score">${zoneIcon} ${s.score_percentage != null ? s.score_percentage : '-'}%</span>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:4px;">
               <span class="date">${formatDate(s.completed_at || s.started_at)}</span>
