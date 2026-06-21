@@ -2080,7 +2080,7 @@ function showAdminAddArticle() {
         <option value="other">Lainnya</option>
       </select>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-art-image-url" value="">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary"></textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;"></textarea></div>
@@ -2313,7 +2313,7 @@ function showAdminEditArticle(e) {
         <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
       </select>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div></div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
