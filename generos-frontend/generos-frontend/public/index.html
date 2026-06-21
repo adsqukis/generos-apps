@@ -209,7 +209,7 @@
             <div class="child-form-box" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 92%; max-width: 420px; max-height: 90vh; overflow-y: auto; background: #fff; border-radius: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); padding: 0;">
                 <div class="modal-head" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; border-radius: 24px 24px 0 0; z-index: 2;">
                     <h3 id="child-form-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Data Dasar</h3>
-                    <button class="modal-close" id="cd-close-modal" style="background: none; border: none; font-size: 20px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #888;">✕</button>
+                    <button class="modal-close" id="cd-close-modal" onclick="closeChildForm()" style="background: none; border: none; font-size: 20px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #888;">✕</button>
                 </div>
                 <div style="padding: 20px 24px 24px;">
                     <!-- Step 1: Data Dasar -->
@@ -285,8 +285,8 @@
                             <span class="step-dot" data-step="4" style="width: 10px; height: 10px; border-radius: 50%; background: #ddd; display: inline-block;"></span>
                         </div>
                         <div class="child-form-buttons" style="display: flex; gap: 12px;">
-                            <button id="cd-prev-step" style="flex: 1; padding: 14px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: #888; display: none;">← Sebelumnya</button>
-                            <button id="cd-next-step" style="flex: 1; padding: 14px; background: #E8682E; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;">Lanjut →</button>
+                            <button id="cd-prev-step" onclick="prevStep()" style="flex: 1; padding: 14px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: #888; display: none;">← Sebelumnya</button>
+                            <button id="cd-next-step" onclick="nextStep()" style="flex: 1; padding: 14px; background: #E8682E; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;">Lanjut →</button>
                         </div>
                     </div>
                 </div>
