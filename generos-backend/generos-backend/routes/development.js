@@ -3,14 +3,11 @@ const router = express.Router();
 const moment = require('moment');
 const { Pool } = require('pg');
 const { getMilestones, getDevTip, getRecommendations, getTimeline } = require('../config/milestones');
+const { authenticateToken } = require('../middleware/auth');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
 
-// Middleware auth
-function auth(req, res, next) {
-  // Simplified - assumes auth middleware already applied at parent router level
-  next();
-}
+router.use(authenticateToken);
 
 // GET /api/development — main page data
 router.get('/', async (req, res) => {
