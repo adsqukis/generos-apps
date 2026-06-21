@@ -248,13 +248,14 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
-app.use('/api/videos', videoRoutes);
+app.use('/api/daily', authMiddleware, dailyRoutes);
+app.use('/api/development', authMiddleware, require('./routes/development'));
+app.use('/api/videos', authMiddleware, videoRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/screening', require('./routes/screening'));
 app.use('/api/stimulation', require('./routes/stimulation'));
-app.use('/api/daily', require('./routes/daily'));
 
 // ============================
 // 404 HANDLER
