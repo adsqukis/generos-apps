@@ -1829,7 +1829,7 @@ async function sendChat() {
 }
 
 // ============================
-// SHOP PAGE
+// SHOP PAGE — Shopee-style Grid
 // ============================
 async function loadProducts() {
   try {
@@ -1841,33 +1841,57 @@ async function loadProducts() {
       return;
     }
 
-    container.innerHTML = data.products
-      .map(
-        (product) => `
-      <div class="product-card">
-        ${product.images && product.images.length > 0 ? `
-          <div class="product-carousel" style="position:relative;width:100%;height:180px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
-            ${product.images.map((img, i) => `
-              <img src="${imgUrl(img)}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">
-            `).join('')}
-            ${product.images.length > 1 ? `
-              <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;">
-                ${product.images.map((_, i) => `<span class="carousel-dot" data-index="${i}" style="width:8px;height:8px;border-radius:50%;background:${i === 0 ? '#fff' : 'rgba(255,255,255,0.5)'};cursor:pointer;"></span>`).join('')}
-              </div>
-              <button class="carousel-prev" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-              <button class="carousel-next" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-            ` : ''}
+    container.innerHTML = `<div class="product-grid">${
+      data.products.map((product) => {
+        const imgSrc = imgUrl(product.images && product.images[0] ? product.images[0] : product.image_url);
+        const price = Number(product.price);
+        const priceStr = 'Rp ' + price.toLocaleString('id-ID');
+
+        // Example rating & sold — bisa diganti kalau data real sudah ada
+        const rating = (4.5 + Math.random() * 0.5).toFixed(1);
+        const sold = Math.floor(Math.random() * 500 + 50);
+        const discount = Math.floor(Math.random() * 30 + 10);
+        const originalPrice = Math.round(price / (1 - discount / 100));
+
+        return `
+      <div class="product-card" data-id="${product.id}">
+        <div class="product-card-image-wrap">
+          ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(product.name)}" loading="lazy">` : ''}
+          <div class="product-card-badge-store">Generos</div>
+          <div class="product-card-badge-promo">
+            <span>Cicilan 0%</span>
+            <span>${discount}%</span>
           </div>
-        ` : product.image_url ? `<img src="${imgUrl(product.image_url)}" alt="${escapeHtml(product.name)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : ''}
-        <h3>${escapeHtml(product.name)}</h3>
-        <p class="price">Rp ${Number(product.price).toLocaleString('id-ID')}</p>
-        <button data-product-id="${product.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg> Beli di Shopee</button>
-      </div>
-    `
-      )
-      .join('');
+        </div>
+        <div class="product-card-content">
+          <h3 class="product-card-title">${escapeHtml(product.name)}</h3>
+          <div class="product-card-price">
+            ${priceStr}
+            <span class="product-card-discount">Rp ${originalPrice.toLocaleString('id-ID')}</span>
+          </div>
+          <div class="product-card-rating">
+            <span class="star">⭐</span>
+            <span>${rating}</span>
+            <span class="sold">| Terjual ${sold.toLocaleString('id-ID')}</span>
+          </div>
+          <button class="product-card-btn" data-product-id="${product.id}">Beli di Shopee</button>
+        </div>
+      </div>`;
+      }).join('')
+    }</div>`;
+
+    // Event delegation via container
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('.product-card-btn');
+      if (btn) {
+        e.preventDefault();
+        buyProduct(btn.dataset.productId);
+      }
+    });
+
   } catch (err) {
     console.error('Failed to load products:', err);
+    document.getElementById('product-list').innerHTML = '<p class="info-text">Gagal memuat produk.</p>';
   }
 }
 
