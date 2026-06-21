@@ -208,11 +208,23 @@
                         <h3>Tambah Data Pertumbuhan</h3>
                         <button class="modal-close" data-close-modal="growth-modal">✕</button>
                     </div>
-                    <div class="form-group"><label>Berat Badan (kg)</label><input type="number" step="0.01" min="0" id="hg-weight" placeholder="contoh: 8.5"></div>
-                    <div class="form-group"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" min="0" id="hg-height" placeholder="contoh: 72.5"></div>
-                    <div class="form-group"><label>Lingkar Kepala (cm)</label><input type="number" step="0.1" min="0" id="hg-head" placeholder="contoh: 45"></div>
-                    <div class="form-group"><label>Catatan (opsional)</label><textarea id="hg-notes" placeholder="Catatan tambahan..."></textarea></div>
-                    <button class="btn-primary" id="btn-submit-home-growth">Simpan</button>
+                    <div class="form-group">
+                        <label>Berat Badan <span class="label-unit">(kg)</span></label>
+                        <input type="number" step="0.01" min="0" id="hg-weight" placeholder="contoh: 8.5" autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label>Tinggi Badan <span class="label-unit">(cm)</span></label>
+                        <input type="number" step="0.1" min="0" id="hg-height" placeholder="contoh: 72.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Lingkar Kepala <span class="label-unit">(cm)</span></label>
+                        <input type="number" step="0.1" min="0" id="hg-head" placeholder="contoh: 45">
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan <span class="label-optional">(opsional)</span></label>
+                        <textarea id="hg-notes" placeholder="Catatan tambahan..."></textarea>
+                    </div>
+                    <button class="growth-btn-primary" id="btn-submit-home-growth">Simpan</button>
                 </div>
             </div>
 

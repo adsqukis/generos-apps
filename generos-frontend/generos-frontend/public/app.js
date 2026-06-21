@@ -72,7 +72,14 @@ function initApp() {
   safeAddListener('btn-send-chat', 'click', sendChat);
   safeAddListener('btn-logout', 'click', handleLogout);
   // === HOME PAGE Listeners ===
-  safeAddListener('btn-add-growth', 'click', () => document.getElementById('growth-modal').classList.remove('hidden'));
+  safeAddListener('btn-add-growth', 'click', () => {
+    document.getElementById('growth-modal').classList.remove('hidden');
+    // auto-focus first input
+    setTimeout(() => {
+      const input = document.getElementById('hg-weight');
+      if (input) input.focus();
+    }, 350);
+  });
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
   safeAddListener('btn-notif', 'click', openNotifModal);
   // Child Data page listeners
@@ -1149,6 +1156,16 @@ function closeModal(modalId) {
   const el = document.getElementById(modalId);
   if (el) el.classList.add('hidden');
 }
+
+// === Escape key closes growth modal ===
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('growth-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+    }
+  }
+});
 
 function calculateAgeMonths(dob) {
   if (!dob) return '-';
