@@ -1832,7 +1832,7 @@ async function loadProducts() {
         ${product.images && product.images.length > 0 ? `
           <div class="product-carousel" style="position:relative;width:100%;height:180px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
             ${product.images.map((img, i) => `
-              <img src="${imgUrl(img)}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">`
+              <img src="${imgUrl(img)}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">
             `).join('')}
             ${product.images.length > 1 ? `
               <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;">
