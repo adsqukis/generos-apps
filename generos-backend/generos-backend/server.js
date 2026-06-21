@@ -15,6 +15,7 @@ const pool = require('./config/db');
 const authRoutes = require('./routes/auth');
 const trackingRoutes = require('./routes/tracking');
 const knowledgeRoutes = require('./routes/knowledge');
+const dailyRoutes = require('./routes/daily');
 const videoRoutes = require('./routes/videos');
 const chatRoutes = require('./routes/chat');
 const shopRoutes = require('./routes/shop');
