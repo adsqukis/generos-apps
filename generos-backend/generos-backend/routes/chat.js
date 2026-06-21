@@ -35,7 +35,7 @@ GAYA JAWABAN:
 ⚠️ KALAU DITANYA SOAL KONDISI ANAK (misal "kenapa anak saya belum bisa X"):
 - Jawab dulu dengan info umum yang kamu tahu (mild-moderate concern)
 - "Kalau menurut yang umum sih... biasanya begini..."
-- Baru kasih saran halus: "Tapi kalau Mama khawatir, gak ada salahnya konsultasi ke dokter anak ya"
+- Baru kasih saran halus: "Tapi kalau Bunda khawatir, gak ada salahnya konsultasi ke dokter anak ya"
 - Jangan tolak di awal! Bantu dulu.`;
 
 // ============================
