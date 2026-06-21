@@ -442,11 +442,13 @@ async function loadHomeData() {
   const firstName = nameParts[0] || 'Pengguna';
   document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
 
-  // 2. Fetch fresh child profile dari API (update terbaru dari Settings)
+  // 2. Fetch fresh child profile dari API (satu sumber utk semua data anak)
   let childData = null;
+  let childGrowth = null;
   try {
     const apiData = await Api.getChildProfile();
     childData = apiData.child || null;
+    childGrowth = apiData.growth || null;
   } catch (e) { /* fallback ke localStorage */ }
 
   // Merge: API data lebih prioritas, localStorage sebagai fallback
@@ -461,7 +463,7 @@ async function loadHomeData() {
   // Sembunyikan tracker yang gak relevan berdasarkan usia
   applyAgeBasedVisibility(age);
 
-  // 3. Child Profile — pake data fresh dari API
+  // 3. Child Profile — pake data fresh dari API (growth juga dari sini)
   // Gabungin API data + localStorage jadi satu object user
   const mergedUser = {
     ...user,
@@ -470,12 +472,9 @@ async function loadHomeData() {
     child_gender: childGender,
     child_photo: childPhoto,
   };
-  let growthRecords = null;
-  try {
-    const data = await Api.getGrowthRecords();
-    growthRecords = data.records || [];
-  } catch (e) { /* skip */ }
-  await loadChildProfile(mergedUser, growthRecords);
+  // Growth record pake dari child profile API biar sinkron dgn Settings
+  const growthRecord = childGrowth ? [childGrowth] : [];
+  await loadChildProfile(mergedUser, growthRecord);
 
   // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
   await loadDailySummary();
@@ -484,7 +483,7 @@ async function loadHomeData() {
   await loadDevelopmentToday(user);
 
   // 5. Growth summary (pake data growth yg udah diambil)
-  await loadBerandaGrowthRingkasan(growthRecords);
+  await loadBerandaGrowthRingkasan(growthRecord);
 
   // 6. Reminders
   await loadReminders();
@@ -1078,7 +1077,7 @@ async function submitHomeGrowth() {
     document.getElementById('hg-height').value = '';
     document.getElementById('hg-head').value = '';
     document.getElementById('hg-notes').value = '';
-    await loadChildProfile(Api.getUser()); // refresh
+    await loadHomeData(); // refresh full homepage
   } catch (err) {
     showToast(err.message, 'error');
   }
