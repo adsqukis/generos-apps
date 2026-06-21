@@ -1796,9 +1796,6 @@ function loadSettings() {
         </div>
       </div>
     </div>
-    <div style="margin-top:16px;">
-      <button id="btn-add-child-data-settings" data-action="add-child-data" style="width:100%;padding:14px;background:#E8682E;color:white;border:none;border-radius:16px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(232,104,46,0.25);">+ Tambah Data Anak</button>
-    </div>
     <div class="card" style="border-left:none;margin-top:16px;">
       <p class="cat">Nama Anda</p>
       <p class="title">${escapeHtml(user.full_name)}</p>
