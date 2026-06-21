@@ -50,6 +50,14 @@ Tidak boleh untuk bayi <9 bulan atau masih ASI eksklusif. Minimal 9 bulan dan su
 RASA:
 Dominan asam manis, aroma agak kuat. Dari proses fermentasi unik yang membuat herbal lebih mudah diserap.
 
+KOMPOSISI GENEROS (5 bahan herbal alami):
+1. Madu Hutan — pemanis alami
+2. Ikan Sidat (Anguiliformes) — sumber DHA, omega-3, neuroprotektif
+3. Daun Pegagan (Centella asiatica / Gotu Kola) — antioksidan, stimulasi otak
+4. Temulawak — herbal pencernaan & nafsu makan
+5. Mengkudu — herbal pendukung imunitas
+⚠️ INI ADALAH 5 BAHAN SATU-SATUNYA. JANGAN menyebutkan herbal/bahan lain di luar daftar ini (seperti sambiloto, kayu manis, kunyit, jahe, dll) karena TIDAK ADA dalam komposisi Generos.
+
 KANDUNGAN & KEAMANAN:
 - Gluten free, sugar free, casein free (tapi istilah ini kurang lazim untuk suplemen)
 - Mengandung gula alami dari madu hutan (fruktosa), kadarnya rendah. Untuk ADHD tetap aman, per porsi ~0.98gr gula, apalagi sudah difermentasi.
