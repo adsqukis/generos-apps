@@ -276,6 +276,39 @@ const Api = {
     return this.request('/user/settings', { method: 'PUT', body: JSON.stringify(payload) });
   },
 
+  // ============ UPLOAD ============
+  async uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload gagal');
+    }
+    return res.json();
+  },
+
+  async uploadImages(files) {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('images', f));
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(`${API_BASE_URL}/upload/multiple`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload gagal');
+    }
+    return res.json();
+  },
+
   // ============ DAILY TRACKER ============
   async getDailySummary(date) {
     const q = date ? `?date=${date}` : '';

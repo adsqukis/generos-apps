@@ -229,12 +229,30 @@ function initApp() {
     }
   });
 
-  // Product list - buy buttons
+  // Product list - buy buttons & carousel
   safeAddListener('product-list', 'click', (e) => {
     const btn = e.target.closest('[data-product-id]');
     if (btn && btn.dataset.productId) {
       buyProduct(btn.dataset.productId);
+      return;
     }
+    // Carousel navigation
+    const carousel = e.target.closest('.product-carousel');
+    if (!carousel) return;
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    if (slides.length === 0) return;
+    let currentIdx = Array.from(slides).findIndex((s) => parseFloat(s.style.opacity) > 0.5);
+    if (currentIdx === -1) currentIdx = 0;
+    if (e.target.classList.contains('carousel-prev')) {
+      currentIdx = (currentIdx - 1 + slides.length) % slides.length;
+    } else if (e.target.classList.contains('carousel-next')) {
+      currentIdx = (currentIdx + 1) % slides.length;
+    } else if (e.target.classList.contains('carousel-dot')) {
+      currentIdx = parseInt(e.target.dataset.index);
+    } else return;
+    slides.forEach((s, i) => { s.style.opacity = i === currentIdx ? '1' : '0'; });
+    dots.forEach((d, i) => { d.style.background = i === currentIdx ? '#fff' : 'rgba(255,255,255,0.5)'; });
   });
 
   // Admin panel actions
@@ -1578,7 +1596,7 @@ async function loadVideoPage() {
 
       return `
         <div class="video-card" data-video-id="${v.id}">
-          <div class="video-thumb" style="${getThumbnailStyle(categoryName)}">
+          <div class="video-thumb" style="${v.thumbnail_url ? `background-image:url('${v.thumbnail_url}');background-size:cover;background-position:center` : getThumbnailStyle(categoryName)}">
             <div class="play-overlay">▶️</div>
             ${duration ? `<span class="video-duration">${duration}</span>` : ''}
           </div>
@@ -1677,6 +1695,7 @@ async function loadArticles() {
         (article, idx) => `
       <div class="card" data-article-id="${article.id}">
         <p class="cat">${escapeHtml(article.category)}</p>
+        ${article.image_url ? `<img src="${article.image_url}" alt="${escapeHtml(article.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin:6px 0;">` : ''}
         <p class="title">${escapeHtml(article.title)}</p>
         <p class="desc">${escapeHtml(article.summary)}</p>
       </div>
@@ -1713,6 +1732,7 @@ async function showArticleDetail(id) {
 
     detail.innerHTML = `
       <button class="btn-secondary" data-action="back-article-list" style="text-align: center;">← Kembali</button>
+      ${article.image_url ? `<img src="${article.image_url}" alt="${escapeHtml(article.title)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin:8px 0;">` : ''}
       <h2 style="color: #003DA5; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
       <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">${escapeHtml(article.content).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</p>
       ${article.red_flags ? `
@@ -1799,6 +1819,20 @@ async function loadProducts() {
       .map(
         (product) => `
       <div class="product-card">
+        ${product.images && product.images.length > 0 ? `
+          <div class="product-carousel" style="position:relative;width:100%;height:180px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
+            ${product.images.map((img, i) => `
+              <img src="${img}" class="carousel-slide" style="width:100%;height:180px;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 0.3s;${i === 0 ? 'opacity:1' : 'opacity:0'}" data-index="${i}">
+            `).join('')}
+            ${product.images.length > 1 ? `
+              <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;">
+                ${product.images.map((_, i) => `<span class="carousel-dot" data-index="${i}" style="width:8px;height:8px;border-radius:50%;background:${i === 0 ? '#fff' : 'rgba(255,255,255,0.5)'};cursor:pointer;"></span>`).join('')}
+              </div>
+              <button class="carousel-prev" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:28px;text-align:center;">❮</button>
+              <button class="carousel-next" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:28px;text-align:center;">❯</button>
+            ` : ''}
+          </div>
+        ` : product.image_url ? `<img src="${product.image_url}" alt="${escapeHtml(product.name)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : ''}
         <h3>${escapeHtml(product.name)}</h3>
         <p class="price">Rp ${Number(product.price).toLocaleString('id-ID')}</p>
         <button data-product-id="${product.id}">🛒 Beli di Shopee</button>
@@ -2036,12 +2070,28 @@ function showAdminAddArticle() {
         <option value="other">Lainnya</option>
       </select>
     </div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <input type="hidden" id="adm-art-image-url" value="">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary"></textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;"></textarea></div>
     <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags"></textarea></div>
     <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor"></textarea></div>
     <button class="btn-primary" data-action="submit-admin-article">Simpan Artikel</button>
   `;
+  // Auto-upload on file select
+  document.getElementById('adm-art-image-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('adm-art-image-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImage(file);
+      document.getElementById('adm-art-image-url').value = result.url;
+      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminArticle() {
@@ -2049,6 +2099,7 @@ async function submitAdminArticle() {
     await Api.createArticle({
       title: document.getElementById('adm-art-title').value,
       category: document.getElementById('adm-art-category').value,
+      image_url: document.getElementById('adm-art-image-url').value || null,
       summary: document.getElementById('adm-art-summary').value,
       content: document.getElementById('adm-art-content').value,
       red_flags: document.getElementById('adm-art-redflags').value,
@@ -2093,16 +2144,37 @@ function showAdminAddProduct() {
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <input type="hidden" id="adm-prod-images" value="[]">
+    <div class="form-group"><label>URL Gambar Utama (opsional, jika tidak upload)</label><input type="text" id="adm-prod-image" placeholder="https://..."></div>
     <button class="btn-primary" data-action="submit-admin-product">Simpan Produk</button>
   `;
+  document.getElementById('adm-prod-images-input').addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    if (files.length > 5) { showToast('Maksimal 5 gambar', 'error'); return; }
+    const preview = document.getElementById('adm-prod-images-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImages(files);
+      document.getElementById('adm-prod-images').value = JSON.stringify(result.urls);
+      preview.innerHTML = result.urls.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' Terupload ✅';
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminProduct() {
+  let images = [];
+  try { images = JSON.parse(document.getElementById('adm-prod-images').value || '[]'); } catch(e) {}
   try {
     await Api.createProduct({
       name: document.getElementById('adm-prod-name').value,
       price: parseFloat(document.getElementById('adm-prod-price').value),
       shopee_link: document.getElementById('adm-prod-link').value,
+      image_url: document.getElementById('adm-prod-image').value || (images.length > 0 ? images[0] : null),
+      images: images,
     });
     showToast('Produk berhasil ditambahkan', 'success');
     document.getElementById('admin-panel-content').innerHTML = '';
@@ -2116,7 +2188,8 @@ function showAdminAddVideo() {
   panel.innerHTML = `
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" placeholder="https://youtube.com/..."></div>
-    <div class="form-group"><label>URL Thumbnail (opsional)</label><input type="text" id="adm-vid-thumb" placeholder="https://..."></div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <input type="hidden" id="adm-vid-thumb" value="">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
         <option value="speech">Bicara</option>
@@ -2131,6 +2204,19 @@ function showAdminAddVideo() {
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc"></textarea></div>
     <button class="btn-primary" data-action="submit-admin-video">Simpan Video</button>
   `;
+  document.getElementById('adm-vid-thumb-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('adm-vid-thumb-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImage(file);
+      document.getElementById('adm-vid-thumb').value = result.url;
+      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminVideo() {
@@ -2181,6 +2267,7 @@ async function showAdminListArticles() {
         ? '<p class="info-text">Belum ada artikel.</p>'
         : data.articles.map((a) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              ${a.image_url ? `<img src="${a.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
               <p class="title" style="font-size:14px;">${escapeHtml(a.title)}</p>
               <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(a.category || '')} · ${a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
@@ -2216,6 +2303,8 @@ function showAdminEditArticle(e) {
         <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
       </select>
     </div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div></div>
+    <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
     <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags">${escapeHtml(item.red_flags || '')}</textarea></div>
@@ -2224,6 +2313,20 @@ function showAdminEditArticle(e) {
     <button class="btn-primary" data-action="submit-admin-edit-article">💾 Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-articles" style="margin-left:6px;">← Kembali</button>
   `;
+  // Auto-upload on file select
+  document.getElementById('adm-art-image-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('adm-art-image-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImage(file);
+      document.getElementById('adm-art-image-url').value = result.url;
+      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminEditArticle() {
@@ -2232,6 +2335,7 @@ async function submitAdminEditArticle() {
     await Api.updateArticle(id, {
       title: document.getElementById('adm-art-title').value,
       category: document.getElementById('adm-art-category').value,
+      image_url: document.getElementById('adm-art-image-url').value || null,
       summary: document.getElementById('adm-art-summary').value,
       content: document.getElementById('adm-art-content').value,
       red_flags: document.getElementById('adm-art-redflags').value,
@@ -2260,6 +2364,7 @@ async function showAdminListVideos() {
         ? '<p class="info-text">Belum ada video.</p>'
         : data.videos.map((v) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              ${v.thumbnail_url ? `<img src="${v.thumbnail_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
               <p class="title" style="font-size:14px;">${escapeHtml(v.title)}</p>
               <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(v.category || '')} · ${v.duration_minutes ? v.duration_minutes + ' menit' : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
@@ -2285,7 +2390,8 @@ function showAdminEditVideo(e) {
     <h4 style="margin:0 0 10px;">✏️ Edit Video</h4>
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
-    <div class="form-group"><label>URL Thumbnail (opsional)</label><input type="text" id="adm-vid-thumb" value="${escapeHtml(item.thumbnail_url || '')}"></div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div></div>
+    <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
         <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
@@ -2302,6 +2408,19 @@ function showAdminEditVideo(e) {
     <button class="btn-primary" data-action="submit-admin-edit-video">💾 Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-videos" style="margin-left:6px;">← Kembali</button>
   `;
+  document.getElementById('adm-vid-thumb-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('adm-vid-thumb-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImage(file);
+      document.getElementById('adm-vid-thumb').value = result.url;
+      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminEditVideo() {
@@ -2339,8 +2458,9 @@ async function showAdminListProducts() {
         ? '<p class="info-text">Belum ada produk.</p>'
         : data.products.map((p) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              ${p.images && p.images.length > 0 ? `<img src="${p.images[0]}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
               <p class="title" style="font-size:14px;">${escapeHtml(p.name)}</p>
-              <p class="desc" style="font-size:12px;color:#666;">Rp ${Number(p.price).toLocaleString('id-ID')}${p.image_url ? ' · 🖼 Ada gambar' : ''}</p>
+              <p class="desc" style="font-size:12px;color:#666;">Rp ${Number(p.price).toLocaleString('id-ID')}${p.images && p.images.length > 1 ? ` · ${p.images.length} foto` : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
                 <button class="btn-sm" data-action="show-admin-edit-product" data-id="${p.id}" data-item='${encodeURIComponent(JSON.stringify(p))}'>✏️ Edit</button>
                 <button class="btn-sm btn-danger" data-action="show-admin-delete-product" data-id="${p.id}" data-name="${escapeHtml(p.name)}">🗑 Hapus</button>
@@ -2359,30 +2479,51 @@ async function showAdminListProducts() {
 // ============================
 function showAdminEditProduct(e) {
   const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
+  const existingImages = item.images || (item.image_url ? [item.image_url] : []);
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
     <h4 style="margin:0 0 10px;">✏️ Edit Produk</h4>
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div></div>
+    <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
-    <div class="form-group"><label>URL Gambar (opsional)</label><input type="text" id="adm-prod-image" value="${escapeHtml(item.image_url || '')}"></div>
     <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
     <input type="hidden" id="adm-edit-id" value="${item.id}">
     <button class="btn-primary" data-action="submit-admin-edit-product">💾 Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-products" style="margin-left:6px;">← Kembali</button>
   `;
+  document.getElementById('adm-prod-images-input').addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    if (files.length > 5) { showToast('Maksimal 5 gambar', 'error'); return; }
+    const preview = document.getElementById('adm-prod-images-preview');
+    preview.textContent = 'Mengupload...';
+    try {
+      const result = await Api.uploadImages(files);
+      const current = JSON.parse(document.getElementById('adm-prod-images').value || '[]');
+      const combined = [...current, ...result.urls].slice(0, 5);
+      document.getElementById('adm-prod-images').value = JSON.stringify(combined);
+      preview.innerHTML = combined.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' ✅';
+    } catch (err) {
+      preview.textContent = '❌ ' + err.message;
+    }
+  });
 }
 
 async function submitAdminEditProduct() {
   const id = document.getElementById('adm-edit-id').value;
+  let images = [];
+  try { images = JSON.parse(document.getElementById('adm-prod-images').value || '[]'); } catch(e) {}
   try {
     await Api.updateProduct(id, {
       name: document.getElementById('adm-prod-name').value,
       price: parseFloat(document.getElementById('adm-prod-price').value),
       shopee_link: document.getElementById('adm-prod-link').value,
       description: document.getElementById('adm-prod-desc').value || null,
-      image_url: document.getElementById('adm-prod-image').value || null,
+      image_url: images.length > 0 ? images[0] : null,
+      images: images,
       category: document.getElementById('adm-prod-category').value || null,
     });
     showToast('Produk berhasil diperbarui', 'success');
