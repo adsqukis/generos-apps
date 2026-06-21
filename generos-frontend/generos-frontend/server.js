@@ -10,10 +10,13 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         // 'unsafe-inline' diizinkan karena index.html memakai onclick="" inline.
+        // scriptSrcAttr juga perlu 'unsafe-inline' karena Helmet v7+ default ke 'none'
+        // yang nge-block semua inline event handler (onclick, dll).
         // TRADE-OFF: melemahkan proteksi XSS dibanding versi strict tanpa inline script.
         // Perbaikan ideal: refactor semua onclick="" jadi addEventListener di app.js,
         // baru hapus 'unsafe-inline' di sini.
         scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'", 'https:'], // perlu akses ke backend Railway (domain berbeda)
