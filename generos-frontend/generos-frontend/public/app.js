@@ -669,14 +669,53 @@ async function loadDevelopmentToday(user) {
 // === 5. Growth & Screening Ringkasan ===
 async function loadBerandaGrowthRingkasan(growthRecords) {
   let html = '';
-  // Growth
-  const latest = growthRecords && growthRecords[0];
+  const records = growthRecords || [];
+
+  // Trend card — perubahan antara 2 catatan terakhir
+  if (records.length >= 2) {
+    const latest = records[0];
+    const prev = records[1];
+    const trendParts = [];
+    const daysDiff = latest.record_date && prev.record_date
+      ? Math.round((new Date(latest.record_date) - new Date(prev.record_date)) / (1000 * 60 * 60 * 24))
+      : null;
+
+    if (latest.weight_kg != null && prev.weight_kg != null) {
+      const diff = parseFloat(latest.weight_kg) - parseFloat(prev.weight_kg);
+      const arrow = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+      const sign = diff > 0 ? '+' : '';
+      trendParts.push(`<span class="g-metric">${arrow} BB: <b>${sign}${diff.toFixed(2)} kg</b></span>`);
+    }
+    if (latest.height_cm != null && prev.height_cm != null) {
+      const diff = parseFloat(latest.height_cm) - parseFloat(prev.height_cm);
+      const arrow = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+      const sign = diff > 0 ? '+' : '';
+      trendParts.push(`<span class="g-metric">${arrow} TB: <b>${sign}${diff.toFixed(1)} cm</b></span>`);
+    }
+    if (latest.head_circumference_cm != null && prev.head_circumference_cm != null) {
+      const diff = parseFloat(latest.head_circumference_cm) - parseFloat(prev.head_circumference_cm);
+      const arrow = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+      const sign = diff > 0 ? '+' : '';
+      trendParts.push(`<span class="g-metric">${arrow} LK: <b>${sign}${diff.toFixed(1)} cm</b></span>`);
+    }
+
+    if (trendParts.length > 0) {
+      const since = daysDiff ? ` (${daysDiff} hari)` : '';
+      html += `<div class="card" style="cursor:default;border-left-color:#F59E0B;">
+        <p class="cat">📊 Perubahan Terakhir${since}</p>
+        <div class="g-metric-row">${trendParts.join('')}</div>
+      </div>`;
+    }
+  }
+
+  // Growth — latest data
+  const latest = records[0];
   if (latest) {
     const parts = [];
     if (latest.weight_kg != null) parts.push(`<span class="g-metric"><b>${latest.weight_kg}</b> kg</span>`);
     if (latest.height_cm != null) parts.push(`<span class="g-metric"><b>${latest.height_cm}</b> cm</span>`);
     if (latest.head_circumference_cm != null) parts.push(`<span class="g-metric">LK <b>${latest.head_circumference_cm}</b> cm</span>`);
-    html += `<div class="card" style="cursor:default;"><p class="cat">📏 Pertumbuhan Terakhir</p><div class="g-metric-row">${parts.join('')}</div><small>${formatDate(latest.record_date)}</small></div>`;
+    html += `<div class="card" style="cursor:default;"><p class="cat">📏 Data Terbaru</p><div class="g-metric-row">${parts.join('')}</div><small>${formatDate(latest.record_date)}</small></div>`;
   }
 
   // Screening ringkasan
