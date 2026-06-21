@@ -259,6 +259,8 @@ function initApp() {
     else if (action === 'show-admin-add-product') showAdminAddProduct();
     else if (action === 'show-admin-analytics') showAdminAnalytics();
     else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
+    else if (action === 'toggle-privacy') toggleAccordion('accordion-privacy');
+    else if (action === 'toggle-help') toggleAccordion('accordion-help');
   });
 
   // Screening domain selection — onclick property langsung (CSP-safe)
@@ -1800,6 +1802,45 @@ function loadSettings() {
       <p class="cat">Nama Anda</p>
       <p class="title">${escapeHtml(user.full_name)}</p>
     </div>
+
+    <!-- Settings Menu: Accordion Items -->
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+      <!-- Kebijakan dan Privasi -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <div class="accordion-header" data-action="toggle-privacy" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;user-select:none;">
+          <span style="font-weight:600;font-size:14px;color:#1A1A1A;">🔒 Kebijakan dan Privasi</span>
+          <span class="accordion-arrow" data-action="toggle-privacy" style="font-size:12px;color:#999;transition:transform 0.2s;">▼</span>
+        </div>
+        <div id="accordion-privacy" class="accordion-content" style="display:none;padding:0 16px 16px;font-size:13px;color:#555;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:12px;">
+          <p style="margin:0 0 10px;">Aplikasi Generos Care menghormati dan melindungi privasi Anda. Data pribadi dan data perkembangan anak Anda hanya digunakan untuk memberikan layanan terbaik, termasuk pemantauan tumbuh kembang, rekomendasi stimulasi, dan skrining perkembangan.</p>
+          <p style="margin:0 0 10px;">Kami tidak akan membagikan data Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali diwajibkan oleh hukum yang berlaku.</p>
+          <p style="margin:0 0 10px;">Data yang kami kumpulkan meliputi: nama lengkap, nomor telepon, alamat email, data anak (nama, tanggal lahir, berat/tinggi badan, riwayat imunisasi, hasil skrining perkembangan), dan riwayat interaksi Anda dengan fitur aplikasi.</p>
+          <p style="margin:0;">Anda berhak mengakses, mengubah, atau menghapus data Anda kapan saja melalui menu Pengaturan. Untuk pertanyaan lebih lanjut, hubungi kami di <b>support@generos.id</b>.</p>
+        </div>
+      </div>
+
+      <!-- Pusat Bantuan & FAQ -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <div class="accordion-header" data-action="toggle-help" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;user-select:none;">
+          <span style="font-weight:600;font-size:14px;color:#1A1A1A;">❓ Pusat Bantuan & FAQ</span>
+          <span class="accordion-arrow" data-action="toggle-help" style="font-size:12px;color:#999;transition:transform 0.2s;">▼</span>
+        </div>
+        <div id="accordion-help" class="accordion-content" style="display:none;padding:0 16px 16px;font-size:13px;color:#555;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:12px;">
+          <p style="margin:0 0 12px;font-weight:600;color:#333;">Butuh bantuan? Kami siap membantu Anda.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <a href="https://wa.me/6281234567890?text=Halo%20Generos%20Care" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f5f5f5;border-radius:12px;text-decoration:none;color:#1A1A1A;">
+              <span style="font-size:20px;">💬</span>
+              <span style="font-weight:500;">Hubungi Customer Service via WhatsApp</span>
+            </a>
+            <a href="mailto:support@generos.id" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f5f5f5;border-radius:12px;text-decoration:none;color:#1A1A1A;">
+              <span style="font-size:20px;">📧</span>
+              <span style="font-weight:500;">Kirim Email ke support@generos.id</span>
+            </a>
+          </div>
+          <p style="margin:12px 0 0;font-size:12px;color:#999;">Respon dalam 1×24 jam pada hari kerja.</p>
+        </div>
+      </div>
+    </div>
   `;
 
   // Load child profile data
@@ -1848,6 +1889,18 @@ async function loadChildProfileSettings() {
     setText('cd-mini-dev-s', data.development_status || '-');
   } catch (err) {
     console.error('Load child profile settings error:', err);
+  }
+}
+
+function toggleAccordion(contentId) {
+  const content = document.getElementById(contentId);
+  if (!content) return;
+  const isOpen = content.style.display !== 'none';
+  content.style.display = isOpen ? 'none' : 'block';
+  // Rotate arrow
+  const header = content.closest('div[style*="border-radius"]')?.querySelector('.accordion-arrow');
+  if (header) {
+    header.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
   }
 }
 
