@@ -1255,31 +1255,6 @@ textarea {
   border-radius: 10px;
 }
 
-/* Floating AI Button */
-.floating-btn {
-  position: fixed;
-  bottom: 80px;
-  right: 16px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-  background: var(--primary);
-  color: var(--white);
-  font-size: 28px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,61,165,0.35);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.floating-btn:active {
-  transform: scale(0.92);
-  box-shadow: 0 2px 8px rgba(0,61,165,0.25);
-}
-
 /* Modal Overlay */
 .modal-overlay {
   position: fixed;
@@ -1328,25 +1303,6 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* AI Chat Box (larger modal) */
-.ai-chat-box {
-  background: var(--white);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 400px;
-  height: 70vh;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-.ai-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-  margin-bottom: 8px;
 }
 
 /* Menu grid 3-column on beranda */

@@ -332,10 +332,6 @@ const Api = {
     return this.request('/daily/reminders');
   },
 
-  async askDailyAI(message) {
-    return this.request('/daily/ai', { method: 'POST', body: JSON.stringify({ message }) });
-  },
-
   // ============ SLEEP DETAIL ============
   async getSleepAnalytics(days) {
     const q = days ? `?days=${days}` : '';

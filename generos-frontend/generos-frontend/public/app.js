@@ -65,14 +65,8 @@ function initApp() {
   safeAddListener('btn-add-growth', 'click', () => document.getElementById('growth-modal').classList.remove('hidden'));
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
   safeAddListener('btn-notif', 'click', () => { /* placeholder */ });
-  safeAddListener('ai-floating-btn', 'click', openAIChat);
-  safeAddListener('btn-ai-send', 'click', sendAIChat);
   safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
-  // AI input enter key
-  const aiInput = document.getElementById('ai-input');
-  if (aiInput) aiInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendAIChat(); });
-
-  // Tracker add buttons (± ada 5, pake onclick property biar reliable)
+  // Tracker card body — klik lihat detail riwayat hari ini
   document.querySelectorAll('.tracker-add').forEach(btn => {
     btn.onclick = function(e) {
       e.stopPropagation();
@@ -984,33 +978,6 @@ async function deleteTrackerRecord(type, id) {
   } catch (err) {
     showToast('Gagal menghapus', 'error');
   }
-}
-
-// === AI Chat (dari floating button) ===
-function openAIChat() {
-  document.getElementById('ai-overlay').classList.remove('hidden');
-  document.getElementById('ai-messages').innerHTML = '<div class="chat-bubble bot">Halo! 👋 Ada yang bisa saya bantu seputar pengasuhan si kecil?</div>';
-  document.getElementById('ai-input').value = '';
-  document.getElementById('ai-input').focus();
-}
-
-async function sendAIChat() {
-  const input = document.getElementById('ai-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  const container = document.getElementById('ai-messages');
-  container.innerHTML += `<div class="chat-bubble user">${escapeHtml(msg)}</div>`;
-  input.value = '';
-  container.scrollTop = container.scrollHeight;
-
-  try {
-    const data = await Api.askDailyAI(msg);
-    container.innerHTML += `<div class="chat-bubble bot">${escapeHtml(data.reply)}</div>`;
-  } catch (err) {
-    container.innerHTML += `<div class="chat-bubble bot">Maaf, saya belum bisa menjawab sekarang. Coba lagi ya!</div>`;
-  }
-  container.scrollTop = container.scrollHeight;
 }
 
 // === Growth dari Beranda ===
