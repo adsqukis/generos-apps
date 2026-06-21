@@ -64,7 +64,7 @@ function initApp() {
   // === HOME PAGE Listeners ===
   safeAddListener('btn-add-growth', 'click', () => document.getElementById('growth-modal').classList.remove('hidden'));
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
-  safeAddListener('btn-notif', 'click', () => { /* placeholder */ });
+  safeAddListener('btn-notif', 'click', openNotifModal);
   // Child Data page listeners
   if (typeof initChildDataListeners === 'function') initChildDataListeners();
   safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
@@ -780,6 +780,41 @@ async function loadReminders() {
   } catch (e) {
     container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
   }
+}
+
+// === Notification Modal ===
+function openNotifModal() {
+  const modal = document.getElementById('notif-modal');
+  const list = document.getElementById('notif-list');
+  list.innerHTML = '<p class="info-text" style="text-align:center;color:#999;padding:20px 0;">Memuat...</p>';
+  modal.classList.remove('hidden');
+
+  // Fetch reminders
+  Api.getReminders().then(data => {
+    const reminders = data.reminders || [];
+    if (reminders.length === 0) {
+      list.innerHTML = '<p class="info-text" style="text-align:center;color:#999;padding:20px 0;">✅ Tidak ada pengingat.</p>';
+      return;
+    }
+    list.innerHTML = reminders.map(r => {
+      const icon = r.type === 'imunisasi' ? '💉' : '🏥';
+      const days = r.days_left > 0 ? `<span style="color:#E8682E;font-weight:600;">${r.days_left} hari lagi</span>` : '<span style="color:#e53935;font-weight:600;">Hari ini</span>';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f0f0f0;">
+        <span style="font-size:24px;">${icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:#1A1A1A;">${escapeHtml(r.title)}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">${r.description || ''}</div>
+        </div>
+        <div style="font-size:13px;white-space:nowrap;">${days}</div>
+      </div>`;
+    }).join('');
+  }).catch(() => {
+    list.innerHTML = '<p class="info-text" style="text-align:center;color:#999;padding:20px 0;">Gagal memuat notifikasi.</p>';
+  });
+}
+
+function closeNotifModal() {
+  document.getElementById('notif-modal').classList.add('hidden');
 }
 
 // === Quick Add Tracker ===
