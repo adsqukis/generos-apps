@@ -1850,25 +1850,16 @@ async function loadProducts() {
         // Example rating & sold — bisa diganti kalau data real sudah ada
         const rating = (4.5 + Math.random() * 0.5).toFixed(1);
         const sold = Math.floor(Math.random() * 500 + 50);
-        const discount = Math.floor(Math.random() * 30 + 10);
-        const originalPrice = Math.round(price / (1 - discount / 100));
 
         return `
       <div class="product-card" data-id="${product.id}">
         <div class="product-card-image-wrap">
           ${imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(product.name)}" loading="lazy">` : ''}
           <div class="product-card-badge-store">Generos</div>
-          <div class="product-card-badge-promo">
-            <span>Cicilan 0%</span>
-            <span>${discount}%</span>
-          </div>
         </div>
         <div class="product-card-content">
           <h3 class="product-card-title">${escapeHtml(product.name)}</h3>
-          <div class="product-card-price">
-            ${priceStr}
-            <span class="product-card-discount">Rp ${originalPrice.toLocaleString('id-ID')}</span>
-          </div>
+          <div class="product-card-price">${priceStr}</div>
           <div class="product-card-rating">
             <span class="star">⭐</span>
             <span>${rating}</span>
