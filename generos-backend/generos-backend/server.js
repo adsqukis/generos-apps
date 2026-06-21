@@ -19,23 +19,6 @@ const videoRoutes = require('./routes/videos');
 const chatRoutes = require('./routes/chat');
 const shopRoutes = require('./routes/shop');
 const userRoutes = require('./routes/user');
-const jwt = require('jsonwebtoken');
-
-// Auth middleware — verify token
-const authMiddleware = (req, res, next) => {
-  const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Akses ditolak. Silakan login.' });
-  }
-  try {
-    const token = header.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Token tidak valid. Silakan login ulang.' });
-  }
-};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
