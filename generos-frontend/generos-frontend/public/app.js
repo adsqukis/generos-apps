@@ -2374,7 +2374,7 @@ function showAdminEditArticle(e) {
         <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
       </select>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.image_url ? `<button type="button" id="btn-remove-art-image" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Gambar</button>` : ''}</div>
     <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
@@ -2398,6 +2398,15 @@ function showAdminEditArticle(e) {
       preview.textContent = '❌ ' + err.message;
     }
   });
+  // Remove image button
+  const removeBtn = document.getElementById('btn-remove-art-image');
+  if (removeBtn) {
+    removeBtn.onclick = function() {
+      document.getElementById('adm-art-image-url').value = '';
+      document.getElementById('adm-art-image-preview').innerHTML = '<span style="color:#999;">Gambar dihapus</span>';
+      this.remove();
+    };
+  }
 }
 
 async function submitAdminEditArticle() {
@@ -2461,7 +2470,7 @@ function showAdminEditVideo(e) {
     <h4 style="margin:0 0 10px;">✏️ Edit Video</h4>
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.thumbnail_url ? `<button type="button" id="btn-remove-vid-thumb" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Thumbnail</button>` : ''}</div>
     <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
@@ -2492,6 +2501,15 @@ function showAdminEditVideo(e) {
       preview.textContent = '❌ ' + err.message;
     }
   });
+  // Remove thumbnail button
+  const removeBtn = document.getElementById('btn-remove-vid-thumb');
+  if (removeBtn) {
+    removeBtn.onclick = function() {
+      document.getElementById('adm-vid-thumb').value = '';
+      document.getElementById('adm-vid-thumb-preview').innerHTML = '<span style="color:#999;">Thumbnail dihapus</span>';
+      this.remove();
+    };
+  }
 }
 
 async function submitAdminEditVideo() {
@@ -2557,7 +2575,7 @@ function showAdminEditProduct(e) {
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small></div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small>${existingImages.length > 0 ? `<button type="button" id="btn-remove-prod-images" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Semua Gambar</button>` : ''}</div>
     <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
     <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
@@ -2581,6 +2599,15 @@ function showAdminEditProduct(e) {
       preview.textContent = '❌ ' + err.message;
     }
   });
+  // Remove all product images button
+  const removeBtn = document.getElementById('btn-remove-prod-images');
+  if (removeBtn) {
+    removeBtn.onclick = function() {
+      document.getElementById('adm-prod-images').value = '[]';
+      document.getElementById('adm-prod-images-preview').innerHTML = '<span style="color:#999;">Semua gambar dihapus</span>';
+      this.remove();
+    };
+  }
 }
 
 async function submitAdminEditProduct() {
