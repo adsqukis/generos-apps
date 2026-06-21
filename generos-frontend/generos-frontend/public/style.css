@@ -1992,38 +1992,175 @@ textarea {
 .dev-score-num { font-size: 28px; font-weight: 800; line-height: 1; }
 .dev-score-label { font-size: 10px; opacity: 0.8; margin-top: 2px; }
 
-/* Timeline */
-.dev-timeline-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
+/* TIMELINE WRAPPER */
+.dev-timeline-wrap {
   margin-bottom: 20px;
 }
-.dev-timeline-item {
-  display: flex;
-  gap: 12px;
-  padding: 10px 0;
-  border-left: 2px solid var(--border);
-  margin-left: 10px;
-  padding-left: 20px;
+
+/* ============================
+   DEVELOPMENT TIMELINE — POLISHED
+   ============================ */
+
+/* SECTION CONTAINERS */
+.dev-timeline-section {
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+.dev-timeline-section.baby {
+  background: #FFFFFF;
+  border-left: 3px solid #17A697;
+}
+.dev-timeline-section.toddler {
+  background: #FAFAFA;
+  border-left: 3px solid #999999;
+}
+.dev-timeline-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+/* TIMELINE ITEM */
+.dev-tl-item {
   position: relative;
+  margin-bottom: 24px;
+  padding-left: 24px;
 }
-.dev-timeline-item::before {
+.dev-tl-item:last-child {
+  margin-bottom: 0;
+}
+
+/* TIMELINE LINE (vertical connector) */
+.dev-tl-item::after {
   content: '';
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: var(--border);
   position: absolute;
-  left: -6px;
-  top: 14px;
+  left: 5px;
+  top: 20px;
+  width: 2px;
+  height: calc(100% + 24px);
+  background: linear-gradient(to bottom, #17A697 0%, #17A697 50%, #CCCCCC 50%, #CCCCCC 100%);
+  z-index: 0;
 }
-.dev-timeline-item.past::before { background: var(--success); }
-.dev-timeline-item.current::before { background: var(--primary); box-shadow: 0 0 8px rgba(0,61,165,0.4); }
-.dev-timeline-age { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 60px; }
-.dev-timeline-ms { flex: 1; }
-.dev-timeline-ms .tl-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.dev-timeline-ms .tl-detail { font-size: 11px; color: var(--text-light); }
+.dev-tl-item:last-child::after {
+  display: none;
+}
+.dev-timeline-section.toddler .dev-tl-item::after {
+  background: linear-gradient(to bottom, #003DA5 0%, #003DA5 50%, #CCCCCC 50%, #CCCCCC 100%);
+}
+
+/* TIMELINE DOT */
+.dev-tl-dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  z-index: 1;
+  transition: box-shadow 0.2s ease-in-out;
+}
+.dev-tl-dot.active {
+  background: #17A697;
+  box-shadow: 0 0 0 2px rgba(23,166,151,0.1);
+}
+.dev-tl-dot.completed {
+  background: #003DA5;
+}
+.dev-tl-dot.upcoming {
+  background: #CCCCCC;
+}
+.dev-tl-dot:hover {
+  box-shadow: 0 0 0 4px rgba(23,166,151,0.2);
+}
+.dev-tl-dot.completed:hover {
+  box-shadow: 0 0 0 4px rgba(0,61,165,0.2);
+}
+
+/* TIMELINE CONTENT */
+.dev-tl-content {
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* AGE LABEL */
+.dev-tl-age {
+  font-size: 14px;
+  font-weight: 600;
+  color: #003DA5;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+/* MILESTONE ITEM */
+.dev-tl-milestone {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+}
+.dev-tl-milestone:hover {
+  background: #F5F5F5;
+}
+
+/* CHECKMARK */
+.dev-tl-check {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #17A697;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: transform 0.2s ease-in-out;
+}
+.dev-tl-milestone:hover .dev-tl-check {
+  transform: scale(1.1);
+}
+
+/* MILESTONE TEXT */
+.dev-tl-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 400;
+  color: #333333;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+/* EXPAND LINK */
+.dev-tl-expand {
+  font-size: 12px;
+  font-weight: 500;
+  color: #999999;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: color 0.2s ease-in-out;
+}
+.dev-tl-expand:hover {
+  color: #666666;
+}
+
+/* HIDDEN MILESTONES (expandable) */
+.dev-tl-hidden {
+  display: none;
+}
+.dev-tl-hidden.show {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* ============================
    VIDEO EDUKASI PAGE

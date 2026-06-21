@@ -3704,16 +3704,92 @@ async function loadDevelopmentPageData(age) {
     const circle = document.getElementById('dev-score-circle');
     if (sc.value !== null) circle.style.borderColor = sc.value >= 75 ? '#10B981' : sc.value >= 60 ? '#F59E0B' : '#EF4444';
     const timeline = data.timeline || [];
-    document.getElementById('dev-timeline').innerHTML = timeline.map(t => {
-      const cls = t.is_current ? 'current' : t.is_past ? 'past' : '';
-      return `<div class="dev-timeline-item ${cls}">
-        <div class="dev-timeline-age">${escapeHtml(t.label)}</div>
-        <div class="dev-timeline-ms">
-          ${(t.milestones || []).slice(0, 3).map(m => `<div class="tl-title">${t.is_past ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : t.is_current ? '⏳' : '○'} ${escapeHtml(m)}</div>`).join('')}
-          ${t.milestones && t.milestones.length > 3 ? `<div class="tl-detail">+${t.milestones.length - 3} lainnya</div>` : ''}
+
+    // Group timeline items into baby (0-24) and toddler (24-72)
+    const babyItems = [];
+    const toddlerItems = [];
+    timeline.forEach(t => {
+      // Parse age from label — e.g., "1 bulan", "2 tahun 6 bulan"
+      let ageMonths = 0;
+      const label = t.label || '';
+      const yearMatch = label.match(/(\d+)\s*tahun/);
+      const monthMatch = label.match(/(\d+)\s*bulan/);
+      if (yearMatch) ageMonths += parseInt(yearMatch[1]) * 12;
+      if (monthMatch) ageMonths += parseInt(monthMatch[1]);
+      // Handle plain number labels (e.g., "1", "2")
+      if (!yearMatch && !monthMatch) {
+        const numMatch = label.match(/(\d+)/);
+        if (numMatch) ageMonths = parseInt(numMatch[1]);
+      }
+      t._ageMonths = ageMonths;
+      if (ageMonths <= 24) babyItems.push(t);
+      else toddlerItems.push(t);
+    });
+
+    function renderTimelineItem(t) {
+      const isPast = t.is_past;
+      const isCurrent = t.is_current;
+      const isFuture = !isPast && !isCurrent;
+      const milestones = t.milestones || [];
+
+      // Determine dot class
+      let dotClass = 'upcoming';
+      if (isCurrent) dotClass = 'active';
+      else if (isPast && t._ageMonths <= 24) dotClass = 'active';
+      else if (isPast) dotClass = 'completed';
+
+      const visibleMs = milestones.slice(0, 3);
+      const hiddenMs = milestones.slice(3);
+      const hasMore = hiddenMs.length > 0;
+
+      return `<div class="dev-tl-item" data-age="${t._ageMonths}">
+        <div class="dev-tl-dot ${dotClass}"></div>
+        <div class="dev-tl-content">
+          <div class="dev-tl-age">${escapeHtml(t.label || '')}</div>
+          ${visibleMs.map(m => `
+            <div class="dev-tl-milestone">
+              <span class="dev-tl-check">${isPast ? '✓' : isCurrent ? '⏳' : '○'}</span>
+              <span class="dev-tl-text">${escapeHtml(m)}</span>
+            </div>
+          `).join('')}
+          ${hasMore ? `
+            <div class="dev-tl-hidden" id="tl-hidden-${(t.label || 'age-' + t._ageMonths).replace(/\s+/g, '-')}">
+              ${hiddenMs.map(m => `
+                <div class="dev-tl-milestone">
+                  <span class="dev-tl-check">${isPast ? '✓' : '○'}</span>
+                  <span class="dev-tl-text">${escapeHtml(m)}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="dev-tl-expand" onclick="(function(el){
+              const hidden = el.previousElementSibling;
+              if(hidden.classList.contains('show')){
+                hidden.classList.remove('show');
+                el.textContent = '+${hiddenMs.length} lainnya';
+              } else {
+                hidden.classList.add('show');
+                el.textContent = 'Sembunyikan';
+              }
+            })(this)">+${hiddenMs.length} lainnya</div>
+          ` : ''}
         </div>
       </div>`;
-    }).join('');
+    }
+
+    let timelineHtml = '';
+    if (babyItems.length > 0) {
+      timelineHtml += `<div class="dev-timeline-section baby">
+        <div class="dev-timeline-section-label">👶 Bayi (0–24 Bulan)</div>
+        ${babyItems.map(renderTimelineItem).join('')}
+      </div>`;
+    }
+    if (toddlerItems.length > 0) {
+      timelineHtml += `<div class="dev-timeline-section toddler">
+        <div class="dev-timeline-section-label">🧒 Balita (2–6 Tahun)</div>
+        ${toddlerItems.map(renderTimelineItem).join('')}
+      </div>`;
+    }
+    document.getElementById('dev-timeline').innerHTML = timelineHtml || '<p class="info-text">Belum ada data perkembangan.</p>';
   } catch (err) {
     console.error('Development page error:', err);
   }
