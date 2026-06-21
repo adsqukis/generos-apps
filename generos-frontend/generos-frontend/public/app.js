@@ -1773,30 +1773,6 @@ function loadSettings() {
         </div>
         <button id="btn-edit-child-settings" data-action="edit-child-data" style="background:none;border:none;color:#E8682E;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;width:100%;text-align:center;">✏️ Edit Data Anak</button>
       </div>
-      <div style="margin-top:16px;">
-        <div class="cd-mini-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-            <div style="font-size:24px;margin-bottom:4px;">⚖️</div>
-            <div style="font-size:11px;color:#888;">Berat Badan</div>
-            <div id="cd-mini-bb-s" style="font-size:16px;font-weight:700;color:#1A1A1A;">-</div>
-          </div>
-          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-            <div style="font-size:24px;margin-bottom:4px;">📏</div>
-            <div style="font-size:11px;color:#888;">Tinggi Badan</div>
-            <div id="cd-mini-tb-s" style="font-size:16px;font-weight:700;color:#1A1A1A;">-</div>
-          </div>
-          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-            <div style="font-size:24px;margin-bottom:4px;">🥗</div>
-            <div style="font-size:11px;color:#888;">Status Gizi</div>
-            <div id="cd-mini-gizi-s" style="font-size:14px;font-weight:600;color:#1A1A1A;">-</div>
-          </div>
-          <div class="cd-mini-card" style="background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-            <div style="font-size:24px;margin-bottom:4px;">🧩</div>
-            <div style="font-size:11px;color:#888;">Perkembangan</div>
-            <div id="cd-mini-dev-s" style="font-size:14px;font-weight:700;color:#1A1A1A;">-</div>
-          </div>
-        </div>
-      </div>
     </div>
     <div class="card" style="border-left:none;margin-top:16px;">
       <p class="cat">Nama Anda</p>
@@ -1883,10 +1859,6 @@ async function loadChildProfileSettings() {
     setText('cd-stat-tb-s', g.height_cm ? `${g.height_cm} cm` : '-');
     setText('cd-stat-gizi-s', data.nutrition_status || '-');
     setText('cd-stat-dev-s', data.development_status || '-');
-    setText('cd-mini-bb-s', g.weight_kg ? `${g.weight_kg} kg` : '-');
-    setText('cd-mini-tb-s', g.height_cm ? `${g.height_cm} cm` : '-');
-    setText('cd-mini-gizi-s', data.nutrition_status || '-');
-    setText('cd-mini-dev-s', data.development_status || '-');
   } catch (err) {
     console.error('Load child profile settings error:', err);
   }
