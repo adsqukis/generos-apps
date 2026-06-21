@@ -232,6 +232,18 @@ const Api = {
     return this.request('/shop/analytics/clicks');
   },
 
+  async createVideo(payload) {
+    return this.request('/videos', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async getSettings() {
+    return this.request('/user/settings');
+  },
+
+  async updateSettings(payload) {
+    return this.request('/user/settings', { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
   // ============ DAILY TRACKER ============
   async getDailySummary(date) {
     const q = date ? `?date=${date}` : '';

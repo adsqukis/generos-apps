@@ -256,9 +256,14 @@ function initApp() {
   safeAddListener('settings-content', 'click', (e) => {
     const action = e.target.dataset.action;
     if (action === 'show-admin-add-article') showAdminAddArticle();
+    else if (action === 'show-admin-add-video') showAdminAddVideo();
     else if (action === 'show-admin-add-product') showAdminAddProduct();
+    else if (action === 'submit-admin-article') submitAdminArticle();
+    else if (action === 'submit-admin-video') submitAdminVideo();
+    else if (action === 'submit-admin-product') submitAdminProduct();
     else if (action === 'show-admin-analytics') showAdminAnalytics();
     else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
+    else if (action === 'save-cs-settings') saveCsSettings();
     else if (action === 'toggle-privacy') toggleAccordion('accordion-privacy');
     else if (action === 'toggle-help') toggleAccordion('accordion-help');
   });
@@ -1845,6 +1850,18 @@ function loadSettings() {
       <p class="title">${escapeHtml(user.full_name)}</p>
     </div>
 
+    <!-- Customer Service Settings -->
+    <div class="card" style="border-left:none;margin-top:16px;padding:16px;">
+      <p class="cat" style="margin-bottom:10px;">📞 Customer Service</p>
+      <div class="form-group"><label>No. WhatsApp</label>
+        <input type="text" id="cs-wa-input" style="width:100%;padding:10px;border:2px solid #E5E7EB;border-radius:8px;font-size:14px;" placeholder="6281234567890">
+      </div>
+      <div class="form-group" style="margin-top:10px;"><label>Email CS</label>
+        <input type="text" id="cs-email-input" style="width:100%;padding:10px;border:2px solid #E5E7EB;border-radius:8px;font-size:14px;" placeholder="support@generos.id">
+      </div>
+      <button class="btn-primary" data-action="save-cs-settings" style="margin-top:10px;">💾 Simpan CS Settings</button>
+    </div>
+
     <!-- Settings Menu: Accordion Items -->
     <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
       <!-- Kebijakan dan Privasi -->
@@ -1887,12 +1904,15 @@ function loadSettings() {
 
   // Load child profile data
   loadChildProfileSettings();
+  // Load CS settings
+  loadCsSettings();
 
   if (user.role === 'admin') {
     const adminHtml = `
       <div class="admin-section" style="margin-top: 20px;">
         <h4>🔧 Admin Panel</h4>
         <button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Artikel</button>
+        <button class="btn-secondary" data-action="show-admin-add-video">🎬 Tambah Video</button>
         <button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Produk</button>
         <button class="btn-secondary" data-action="show-admin-analytics">📊 Lihat Analytics</button>
         <div id="admin-panel-content"></div>
@@ -1951,6 +1971,39 @@ function toggleAccordion(contentId) {
 function setText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
+}
+
+async function loadCsSettings() {
+  try {
+    const data = await Api.getSettings();
+    const waInput = document.getElementById('cs-wa-input');
+    const emailInput = document.getElementById('cs-email-input');
+    if (waInput && data.settings.wa_number) waInput.value = data.settings.wa_number;
+    if (emailInput && data.settings.email_support) emailInput.value = data.settings.email_support;
+    // Update FAQ links
+    const waLink = document.querySelector('a[href*="wa.me"]');
+    if (waLink && data.settings.wa_number) {
+      waLink.href = `https://wa.me/${data.settings.wa_number}?text=Halo%20Generos%20Care`;
+    }
+    const emailLink = document.querySelector('a[href*="mailto"]');
+    if (emailLink && data.settings.email_support) {
+      emailLink.href = `mailto:${data.settings.email_support}`;
+    }
+  } catch (err) {
+    console.error('Load CS settings error:', err);
+  }
+}
+
+async function saveCsSettings() {
+  try {
+    const wa = document.getElementById('cs-wa-input').value.trim();
+    const email = document.getElementById('cs-email-input').value.trim();
+    const data = await Api.updateSettings({ wa_number: wa, email_support: email });
+    showToast('CS Settings berhasil disimpan', 'success');
+    loadCsSettings(); // Refresh FAQ links
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
 }
 
 // ============================
@@ -2040,6 +2093,46 @@ async function submitAdminProduct() {
       shopee_link: document.getElementById('adm-prod-link').value,
     });
     showToast('Produk berhasil ditambahkan', 'success');
+    document.getElementById('admin-panel-content').innerHTML = '';
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+function showAdminAddVideo() {
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML = `
+    <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title"></div>
+    <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" placeholder="https://youtube.com/..."></div>
+    <div class="form-group"><label>URL Thumbnail (opsional)</label><input type="text" id="adm-vid-thumb" placeholder="https://..."></div>
+    <div class="form-group"><label>Kategori</label>
+      <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
+        <option value="speech">Bicara</option>
+        <option value="motor">Motorik</option>
+        <option value="immunity">Imunitas</option>
+        <option value="cognitive">Kognitif</option>
+        <option value="parenting">Parenting</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Durasi (menit, opsional)</label><input type="number" id="adm-vid-dur" placeholder="5"></div>
+    <div class="form-group"><label>Rentang Usia (opsional)</label><input type="text" id="adm-vid-age" placeholder="contoh: 1-3 tahun"></div>
+    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc"></textarea></div>
+    <button class="btn-primary" data-action="submit-admin-video">Simpan Video</button>
+  `;
+}
+
+async function submitAdminVideo() {
+  try {
+    await Api.createVideo({
+      title: document.getElementById('adm-vid-title').value,
+      video_url: document.getElementById('adm-vid-url').value,
+      thumbnail_url: document.getElementById('adm-vid-thumb').value || null,
+      category: document.getElementById('adm-vid-category').value,
+      duration_minutes: parseInt(document.getElementById('adm-vid-dur').value) || null,
+      age_range: document.getElementById('adm-vid-age').value || null,
+      description: document.getElementById('adm-vid-desc').value || null,
+    });
+    showToast('Video berhasil ditambahkan', 'success');
     document.getElementById('admin-panel-content').innerHTML = '';
   } catch (err) {
     showToast(err.message, 'error');
