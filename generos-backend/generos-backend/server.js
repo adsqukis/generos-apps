@@ -21,6 +21,7 @@ const videoRoutes = require('./routes/videos');
 const chatRoutes = require('./routes/chat');
 const shopRoutes = require('./routes/shop');
 const userRoutes = require('./routes/user');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -296,6 +297,10 @@ app.use('/api/shop', shopRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/screening', require('./routes/screening'));
 app.use('/api/stimulation', require('./routes/stimulation'));
+app.use('/api/upload', uploadRoutes);
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // ============================
 // 404 HANDLER

@@ -277,6 +277,18 @@ CREATE TABLE IF NOT EXISTS immunization_records (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_immunization_user ON immunization_records(user_id, immunization_date DESC);
+
+-- Add image_url to articles (if not exists)
+DO $$ BEGIN
+  ALTER TABLE articles ADD COLUMN image_url VARCHAR(500);
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
+
+-- Add images JSONB to products (multiple images)
+DO $$ BEGIN
+  ALTER TABLE products ADD COLUMN images JSONB DEFAULT '[]';
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
 `;
 
 async function runMigrations() {

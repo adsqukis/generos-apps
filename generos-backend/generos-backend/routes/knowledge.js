@@ -104,15 +104,15 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { title, category, content, summary, red_flags, when_to_see_doctor, sources } = req.body;
+    const { title, category, content, summary, red_flags, when_to_see_doctor, sources, image_url } = req.body;
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     try {
       const result = await pool.query(
-        `INSERT INTO articles (title, slug, category, content, summary, red_flags, when_to_see_doctor, sources, verified_by, verified_date, is_active)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, true)
+        `INSERT INTO articles (title, slug, category, content, summary, red_flags, when_to_see_doctor, sources, image_url, verified_by, verified_date, is_active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP, true)
          RETURNING *`,
-        [title, slug, category, content, summary, red_flags || null, when_to_see_doctor || null, JSON.stringify(sources || []), req.user.id]
+        [title, slug, category, content, summary, red_flags || null, when_to_see_doctor || null, JSON.stringify(sources || []), image_url || null, req.user.id]
       );
 
       res.status(201).json({ article: result.rows[0] });
@@ -127,7 +127,7 @@ router.post(
 // ADMIN: Update article
 // ============================
 router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
-  const { title, category, content, summary, red_flags, when_to_see_doctor, is_active } = req.body;
+  const { title, category, content, summary, red_flags, when_to_see_doctor, image_url, is_active } = req.body;
 
   try {
     const result = await pool.query(
@@ -138,11 +138,12 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
         summary = COALESCE($4, summary),
         red_flags = COALESCE($5, red_flags),
         when_to_see_doctor = COALESCE($6, when_to_see_doctor),
-        is_active = COALESCE($7, is_active),
+        image_url = COALESCE($7, image_url),
+        is_active = COALESCE($8, is_active),
         updated_at = CURRENT_TIMESTAMP
-       WHERE id = $8
+       WHERE id = $9
        RETURNING *`,
-      [title, category, content, summary, red_flags, when_to_see_doctor, is_active, req.params.id]
+      [title, category, content, summary, red_flags, when_to_see_doctor, image_url, is_active, req.params.id]
     );
 
     if (result.rows.length === 0) {
