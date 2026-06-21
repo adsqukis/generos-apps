@@ -65,6 +65,8 @@ function initApp() {
   safeAddListener('btn-add-growth', 'click', () => document.getElementById('growth-modal').classList.remove('hidden'));
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
   safeAddListener('btn-notif', 'click', () => { /* placeholder */ });
+  // Child Data page listeners
+  if (typeof initChildDataListeners === 'function') initChildDataListeners();
   safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
   // Tracker card body — klik lihat detail riwayat hari ini
   document.querySelectorAll('.tracker-add').forEach(btn => {
@@ -357,7 +359,7 @@ function navigate(page) {
   if (page === 'video') loadVideoPage();
   if (page === 'knowledge') loadArticles();
   if (page === 'chat') loadChatHistory();
-  if (page === 'shop') loadProducts();
+  if (page === 'child-data') loadChildDataPage();
   if (page === 'settings') loadSettings();
   if (page === 'screening') loadScreeningPage();
   if (page === 'stimulation') loadStimulationPage();

@@ -37,6 +37,14 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
 -- Safe upgrade path jika tabel users sudah ada dari migration sebelumnya
 ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_login_attempts INTEGER DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMP;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS child_nickname VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS child_photo TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_weight DECIMAL(5,2);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_height DECIMAL(5,2);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_head_circumference DECIMAL(5,2);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS father_name VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mother_name VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS parent_notes TEXT;
 
 -- Tracking Entries Table
 CREATE TABLE IF NOT EXISTS tracking_entries (

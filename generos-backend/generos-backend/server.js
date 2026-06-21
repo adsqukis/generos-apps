@@ -15,6 +15,7 @@ const pool = require('./config/db');
 const authRoutes = require('./routes/auth');
 const trackingRoutes = require('./routes/tracking');
 const knowledgeRoutes = require('./routes/knowledge');
+const childRoutes = require('./routes/child');
 const dailyRoutes = require('./routes/daily');
 const videoRoutes = require('./routes/videos');
 const chatRoutes = require('./routes/chat');
@@ -264,6 +265,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
+app.use('/api/child', childRoutes);
 app.use('/api/daily', dailyRoutes);
 app.use('/api/development', require('./routes/development'));
 app.use('/api/videos', videoRoutes);

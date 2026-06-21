@@ -1990,3 +1990,350 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================
+   DATA ANAK (Child Data) PAGE
+   Warm, friendly, premium parenting UI
+   Orange accent: #E8682E
+   Mobile-first
+   ============================ */
+
+.cd-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+/* -- Header / Avatar Section -- */
+.cd-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cd-avatar {
+  width: 80px;
+  height: 80px;
+  background: #FFF0E8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: #E8682E;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.cd-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cd-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A1A1A;
+  text-align: center;
+}
+
+.cd-age {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* -- Stats Grid -- */
+.cd-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cd-stat {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: #F9F9FB;
+  border-radius: 12px;
+}
+
+.cd-stat-label {
+  font-size: 11px;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.cd-stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+/* -- Edit Button -- */
+.cd-edit-btn {
+  text-align: center;
+  color: #E8682E;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px;
+  border: none;
+  background: none;
+  width: 100%;
+}
+
+.cd-edit-btn:hover {
+  opacity: 0.8;
+}
+
+/* -- Mini Grid Cards -- */
+.cd-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cd-mini-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.cd-mini-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.cd-mini-label {
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 4px;
+}
+
+.cd-mini-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+/* -- Sticky Action Button -- */
+.cd-sticky-btn {
+  position: sticky;
+  bottom: 16px;
+  width: 100%;
+  padding: 16px;
+  background: #E8682E;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(232, 104, 46, 0.3);
+}
+
+.cd-sticky-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* -- Multi-Step Modal Form -- */
+.cd-form-box {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* -- Steps -- */
+.cd-step {
+  display: none;
+}
+
+.cd-step.active {
+  display: block;
+}
+
+/* -- Form Elements -- */
+.cd-form-group {
+  margin-bottom: 16px;
+}
+
+.cd-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.cd-form-input,
+.cd-form-select,
+.cd-form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  font-size: 15px;
+  background: #FAFAFA;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cd-form-input:focus {
+  border-color: #E8682E;
+  box-shadow: 0 0 0 3px rgba(232, 104, 46, 0.1);
+}
+
+.cd-form-select {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+.cd-form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.cd-form-file {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24px 16px;
+  border: 2px dashed #E5E7EB;
+  border-radius: 12px;
+  background: #FAFAFA;
+  color: #888888;
+  font-size: 14px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cd-form-file:hover {
+  border-color: #E8682E;
+  background: #FFF0E8;
+}
+
+.cd-form-file::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+/* -- Form Navigation -- */
+.cd-form-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+}
+
+.cd-step-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.cd-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #E5E7EB;
+  transition: all 0.2s ease;
+}
+
+.cd-step-dot.active {
+  background: #E8682E;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.cd-step-dot.done {
+  background: #E8682E;
+  opacity: 0.5;
+}
+
+.cd-btn-prev {
+  padding: 10px 20px;
+  border: 1.5px solid #E5E7EB;
+  background: #FFFFFF;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #666666;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cd-btn-prev:hover {
+  border-color: #D1D5DB;
+}
+
+.cd-btn-next {
+  padding: 10px 24px;
+  background: #E8682E;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cd-btn-next:hover {
+  opacity: 0.9;
+}
+
+/* -- Review Section -- */
+.cd-review-section {
+  margin-bottom: 20px;
+}
+
+.cd-review-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #E8682E;
+  margin-bottom: 12px;
+}
+
+.cd-review-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.cd-review-item:last-child {
+  border-bottom: none;
+}
+
+.cd-review-label {
+  font-size: 13px;
+  color: #888888;
+}
+
+.cd-review-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1A1A1A;
+  text-align: right;
+  max-width: 60%;
+}

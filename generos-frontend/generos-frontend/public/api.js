@@ -431,4 +431,16 @@ const Api = {
       body: JSON.stringify({ domain, kendala, child_age_months: childAgeMonths }),
     });
   },
+
+  // ============ CHILD DATA ============
+  async getChildProfile() {
+    return this.request('/child/profile');
+  },
+
+  async updateChildProfile(data) {
+    return this.request('/child/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
 };
