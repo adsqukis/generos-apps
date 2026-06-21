@@ -5,7 +5,6 @@ let currentPage = 'login';
 let selectedTrackingType = null;
 let selectedSeverity = 'normal';
 let articlesCache = [];
-let foodsCache = [];
 
 // ============================
 // INIT — jalan langsung karena script di akhir <body> (DOM sudah siap)
@@ -53,10 +52,10 @@ function initApp() {
   safeAddListener('link-login', 'click', showLoginForm);
   safeAddListener('btn-settings', 'click', () => navigate('settings'));
   safeAddListener('btn-go-tracking', 'click', () => navigate('tracking'));
-  safeAddListener('btn-go-food', 'click', () => navigate('food'));
   safeAddListener('btn-go-knowledge', 'click', () => navigate('knowledge'));
   safeAddListener('btn-go-screening', 'click', () => navigate('screening'));
   safeAddListener('btn-go-stimulation', 'click', () => navigate('stimulation'));
+  safeAddListener('btn-go-video', 'click', () => navigate('video'));
   safeAddListener('btn-submit-growth', 'click', submitGrowthRecord);
   safeAddListener('btn-submit-immunization', 'click', submitImmunizationRecord);
   safeAddListener('imm-date', 'change', updateImmunizationAge);
@@ -172,22 +171,38 @@ function initApp() {
     btn.addEventListener('click', () => navigate('home'));
   });
 
+  // Video page: filter chip delegation
+  safeAddListener('video-filter', 'click', (e) => {
+    const chip = e.target.closest('.filter-chip');
+    if (chip) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      loadVideoPage();
+    }
+  });
+
+  // Video page: grid item click delegation
+  safeAddListener('video-grid', 'click', (e) => {
+    const card = e.target.closest('.video-card');
+    if (card && card.dataset.videoId) {
+      const videos = window._videosCache || [];
+      const video = videos.find(v => v.id == card.dataset.videoId);
+      if (video) openVideoModal(video);
+    }
+  });
+
+  // Video modal close
+  safeAddListener('btn-close-video-modal', 'click', closeVideoModal);
+
+  // Video modal: click outside to close
+  const videoModal = document.getElementById('video-modal');
+  if (videoModal) {
+    videoModal.addEventListener('click', function(e) {
+      if (e.target === this) closeVideoModal();
+    });
+  }
+
   // ============ EVENT DELEGATION FOR DYNAMIC CONTENT ============
-  // Food list items
-  safeAddListener('food-list', 'click', (e) => {
-    const item = e.target.closest('.food-item');
-    if (item && item.dataset.foodIdx !== undefined) {
-      showFoodDetail(parseInt(item.dataset.foodIdx));
-    }
-  });
-
-  // Food detail back button
-  safeAddListener('food-detail', 'click', (e) => {
-    if (e.target.dataset.action === 'back-food-list') {
-      loadFoodMenu();
-    }
-  });
-
   // Article list items
   safeAddListener('article-list', 'click', (e) => {
     const card = e.target.closest('.card');
@@ -215,7 +230,6 @@ function initApp() {
   safeAddListener('admin-panel-content', 'click', (e) => {
     const action = e.target.dataset.action;
     if (action === 'submit-admin-article') submitAdminArticle();
-    else if (action === 'submit-admin-food') submitAdminFood();
     else if (action === 'submit-admin-product') submitAdminProduct();
   });
 
@@ -231,7 +245,6 @@ function initApp() {
   safeAddListener('settings-content', 'click', (e) => {
     const action = e.target.dataset.action;
     if (action === 'show-admin-add-article') showAdminAddArticle();
-    else if (action === 'show-admin-add-food') showAdminAddFood();
     else if (action === 'show-admin-add-product') showAdminAddProduct();
     else if (action === 'show-admin-analytics') showAdminAnalytics();
   });
@@ -332,7 +345,7 @@ function navigate(page) {
   // Load data per page
   if (page === 'home') loadHomeData();
   if (page === 'tracking') loadGrowthPage();
-  if (page === 'food') loadFoodMenu();
+  if (page === 'video') loadVideoPage();
   if (page === 'knowledge') loadArticles();
   if (page === 'chat') loadChatHistory();
   if (page === 'shop') loadProducts();
@@ -1320,7 +1333,6 @@ async function loadScreeningProgressTab() {
 async function loadFoodMenu() {
   try {
     const data = await Api.getFoodMenu();
-    foodsCache = data.foods;
     const container = document.getElementById('food-list');
     document.getElementById('food-detail').classList.add('hidden');
     container.classList.remove('hidden');
@@ -1349,7 +1361,8 @@ async function loadFoodMenu() {
 }
 
 function showFoodDetail(idx) {
-  const food = foodsCache[idx];
+  // Deprecated: food page no longer exists, this function kept for reference
+  const food = {};
   document.getElementById('food-list').classList.add('hidden');
   const detail = document.getElementById('food-detail');
   detail.classList.remove('hidden');
@@ -1370,6 +1383,136 @@ function showFoodDetail(idx) {
       <p class="desc">${escapeHtml(food.recipe)}</p>
     </div>
   `;
+}
+
+// ============================
+// VIDEO EDUKASI PAGE
+// ============================
+
+// Color gradients for video thumbnails by category
+const thumbnailColors = {
+  'Speech': ['#667eea', '#764ba2'],
+  'Motor': ['#f093fb', '#f5576c'],
+  'Imunitas': ['#4facfe', '#00f2fe'],
+  'Parenting': ['#43e97b', '#38f9d7'],
+  'default': ['#a18cd1', '#fbc2eb'],
+};
+
+function getThumbnailStyle(category) {
+  const colors = thumbnailColors[category] || thumbnailColors['default'];
+  return `background: linear-gradient(135deg, ${colors[0]}, ${colors[1]});`;
+}
+
+async function loadVideoPage() {
+  const grid = document.getElementById('video-grid');
+  if (!grid) return;
+  grid.innerHTML = '<p class="info-text">Memuat video...</p>';
+
+  // Get active category filter
+  const activeChip = document.querySelector('.filter-chip.active');
+  const category = activeChip ? activeChip.dataset.category : '';
+
+  try {
+    const data = await Api.getVideos();
+    let videos = data.videos || [];
+
+    // Cache for detail view
+    window._videosCache = videos;
+
+    // Filter by category
+    if (category) {
+      videos = videos.filter(v => v.category === category);
+    }
+
+    if (videos.length === 0) {
+      grid.innerHTML = '<p class="info-text">Belum ada video untuk kategori ini.</p>';
+      return;
+    }
+
+    grid.innerHTML = videos.map(v => {
+      const duration = v.duration_minutes ? `${v.duration_minutes} menit` : '';
+      const ageRange = v.age_range || '';
+      const categoryName = v.category || '';
+      const title = v.title || 'Video Edukasi';
+
+      return `
+        <div class="video-card" data-video-id="${v.id}">
+          <div class="video-thumb" style="${getThumbnailStyle(categoryName)}">
+            <div class="play-overlay">▶️</div>
+            ${duration ? `<span class="video-duration">${duration}</span>` : ''}
+          </div>
+          <div class="video-card-body">
+            <div class="video-card-title">${escapeHtml(title)}</div>
+            <span class="video-category">${escapeHtml(categoryName)}</span>
+            ${ageRange ? `<div class="video-age">${escapeHtml(ageRange)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Failed to load videos:', err);
+    grid.innerHTML = '<p class="info-text">Gagal memuat video. Periksa koneksi Anda.</p>';
+  }
+}
+
+function openVideoModal(video) {
+  const modal = document.getElementById('video-modal');
+  const title = document.getElementById('video-modal-title');
+  const embedContainer = document.getElementById('video-embed-container');
+  const descContainer = document.getElementById('video-modal-desc');
+
+  if (!modal || !title || !embedContainer || !descContainer) return;
+
+  title.textContent = `🎬 ${escapeHtml(video.title || 'Video Edukasi')}`;
+
+  // Build YouTube embed if video_url contains a YouTube ID
+  let embedHtml = '';
+  if (video.video_url) {
+    // Extract YouTube video ID from various URL formats
+    let videoId = '';
+    const url = video.video_url;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      videoId = match[2];
+    } else {
+      // Try direct URL as video ID fallback
+      videoId = url;
+    }
+    embedHtml = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+  } else {
+    embedHtml = '<div class="video-placeholder">🎬 Video tidak tersedia</div>';
+  }
+
+  embedContainer.innerHTML = embedHtml;
+
+  // Description
+  let descHtml = '';
+  if (video.description) {
+    descHtml += `<p>${escapeHtml(video.description)}</p>`;
+  }
+  if (video.duration_minutes || video.category || video.age_range) {
+    descHtml += '<div class="video-meta">';
+    if (video.duration_minutes) descHtml += `<span>⏱ ${video.duration_minutes} menit</span>`;
+    if (video.category) descHtml += `<span>🏷️ ${escapeHtml(video.category)}</span>`;
+    if (video.age_range) descHtml += `<span>👶 ${escapeHtml(video.age_range)}</span>`;
+    descHtml += '</div>';
+  }
+  descContainer.innerHTML = descHtml;
+
+  modal.classList.remove('hidden');
+}
+
+function closeVideoModal() {
+  const modal = document.getElementById('video-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    // Stop video playback by removing iframe
+    const container = document.getElementById('video-embed-container');
+    if (container) {
+      container.innerHTML = '<div class="video-placeholder">Memuat video...</div>';
+    }
+  }
 }
 
 // ============================
@@ -1561,7 +1704,6 @@ function loadSettings() {
       <div class="admin-section" style="margin-top: 20px;">
         <h4>🔧 Admin Panel</h4>
         <button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Artikel</button>
-        <button class="btn-secondary" data-action="show-admin-add-food">➕ Tambah Menu Makanan</button>
         <button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Produk</button>
         <button class="btn-secondary" data-action="show-admin-analytics">📊 Lihat Analytics</button>
         <div id="admin-panel-content"></div>

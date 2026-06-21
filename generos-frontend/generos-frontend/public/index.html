@@ -145,6 +145,7 @@
                 <div class="menu-grid">
                     <button class="menu-btn" id="btn-go-screening">📋 Skrining</button>
                     <button class="menu-btn" id="btn-go-stimulation">🧩 Stimulasi</button>
+                    <button class="menu-btn" id="btn-go-video">🎬 Video Edukasi</button>
                 </div>
 
                 <!-- Growth Summary -->
@@ -306,16 +307,39 @@
             </div>
         </div>
 
-        <!-- ============ FOOD MENU PAGE ============ -->
-        <div id="page-food" class="page hidden">
+        <!-- ============ VIDEO EDUKASI PAGE ============ -->
+        <div id="page-video" class="page hidden">
             <div class="header">
-                <button class="back-btn" id="btn-back-food">←</button>
-                <h1>🍲 Menu Makanan</h1>
+                <button class="back-btn" id="btn-back-video">←</button>
+                <h1>🎬 Video Edukasi</h1>
             </div>
             <div class="container">
-                <p class="info-text">Dukung tumbuh kembang dengan nutrisi tepat</p>
-                <div id="food-list">Memuat...</div>
-                <div id="food-detail" class="hidden"></div>
+                <!-- Category Filter -->
+                <div class="video-filter" id="video-filter">
+                    <button class="filter-chip active" data-category="">Semua</button>
+                    <button class="filter-chip" data-category="Speech">Speech</button>
+                    <button class="filter-chip" data-category="Motor">Motor</button>
+                    <button class="filter-chip" data-category="Imunitas">Imunitas</button>
+                    <button class="filter-chip" data-category="Parenting">Parenting</button>
+                </div>
+                <!-- Video Grid -->
+                <div id="video-grid" class="video-grid">
+                    <p class="info-text">Memuat video...</p>
+                </div>
+            </div>
+
+            <!-- Video Modal -->
+            <div id="video-modal" class="modal-overlay hidden">
+                <div class="modal-box video-modal-box">
+                    <div class="modal-head">
+                        <h3 id="video-modal-title">Putar Video</h3>
+                        <button class="modal-close" id="btn-close-video-modal">✕</button>
+                    </div>
+                    <div class="video-embed" id="video-embed-container">
+                        <div class="video-placeholder">Memuat video...</div>
+                    </div>
+                    <div id="video-modal-desc" class="video-modal-desc"></div>
+                </div>
             </div>
         </div>
 
@@ -598,8 +622,8 @@
             <button class="nav-btn" data-page="tracking">
                 <span>📈</span><span>Tumbuh Kembang</span>
             </button>
-            <button class="nav-btn" data-page="food">
-                <span>🍲</span><span>Makanan</span>
+            <button class="nav-btn" data-page="video">
+                <span>🎬</span><span>Video</span>
             </button>
             <button class="nav-btn" data-page="knowledge">
                 <span>📚</span><span>Artikel</span>

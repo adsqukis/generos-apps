@@ -15,7 +15,7 @@ const pool = require('./config/db');
 const authRoutes = require('./routes/auth');
 const trackingRoutes = require('./routes/tracking');
 const knowledgeRoutes = require('./routes/knowledge');
-const foodRoutes = require('./routes/food');
+const videoRoutes = require('./routes/videos');
 const chatRoutes = require('./routes/chat');
 const shopRoutes = require('./routes/shop');
 const userRoutes = require('./routes/user');
@@ -169,7 +169,36 @@ const { Pool } = require('pg');
     console.warn('[growth-migrate]', e.message.slice(0,200));
   }
 
-  // Auto seed screening data if empty (background — jangan delay server start)
+  // Auto create video education table
+  try {
+    const vPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    await vPool.query(`
+      CREATE TABLE IF NOT EXISTS video_education (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        duration_minutes INTEGER,
+        video_url TEXT NOT NULL,
+        thumbnail_url TEXT,
+        category VARCHAR(50) NOT NULL DEFAULT 'parenting',
+        age_range VARCHAR(50),
+        source VARCHAR(50) DEFAULT 'youtube',
+        is_active BOOLEAN DEFAULT true,
+        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_video_category ON video_education(category);
+      CREATE INDEX IF NOT EXISTS idx_video_age_range ON video_education(age_range);
+      CREATE INDEX IF NOT EXISTS idx_video_active ON video_education(is_active);
+    `);
+    await vPool.end();
+    console.log('✓ Video education table ready');
+  } catch(e) {
+    console.warn('[video-migrate]', e.message.slice(0,200));
+  }
+
+  // Auto seed video data if empty (background — jangan delay server start)
   setTimeout(async () => {
     try {
       const checkData = await pool.query('SELECT COUNT(*) as cnt FROM screening_questions');
@@ -183,6 +212,21 @@ const { Pool } = require('pg');
       }
     } catch(e) {
       console.warn('[seed] Skipped:', e.message.slice(0,100));
+    }
+
+    // Auto seed video data if empty
+    try {
+      const checkVideos = await pool.query('SELECT COUNT(*) as cnt FROM video_education');
+      if (parseInt(checkVideos.rows[0].cnt) === 0) {
+        console.log('🌱 Seeding video education data...');
+        const seedVideos = require('./config/seed-videos');
+        await seedVideos();
+        console.log('✓ Video seeding completed');
+      } else {
+        console.log(`✓ Video education data exists (${checkVideos.rows[0].cnt} videos)`);
+      }
+    } catch(e) {
+      console.warn('[seed-videos] Skipped:', e.message.slice(0,100));
     }
   }, 100);
 })();
@@ -204,7 +248,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
-app.use('/api/food', foodRoutes);
+app.use('/api/videos', videoRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/user', userRoutes);

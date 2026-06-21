@@ -210,6 +210,11 @@ const Api = {
     return this.request(`/shop/products/${productId}/click`, { method: 'POST' });
   },
 
+  // ============ VIDEOS ============
+  async getVideos() {
+    return this.request('/videos');
+  },
+
   // ============ ADMIN ============
   async createArticle(payload) {
     return this.request('/knowledge', { method: 'POST', body: JSON.stringify(payload) });
