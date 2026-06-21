@@ -2154,7 +2154,7 @@ function showAdminAddProduct() {
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-prod-images" value="[]">
     <div class="form-group"><label>URL Gambar Utama (opsional, jika tidak upload)</label><input type="text" id="adm-prod-image" placeholder="https://..."></div>
     <button class="btn-primary" data-action="submit-admin-product">Simpan Produk</button>
@@ -2198,7 +2198,7 @@ function showAdminAddVideo() {
   panel.innerHTML = `
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" placeholder="https://youtube.com/..."></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;"></div></div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-vid-thumb" value="">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
@@ -2400,7 +2400,7 @@ function showAdminEditVideo(e) {
     <h4 style="margin:0 0 10px;">✏️ Edit Video</h4>
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div></div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
@@ -2496,7 +2496,7 @@ function showAdminEditProduct(e) {
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div></div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small></div>
     <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
     <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
