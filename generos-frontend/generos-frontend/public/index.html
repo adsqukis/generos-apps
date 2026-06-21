@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Generos Care</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="phone">
@@ -94,42 +94,42 @@
                 <div id="daily-trackers" class="tracker-grid">
                     <div class="tracker-card" data-tracker="sleep">
                         <button class="tracker-add" data-tracker="sleep">+</button>
-                        <div class="tracker-icon">😴</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
                         <div class="tracker-label">Tidur</div>
                         <div class="tracker-value" id="tracker-sleep-value">-</div>
                         <div class="tracker-time" id="tracker-sleep-time">Belum ada</div>
                     </div>
                     <div class="tracker-card" data-tracker="feeding">
                         <button class="tracker-add" data-tracker="feeding">+</button>
-                        <div class="tracker-icon">🍼</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/><path d="M7.5 13.5l3-2.5 3 2.5"/></svg></div>
                         <div class="tracker-label">Menyusui</div>
                         <div class="tracker-value" id="tracker-feeding-value">-</div>
                         <div class="tracker-time" id="tracker-feeding-time">Belum ada</div>
                     </div>
                     <div class="tracker-card" data-tracker="drink">
                         <button class="tracker-add" data-tracker="drink">+</button>
-                        <div class="tracker-icon">💧</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg></div>
                         <div class="tracker-label">Minum</div>
                         <div class="tracker-value" id="tracker-drink-value">-</div>
                         <div class="tracker-time" id="tracker-drink-time">Belum ada</div>
                     </div>
                     <div class="tracker-card" data-tracker="poop">
                         <button class="tracker-add" data-tracker="poop">+</button>
-                        <div class="tracker-icon">💩</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="18" rx="9" ry="3"/><path d="M3 12c0-2 3-6 9-6s9 4 9 6"/><path d="M3 15c0-2 3-5 9-5s9 3 9 5"/><line x1="12" y1="3" x2="12" y2="6"/></svg></div>
                         <div class="tracker-label">BAB</div>
                         <div class="tracker-value" id="tracker-poop-value">-</div>
                         <div class="tracker-time" id="tracker-poop-time">Belum ada</div>
                     </div>
                     <div class="tracker-card" data-tracker="pee">
                         <button class="tracker-add" data-tracker="pee">+</button>
-                        <div class="tracker-icon">🚽</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 00-8 8c0 3 4 10 8 12 4-2 8-9 8-12a8 8 0 00-8-8z"/><path d="M9 8l2 2-2 2"/><path d="M15 8l-2 2 2 2"/></svg></div>
                         <div class="tracker-label">BAK</div>
                         <div class="tracker-value" id="tracker-pee-value">-</div>
                         <div class="tracker-time" id="tracker-pee-time">Belum ada</div>
                     </div>
                     <div class="tracker-card" data-tracker="eating">
                         <button class="tracker-add" data-tracker="eating">+</button>
-                        <div class="tracker-icon">🍚</div>
+                        <div class="tracker-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c0-3 2-7 4-9l2-2a3 3 0 014 0l2 2c2 2 4 6 4 9"/><path d="M9 17l-2 4"/><path d="M15 17l2 4"/></svg></div>
                         <div class="tracker-label">Makan</div>
                         <div class="tracker-value" id="tracker-eating-value">-</div>
                         <div class="tracker-time" id="tracker-eating-time">Belum ada</div>
@@ -806,25 +806,32 @@
         <!-- ============ NAVIGATION BAR ============ -->
         <div id="nav-bar" class="nav-bar hidden">
             <button class="nav-btn" data-page="home">
-                <span>🏠</span><span>Beranda</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Beranda</span>
             </button>
             <button class="nav-btn" data-page="development">
-                <span>🌟</span><span>Tumbuh Kembang</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12a5 5 0 00-5-5H2"/><path d="M12 12a5 5 0 015-5h5"/><path d="M7 3v3"/><path d="M17 3v3"/></svg>
+                <span>Tumbuh Kembang</span>
             </button>
             <button class="nav-btn" data-page="knowledge">
-                <span>📚</span><span>Artikel</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
+                <span>Artikel</span>
             </button>
             <button class="nav-btn" data-page="video">
-                <span>🎬</span><span>Video</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <span>Video</span>
             </button>
             <button class="nav-btn" data-page="chat">
-                <span>💬</span><span>Pesan</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <span>Pesan</span>
             </button>
             <button class="nav-btn" data-page="shop">
-                <span>🛍️</span><span>Belanja</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <span>Belanja</span>
             </button>
             <button class="nav-btn" data-page="settings" id="nav-btn-settings">
-                <span>⚙️</span><span>Pengaturan</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <span>Pengaturan</span>
             </button>
         </div>
     </div>

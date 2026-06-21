@@ -1,0 +1,32 @@
+{
+  "manifest": "Generos Care Icon System v1",
+  "date": "2026-06-21",
+  "total_icons": 13,
+  "spec": {
+    "style": "outlined/line",
+    "stroke_width": 2,
+    "stroke_linecap": "round",
+    "stroke_linejoin": "round",
+    "viewbox": "0 0 24 24",
+    "nav_active_color": "#003DA5",
+    "nav_inactive_color": "#999999",
+    "activity_color": "#003DA5"
+  },
+  "navigation": [
+    {"file": "nav-setting.svg", "label": "Pengaturan", "page": "settings", "position": 1},
+    {"file": "nav-home.svg", "label": "Beranda", "page": "home", "position": 2},
+    {"file": "nav-kembang.svg", "label": "Tumbuh Kembang", "page": "development", "position": 3},
+    {"file": "nav-video.svg", "label": "Video", "page": "video", "position": 4},
+    {"file": "nav-artikel.svg", "label": "Artikel", "page": "knowledge", "position": 5},
+    {"file": "nav-chat.svg", "label": "Pesan", "page": "chat", "position": 6},
+    {"file": "nav-belanja.svg", "label": "Belanja", "page": "shop", "position": 7}
+  ],
+  "activity": [
+    {"file": "activity-tidur.svg", "label": "Tidur", "tracker": "sleep"},
+    {"file": "activity-menyusui.svg", "label": "Menyusui", "tracker": "feeding"},
+    {"file": "activity-minuman.svg", "label": "Minum", "tracker": "drink"},
+    {"file": "activity-bab.svg", "label": "BAB", "tracker": "poop"},
+    {"file": "activity-bak.svg", "label": "BAK", "tracker": "pee"},
+    {"file": "activity-makan.svg", "label": "Makan", "tracker": "eating"}
+  ]
+}

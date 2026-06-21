@@ -555,6 +555,9 @@ textarea {
 .nav-btn span:first-child {
   font-size: 16px;
 }
+.nav-btn svg {
+  display: block;
+}
 
 .nav-btn span:last-child {
   font-size: 9px;
@@ -1197,7 +1200,15 @@ textarea {
 }
 .tracker-icon {
   font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   margin-bottom: 4px;
+}
+.tracker-icon svg {
+  display: block;
 }
 .tracker-label {
   font-size: 10px;
