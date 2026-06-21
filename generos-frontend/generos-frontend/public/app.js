@@ -406,16 +406,10 @@ function navigate(page) {
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.page === page);
     });
-    // Show Settings nav button only for admin
-    const user = Api.getUser();
-    const settingsBtn = document.getElementById('nav-btn-settings');
-    if (settingsBtn) {
-      settingsBtn.style.display = (user && user.role === 'admin') ? '' : 'none';
-    }
-    // Hide top-right gear icon for admin (using nav instead)
+    // Hide top-right gear icon — semua user pake nav settings
     const headerSettings = document.getElementById('btn-settings');
     if (headerSettings) {
-      headerSettings.style.display = (user && user.role === 'admin') ? 'none' : '';
+      headerSettings.style.display = 'none';
     }
   }
 
