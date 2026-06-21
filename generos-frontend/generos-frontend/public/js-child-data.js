@@ -32,7 +32,14 @@ function showStep(step) {
 
   for (let i = 1; i <= 4; i++) {
     const el = document.getElementById(`cd-step-${i}`);
-    if (el) el.style.display = i === step ? 'block' : 'none';
+    if (el) {
+      el.style.display = '';
+      if (i === step) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
   }
 
   const titles = ['Data Dasar', 'Data Kelahiran', 'Informasi Orang Tua', 'Konfirmasi Data'];
