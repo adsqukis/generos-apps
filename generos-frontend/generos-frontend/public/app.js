@@ -1264,7 +1264,7 @@ async function loadTrackingList() {
         <p class="desc">${escapeHtml(entry.description)}</p>
         <span class="severity-badge severity-${entry.severity}">${entry.severity}</span>
         <br><small>${formatDate(entry.date)}</small>
-        ${entry.ai_insight ? `<p style="margin-top: 6px; font-size: 11px; color: #003DA5; font-style: italic;">🤖 ${escapeHtml(entry.ai_insight)}</p>` : '<p style="margin-top: 6px; font-size: 11px; color: #666;">Tap untuk AI insight</p>'}
+        ${entry.ai_insight ? `<p style="margin-top: 6px; font-size: 11px; color: #003DA5; font-style: italic;">${escapeHtml(entry.ai_insight)}</p>` : '<p style="margin-top: 6px; font-size: 11px; color: #666;">Tap untuk AI insight</p>'}
       </div>
     `
         )
