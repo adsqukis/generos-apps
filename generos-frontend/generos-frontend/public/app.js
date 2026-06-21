@@ -442,19 +442,40 @@ async function loadHomeData() {
   const firstName = nameParts[0] || 'Pengguna';
   document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
 
+  // 2. Fetch fresh child profile dari API (update terbaru dari Settings)
+  let childData = null;
+  try {
+    const apiData = await Api.getChildProfile();
+    childData = apiData.child || null;
+  } catch (e) { /* fallback ke localStorage */ }
+
+  // Merge: API data lebih prioritas, localStorage sebagai fallback
+  const childName = (childData && childData.name) || user.child_name || 'Anak';
+  const childDob = (childData && childData.dob) || user.child_dob;
+  const childGender = (childData && childData.gender) || user.child_gender;
+  const childPhoto = (childData && childData.photo) || user.child_photo;
+
   // Hitung usia anak
-  const age = calculateAgeMonths(user.child_dob);
+  const age = calculateAgeMonths(childDob);
 
   // Sembunyikan tracker yang gak relevan berdasarkan usia
   applyAgeBasedVisibility(age);
 
-  // 2. Child Profile (ambil growth records buat dipake ulang)
+  // 3. Child Profile — pake data fresh dari API
+  // Gabungin API data + localStorage jadi satu object user
+  const mergedUser = {
+    ...user,
+    child_name: childName,
+    child_dob: childDob,
+    child_gender: childGender,
+    child_photo: childPhoto,
+  };
   let growthRecords = null;
   try {
     const data = await Api.getGrowthRecords();
     growthRecords = data.records || [];
   } catch (e) { /* skip */ }
-  await loadChildProfile(user, growthRecords);
+  await loadChildProfile(mergedUser, growthRecords);
 
   // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
   await loadDailySummary();
