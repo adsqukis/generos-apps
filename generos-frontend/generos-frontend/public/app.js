@@ -1626,7 +1626,7 @@ async function showArticleDetail(id) {
     detail.innerHTML = `
       <button class="btn-secondary" data-action="back-article-list" style="text-align: center;">← Kembali</button>
       <h2 style="color: #003DA5; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
-      <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6; margin-bottom: 16px;">${escapeHtml(article.content).replace(/\n/g, '<br><br>')}</p>
+      <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">${escapeHtml(article.content).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</p>
       ${article.red_flags ? `
         <div class="card" style="border-left-color: #EF4444; background: #FEE2E2;">
           <p class="cat" style="color: #991B1B;">⚠️ Tanda Perlu Diwaspadai:</p>
