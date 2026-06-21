@@ -200,6 +200,26 @@ const { Pool } = require('pg');
     console.warn('[video-migrate]', e.message.slice(0,200));
   }
 
+  // Auto migrate: user extra columns (child_nickname, photo, birth data, parent data)
+  // Terpisah dari migrate.js utama biar gak kena rollback batch error
+  try {
+    const ucPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    await ucPool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS child_nickname VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS child_photo TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_weight DECIMAL(5,2);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_height DECIMAL(5,2);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_head_circumference DECIMAL(5,2);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS father_name VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS mother_name VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS parent_notes TEXT;
+    `);
+    await ucPool.end();
+    console.log('✓ User extra columns ready');
+  } catch(e) {
+    console.warn('[user-columns-migrate]', e.message.slice(0,200));
+  }
+
   // Auto seed video data if empty (background — jangan delay server start)
   setTimeout(async () => {
     try {
