@@ -525,4 +525,20 @@ const Api = {
       body: JSON.stringify(data),
     });
   },
+
+  // ============ ADMIN: USER MANAGEMENT ============
+  async getUsers() {
+    return this.request('/user/list');
+  },
+
+  async getUsersCount() {
+    return this.request('/user/count');
+  },
+
+  async registerAdmin(payload) {
+    return this.request('/auth/register-admin', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };

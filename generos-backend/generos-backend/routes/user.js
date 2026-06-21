@@ -78,6 +78,10 @@ router.get('/settings', async (req, res) => {
 router.put('/settings', async (req, res) => {
   const { wa_number, email_support } = req.body;
   try {
+    // Only admin can update CS settings
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Hanya admin yang dapat mengubah pengaturan CS' });
+    }
     const result = await pool.query(
       `UPDATE users SET
         wa_number = COALESCE($1, wa_number),
@@ -95,3 +99,42 @@ router.put('/settings', async (req, res) => {
 });
 
 module.exports = router;
+
+// ============================
+// ADMIN: List all users
+// ============================
+router.get('/list', async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Hanya admin yang dapat mengakses data pengguna' });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT id, email, phone, full_name, child_name, role, created_at
+       FROM users ORDER BY created_at DESC`
+    );
+    res.json({ users: result.rows });
+  } catch (err) {
+    console.error('List users error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// ============================
+// ADMIN: Count users
+// ============================
+router.get('/count', async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Hanya admin yang dapat mengakses data pengguna' });
+  }
+  try {
+    const result = await pool.query('SELECT COUNT(*) as total FROM users');
+    const adminResult = await pool.query("SELECT COUNT(*) as total FROM users WHERE role = 'admin'");
+    res.json({
+      total_users: parseInt(result.rows[0].total),
+      total_admins: parseInt(adminResult.rows[0].total),
+    });
+  } catch (err) {
+    console.error('Count users error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});

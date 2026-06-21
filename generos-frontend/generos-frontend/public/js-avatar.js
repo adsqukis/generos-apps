@@ -74,7 +74,12 @@ function avatarParse(data) {
       return { ...AVATAR_DEFAULT, _emoji: data, _isEmoji: true };
     }
   }
-  return { ...AVATAR_DEFAULT, ...data };
+  // Strip internal flags so they don't persist after user clicks options
+  const clean = {};
+  for (const k of Object.keys(data)) {
+    if (k !== '_emoji' && k !== '_isEmoji') clean[k] = data[k];
+  }
+  return { ...AVATAR_DEFAULT, ...clean };
 }
 
 // ============================
@@ -318,8 +323,12 @@ function avatarPickerBuilder(containerEl, initialConfig, onChange) {
         btn.style.fontSize = '8px';
         btn.style.padding = '2px';
 
-        // Small SVG preview
-        const miniCfg = { ...cfg, hair: key };
+        // Small SVG preview (strip internal flags from cfg clone)
+        const miniCfg = {};
+        for (const kk of Object.keys(cfg)) {
+          if (kk !== '_emoji' && kk !== '_isEmoji') miniCfg[kk] = cfg[kk];
+        }
+        miniCfg.hair = key;
         const miniSvg = avatarGenerateSVG(miniCfg, 36);
         btn.innerHTML = miniSvg;
         btn.style.background = '#fff';
@@ -353,7 +362,11 @@ function avatarPickerBuilder(containerEl, initialConfig, onChange) {
             }
           } else if (row.id === 'hair') {
             b.style.background = '#fff';
-            const miniCfg2 = { ...cfg, hair: bk };
+            const miniCfg2 = {};
+            for (const kk of Object.keys(cfg)) {
+              if (kk !== '_emoji' && kk !== '_isEmoji') miniCfg2[kk] = cfg[kk];
+            }
+            miniCfg2.hair = bk;
             const miniSvg2 = avatarGenerateSVG(miniCfg2, 36);
             b.innerHTML = miniSvg2;
             if (bk === key) {

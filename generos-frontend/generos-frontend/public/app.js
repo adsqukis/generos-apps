@@ -289,7 +289,8 @@ function initApp() {
 
   // Settings page admin buttons (show forms)
   safeAddListener('settings-content', 'click', (e) => {
-    const action = e.target.dataset.action;
+    const btn = e.target.closest('[data-action]');
+    const action = btn ? btn.dataset.action : null;
     if (action === 'show-admin-list-articles') showAdminListArticles();
     else if (action === 'show-admin-list-videos') showAdminListVideos();
     else if (action === 'show-admin-list-products') showAdminListProducts();
@@ -309,6 +310,9 @@ function initApp() {
     else if (action === 'show-admin-delete-video') confirmDelete('video', e);
     else if (action === 'show-admin-delete-product') confirmDelete('product', e);
     else if (action === 'show-admin-analytics') showAdminAnalytics();
+    else if (action === 'show-admin-user-list') showAdminUserList();
+    else if (action === 'show-admin-add-admin') showAdminAddAdmin();
+    else if (action === 'submit-admin-add-admin') submitAdminAddAdmin();
     else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
     else if (action === 'save-cs-settings') saveCsSettings();
     else if (action === 'toggle-privacy') toggleAccordion('accordion-privacy');
@@ -561,13 +565,13 @@ async function loadChildProfile(user, growthRecords) {
   document.getElementById('child-name').textContent = childName;
   document.getElementById('child-age').textContent = `${age} bulan ${extraDays} hari`;
 
-  // Avatar — from photo/emoji/gender
+  // Avatar — from photo/emoji/SVG
   const avatarEl = document.getElementById('child-avatar');
   const childPhoto = user.child_photo;
   if (childPhoto && childPhoto.startsWith('http')) {
     avatarEl.innerHTML = `<img src="${escapeHtml(childPhoto)}" style="width:100%;height:100%;object-fit:cover;">`;
   } else if (childPhoto) {
-    avatarEl.textContent = childPhoto;
+    avatarEl.innerHTML = avatarGenerateSVG(childPhoto, 72);
   } else if (user.child_gender === 'Laki-laki') {
     avatarEl.textContent = '👦';
   } else if (user.child_gender === 'Perempuan') {
@@ -829,7 +833,7 @@ async function loadBerandaGrowthRingkasan(growthRecords) {
       const byDomain = {};
       sessions.forEach(s => { if (!byDomain[s.domain]) byDomain[s.domain] = s; });
       html += Object.entries(byDomain).map(([dom, s]) => {
-        const icon = s.result === 'sesuai' ? '✅' : (s.result === 'meragukan' ? '⚠️' : '❌');
+        const icon = s.result === 'sesuai' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : (s.result === 'meragukan' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>');
         return `<div class="card" style="cursor:default;"><p class="cat">${domainLabel(dom)}</p><p class="desc">${icon} Skor: <b>${s.score_percentage || '-'}%</b></p><small>${s.completed_at ? formatDate(s.completed_at) : ''}</small></div>`;
       }).join('');
     }
@@ -870,7 +874,7 @@ function openNotifModal() {
   Api.getReminders().then(data => {
     const reminders = data.reminders || [];
     if (reminders.length === 0) {
-      list.innerHTML = '<p class="info-text" style="text-align:center;color:#999;padding:20px 0;">✅ Tidak ada pengingat.</p>';
+      list.innerHTML = '<p class="info-text" style="text-align:center;color:#999;padding:20px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Tidak ada pengingat.</p>';
       return;
     }
     list.innerHTML = reminders.map(r => {
@@ -902,12 +906,12 @@ function openQuickAdd(trackerType) {
   const today = new Date().toISOString().split('T')[0];
 
   const configs = {
-    sleep: { title: '😴 Tambah Tidur', html: `
+    sleep: { title: 'Tambah Tidur', html: `
       <div class="form-group"><label>Jam Mulai Tidur</label><input type="time" id="qa-sleep-start"></div>
       <div class="form-group"><label>Jam Bangun</label><input type="time" id="qa-sleep-end"></div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
-    feeding: { title: '🍼 Tambah Menyusui', html: `
+    feeding: { title: 'Tambah Menyusui', html: `
       <div class="form-group"><label>Jenis</label>
         <select id="qa-feeding-type"><option value="ASI">ASI</option><option value="Susu Formula">Susu Formula</option><option value="MPASI">MPASI</option></select>
       </div>
@@ -915,22 +919,22 @@ function openQuickAdd(trackerType) {
       <div class="form-group"><label>Durasi (menit)</label><input type="number" min="0" id="qa-duration"></div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
-    drink: { title: '💧 Tambah Minum', html: `
+    drink: { title: 'Tambah Minum', html: `
       <div class="form-group"><label>Jumlah (ml)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
-    pee: { title: '🚽 Tambah BAK', html: `
+    pee: { title: 'Tambah BAK', html: `
       <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
-    poop: { title: '💩 Tambah BAB', html: `
+    poop: { title: 'Tambah BAB', html: `
       <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
       <div class="form-group"><label>Konsistensi</label>
         <select id="qa-consistency"><option value="normal">Normal</option><option value="cair">Cair (diare)</option><option value="keras">Keras (sembelit)</option><option value="lendir">Berlendir</option></select>
       </div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
-    eating: { title: '🍚 Tambah Makan (MPASI)', html: `
+    eating: { title: 'Tambah Makan (MPASI)', html: `
       <div class="form-group"><label>Menu Makanan</label><input type="text" id="qa-menu" placeholder="contoh: bubur ayam"></div>
       <div class="form-group"><label>Jumlah (ml/porsi)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
       <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
@@ -1021,30 +1025,30 @@ async function openTrackerDetail(type) {
   const today = new Date().toISOString().split('T')[0];
 
   const labels = {
-    sleep: { title: '😴 Riwayat Tidur', icon: '😴', fmt: (r) => {
+    sleep: { title: 'Riwayat Tidur', icon: '', fmt: (r) => {
       const start = r.sleep_start ? r.sleep_start.slice(0,5) : '-';
       const end = r.sleep_end ? r.sleep_end.slice(0,5) : '-';
       const dur = r.duration_minutes ? `${Math.floor(r.duration_minutes/60)}j ${r.duration_minutes%60}m` : '';
       return `<b>${start} - ${end}</b> ${dur ? '<br><small>'+dur+'</small>' : ''}`;
     }},
-    feeding: { title: '🍼 Riwayat Menyusui', icon: '🍼', fmt: (r) => {
+    feeding: { title: 'Riwayat Menyusui', icon: '', fmt: (r) => {
       let text = `<b>${escapeHtml(r.feeding_type || '')}</b>`;
       if (r.amount_ml) text += ` · ${r.amount_ml} ml`;
       if (r.duration_minutes) text += ` · ${r.duration_minutes} menit`;
       return text;
     }},
-    drink: { title: '💧 Riwayat Minum', icon: '💧', fmt: (r) => {
+    drink: { title: 'Riwayat Minum', icon: '', fmt: (r) => {
       return `<b>${r.amount_ml || 0} ml</b>`;
     }},
-    poop: { title: '💩 Riwayat BAB', icon: '💩', fmt: (r) => {
+    poop: { title: 'Riwayat BAB', icon: '', fmt: (r) => {
       let text = `<b>${r.count}x</b>`;
       if (r.consistency) text += ` · ${escapeHtml(r.consistency)}`;
       return text;
     }},
-    pee: { title: '🚽 Riwayat BAK', icon: '🚽', fmt: (r) => {
+    pee: { title: 'Riwayat BAK', icon: '', fmt: (r) => {
       return `<b>${r.count || 1}x</b>`;
     }},
-    eating: { title: '🍚 Riwayat Makan', icon: '🍚', fmt: (r) => {
+    eating: { title: 'Riwayat Makan', icon: '', fmt: (r) => {
       let text = `<b>${r.amount_ml || 0} ml</b>`;
       if (r.notes) text += ` · ${escapeHtml(r.notes)}`;
       return text;
@@ -1489,7 +1493,7 @@ async function loadScreeningProgressTab() {
           <p class="info-text">Belum pernah diskrining.</p>
         </div>`;
         }
-        const icon = p.latest_result === 'sesuai' ? '✅' : p.latest_result === 'meragukan' ? '⚠️' : '❌';
+        const icon = p.latest_result === 'sesuai' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : p.latest_result === 'meragukan' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
         const history = (p.scores || [])
           .map((s) => `<span class="g-metric">${s.score_percentage}% <small>(${formatDate(s.date)})</small></span>`)
           .join('');
@@ -1676,7 +1680,7 @@ function openVideoModal(video) {
     descHtml += '<div class="video-meta">';
     if (video.duration_minutes) descHtml += `<span>⏱ ${video.duration_minutes} menit</span>`;
     if (video.category) descHtml += `<span>🏷️ ${escapeHtml(video.category)}</span>`;
-    if (video.age_range) descHtml += `<span>👶 ${escapeHtml(video.age_range)}</span>`;
+    if (video.age_range) descHtml += `<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M12 2a4 4 0 014 4c0 2-2 3-4 5-2-2-4-3-4-5a4 4 0 014-4z"/><path d="M16 12c-1.5-1-2.8-1.5-4-1.5-1.2 0-2.5.5-4 1.5"/><path d="M8 16c1.5 1 2.8 1.5 4 1.5 1.2 0 2.5-.5 4-1.5"/><path d="M4 22c.5-2 2.5-3 4-3"/><path d="M20 22c-.5-2-2.5-3-4-3"/></svg> ${escapeHtml(video.age_range)}</span>`;
     descHtml += '</div>';
   }
   descContainer.innerHTML = descHtml;
@@ -1759,7 +1763,7 @@ async function showArticleDetail(id) {
       <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">${escapeHtml(article.content).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</p>
       ${article.red_flags ? `
         <div class="card" style="border-left-color: #EF4444; background: #FEE2E2;">
-          <p class="cat" style="color: #991B1B;">⚠️ Tanda Perlu Diwaspadai:</p>
+          <p class="cat" style="color: #991B1B;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Tanda Perlu Diwaspadai:</p>
           <p class="desc" style="color: #1A1A1A;">${escapeHtml(article.red_flags)}</p>
         </div>
       ` : ''}
@@ -1850,14 +1854,14 @@ async function loadProducts() {
               <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;">
                 ${product.images.map((_, i) => `<span class="carousel-dot" data-index="${i}" style="width:8px;height:8px;border-radius:50%;background:${i === 0 ? '#fff' : 'rgba(255,255,255,0.5)'};cursor:pointer;"></span>`).join('')}
               </div>
-              <button class="carousel-prev" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:28px;text-align:center;">❮</button>
-              <button class="carousel-next" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:28px;text-align:center;">❯</button>
+              <button class="carousel-prev" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button class="carousel-next" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
             ` : ''}
           </div>
         ` : product.image_url ? `<img src="${imgUrl(product.image_url)}" alt="${escapeHtml(product.name)}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : ''}
         <h3>${escapeHtml(product.name)}</h3>
         <p class="price">Rp ${Number(product.price).toLocaleString('id-ID')}</p>
-        <button data-product-id="${product.id}">🛒 Beli di Shopee</button>
+        <button data-product-id="${product.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg> Beli di Shopee</button>
       </div>
     `
       )
@@ -1910,7 +1914,7 @@ function loadSettings() {
             <div id="cd-stat-dev-s" style="font-size:14px;font-weight:600;color:#1A1A1A;">-</div>
           </div>
         </div>
-        <button id="btn-edit-child-settings" data-action="edit-child-data" style="background:none;border:none;color:#E8682E;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;width:100%;text-align:center;">✏️ Edit Data Anak</button>
+        <button id="btn-edit-child-settings" data-action="edit-child-data" style="background:none;border:none;color:#E8682E;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;width:100%;text-align:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Data Anak</button>
       </div>
     </div>
     <div class="card" style="border-left:none;margin-top:16px;">
@@ -1921,16 +1925,17 @@ function loadSettings() {
     <!-- Customer Service Settings -->
     <div class="card" style="border-left:none;margin-top:16px;padding:12px 16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <p class="cat" style="margin:0;">📞 Customer Service</p>
-        <button id="btn-toggle-cs-edit" style="background:none;border:none;font-size:14px;cursor:pointer;color:#E8682E;padding:4px;">✏️</button>
+        <p class="cat" style="margin:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg> Customer Service</p>
+        ${user.role === 'admin' ? `<button id="btn-toggle-cs-edit" style="background:none;border:none;font-size:14px;cursor:pointer;color:#E8682E;padding:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>` : ''}
       </div>
       <div style="font-size:13px;color:#555;margin-top:6px;">
         <span id="cs-wa-display">Memuat...</span> · <span id="cs-email-display">Memuat...</span>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px;">
-        <a id="cs-wa-link" href="#" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#25D366;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;">💬 WhatsApp</a>
-        <a id="cs-email-link" href="#" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#E5E7EB;color:#333;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;">📧 Email</a>
+        <a id="cs-wa-link" href="#" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#25D366;color:white;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> WhatsApp</a>
+        <a id="cs-email-link" href="#" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;background:#E5E7EB;color:#333;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email</a>
       </div>
+      ${user.role === 'admin' ? `
       <div id="cs-edit-form" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
         <div class="form-group"><label style="font-size:12px;">No. WhatsApp</label>
           <input type="text" id="cs-wa-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;font-size:13px;" placeholder="6281234567890">
@@ -1938,8 +1943,8 @@ function loadSettings() {
         <div class="form-group" style="margin-top:6px;"><label style="font-size:12px;">Email CS</label>
           <input type="text" id="cs-email-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;font-size:13px;" placeholder="support@generos.id">
         </div>
-        <button class="btn-primary" data-action="save-cs-settings" style="margin-top:6px;padding:8px 14px;font-size:12px;">💾 Simpan</button>
-      </div>
+        <button class="btn-primary" data-action="save-cs-settings" style="margin-top:6px;padding:8px 14px;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan</button>
+      </div>` : ''}
     </div>
 
     <!-- Settings Menu: Accordion Items -->
@@ -1947,7 +1952,7 @@ function loadSettings() {
       <!-- Kebijakan dan Privasi -->
       <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
         <div class="accordion-header" data-action="toggle-privacy" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;user-select:none;">
-          <span style="font-weight:600;font-size:14px;color:#1A1A1A;">🔒 Kebijakan dan Privasi</span>
+          <span style="font-weight:600;font-size:14px;color:#1A1A1A;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Kebijakan dan Privasi</span>
           <span class="accordion-arrow" data-action="toggle-privacy" style="font-size:12px;color:#999;transition:transform 0.2s;">▼</span>
         </div>
         <div id="accordion-privacy" class="accordion-content" style="display:none;padding:0 16px 16px;font-size:13px;color:#555;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:12px;">
@@ -1961,18 +1966,18 @@ function loadSettings() {
       <!-- Pusat Bantuan & FAQ -->
       <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
         <div class="accordion-header" data-action="toggle-help" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;user-select:none;">
-          <span style="font-weight:600;font-size:14px;color:#1A1A1A;">❓ Pusat Bantuan & FAQ</span>
+          <span style="font-weight:600;font-size:14px;color:#1A1A1A;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Pusat Bantuan & FAQ</span>
           <span class="accordion-arrow" data-action="toggle-help" style="font-size:12px;color:#999;transition:transform 0.2s;">▼</span>
         </div>
         <div id="accordion-help" class="accordion-content" style="display:none;padding:0 16px 16px;font-size:13px;color:#555;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:12px;">
           <p style="margin:0 0 12px;font-weight:600;color:#333;">Butuh bantuan? Kami siap membantu Anda.</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
             <a href="https://wa.me/6281234567890?text=Halo%20Generos%20Care" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f5f5f5;border-radius:12px;text-decoration:none;color:#1A1A1A;">
-              <span style="font-size:20px;">💬</span>
+              <span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
               <span style="font-weight:500;">Hubungi Customer Service via WhatsApp</span>
             </a>
             <a href="mailto:support@generos.id" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f5f5f5;border-radius:12px;text-decoration:none;color:#1A1A1A;">
-              <span style="font-size:20px;">📧</span>
+              <span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
               <span style="font-weight:500;">Kirim Email ke support@generos.id</span>
             </a>
           </div>
@@ -1990,24 +1995,28 @@ function loadSettings() {
   if (user.role === 'admin') {
     const adminHtml = `
       <div class="admin-section" style="margin-top: 20px;">
-        <h4>🔧 Admin Panel</h4>
-        <button class="btn-secondary" data-action="show-admin-list-articles">📋 Artikel</button>
-        <button class="btn-secondary" data-action="show-admin-list-videos">🎬 Video</button>
-        <button class="btn-secondary" data-action="show-admin-list-products">📦 Produk</button>
-        <button class="btn-secondary" data-action="show-admin-analytics">📊 Analytics</button>
+        <h4><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Admin Panel</h4>
+        <button class="btn-secondary" data-action="show-admin-list-articles"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Artikel</button>
+        <button class="btn-secondary" data-action="show-admin-list-videos"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video</button>
+        <button class="btn-secondary" data-action="show-admin-list-products"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Produk</button>
+        <button class="btn-secondary" data-action="show-admin-analytics"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Analytics</button>
+        <button class="btn-secondary" data-action="show-admin-user-list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Pengguna</button>
+        <button class="btn-secondary" data-action="show-admin-add-admin"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg> +Admin</button>
         <div id="admin-panel-content"></div>
       </div>
     `;
     container.insertAdjacentHTML('beforeend', adminHtml);
   }
 
-  // Toggle CS edit form
-  const toggleBtn = document.getElementById('btn-toggle-cs-edit');
-  if (toggleBtn) {
-    toggleBtn.onclick = function() {
-      const form = document.getElementById('cs-edit-form');
-      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    };
+  // Toggle CS edit form (admin only)
+  if (user.role === 'admin') {
+    const toggleBtn = document.getElementById('btn-toggle-cs-edit');
+    if (toggleBtn) {
+      toggleBtn.onclick = function() {
+        const form = document.getElementById('cs-edit-form');
+        if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      };
+    }
   }
 }
 
@@ -2153,7 +2162,7 @@ function showAdminAddArticle() {
     try {
       const result = await Api.uploadImage(file);
       document.getElementById('adm-art-image-url').value = result.url;
-      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+      preview.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2224,7 +2233,7 @@ function showAdminAddProduct() {
     try {
       const result = await Api.uploadImages(files);
       document.getElementById('adm-prod-images').value = JSON.stringify(result.urls);
-      preview.innerHTML = result.urls.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' Terupload ✅';
+      preview.innerHTML = result.urls.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' Terupload <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2278,7 +2287,7 @@ function showAdminAddVideo() {
     try {
       const result = await Api.uploadImage(file);
       document.getElementById('adm-vid-thumb').value = result.url;
-      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+      preview.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2318,6 +2327,82 @@ async function showAdminAnalytics() {
 }
 
 // ============================
+// ADMIN: List Users
+// ============================
+async function showAdminUserList() {
+  const panel = document.getElementById('admin-panel-content');
+  try {
+    const [userData, countData] = await Promise.all([Api.getUsers(), Api.getUsersCount()]);
+    panel.innerHTML =
+      '<h4 style="margin-top:12px;">Data Pengguna</h4>' +
+      `<p style="font-size:13px;color:#666;margin-bottom:10px;">Total: ${countData.total_users} pengguna · ${countData.total_admins} admin</p>` +
+      (userData.users.length === 0
+        ? '<p class="info-text">Belum ada pengguna.</p>'
+        : userData.users.map((u) =>
+            `<div class="card" style="border-left:none;margin-bottom:6px;padding:10px;">
+              <p class="title" style="font-size:14px;">${escapeHtml(u.full_name)}</p>
+              <p class="desc" style="font-size:12px;color:#666;">
+                ${u.email || '-'} · ${u.phone || '-'} · ${u.child_name ? 'Anak: '+escapeHtml(u.child_name) : '-'}<br>
+                <span style="color:${u.role === 'admin' ? '#E86C3A' : '#4CAF82'};">${u.role === 'admin' ? 'Admin' : 'User'}</span>
+                · Bergabung ${new Date(u.created_at).toLocaleDateString('id-ID')}
+              </p>
+            </div>`
+          ).join('')
+      );
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Add Admin Form
+// ============================
+function showAdminAddAdmin() {
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML =
+    '<h4 style="margin-top:12px;">Tambah Admin Baru</h4>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">' +
+      '<input type="text" id="admin-add-name" placeholder="Nama lengkap" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<input type="text" id="admin-add-identifier" placeholder="Email atau nomor telepon" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<input type="password" id="admin-add-password" placeholder="Password (min 8 karakter, wajib angka)" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<button class="btn-primary" data-action="submit-admin-add-admin" style="margin-top:6px;">Buat Admin</button>' +
+    '</div>';
+}
+
+// ============================
+// ADMIN: Submit Add Admin
+// ============================
+async function submitAdminAddAdmin() {
+  const name = document.getElementById('admin-add-name');
+  const identifier = document.getElementById('admin-add-identifier');
+  const password = document.getElementById('admin-add-password');
+  if (!name || !identifier || !password) return;
+
+  const full_name = name.value.trim();
+  const idVal = identifier.value.trim();
+  const pwVal = password.value;
+
+  if (!full_name || !idVal || !pwVal) {
+    showToast('Semua field wajib diisi', 'error');
+    return;
+  }
+  if (pwVal.length < 8 || !/\d/.test(pwVal)) {
+    showToast('Password minimal 8 karakter dan harus mengandung angka', 'error');
+    return;
+  }
+
+  try {
+    const result = await Api.registerAdmin({ identifier: idVal, password: pwVal, full_name });
+    showToast('Admin berhasil dibuat: ' + result.admin.full_name, 'success');
+    name.value = '';
+    identifier.value = '';
+    password.value = '';
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
 // ADMIN: List Articles
 // ============================
 async function showAdminListArticles() {
@@ -2326,8 +2411,8 @@ async function showAdminListArticles() {
     const data = await Api.getArticles();
     panel.innerHTML =
       '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
-        '<button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Baru</button>' +
-        '<button class="btn-secondary" data-action="show-admin-list-articles">🔄 Refresh</button>' +
+        '<button class="btn-secondary" data-action="show-admin-add-article"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-articles"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.articles.length === 0
         ? '<p class="info-text">Belum ada artikel.</p>'
@@ -2337,8 +2422,8 @@ async function showAdminListArticles() {
               <p class="title" style="font-size:14px;">${escapeHtml(a.title)}</p>
               <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(a.category || '')} · ${a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
-                <button class="btn-sm" data-action="show-admin-edit-article" data-id="${a.id}" data-item='${encodeURIComponent(JSON.stringify(a))}'>✏️ Edit</button>
-                <button class="btn-sm btn-danger" data-action="show-admin-delete-article" data-id="${a.id}" data-name="${escapeHtml(a.title)}">🗑 Hapus</button>
+                <button class="btn-sm" data-action="show-admin-edit-article" data-id="${a.id}" data-item='${encodeURIComponent(JSON.stringify(a))}'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-article" data-id="${a.id}" data-name="${escapeHtml(a.title)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>
               </div>
             </div>`
           ).join('')
@@ -2356,7 +2441,7 @@ function showAdminEditArticle(e) {
   const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;">✏️ Edit Artikel</h4>
+    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Artikel</h4>
     <div class="form-group"><label>Judul</label><input type="text" id="adm-art-title" value="${escapeHtml(item.title || '')}"></div>
     <div class="form-group"><label>Kategori</label>
       <select id="adm-art-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
@@ -2369,14 +2454,14 @@ function showAdminEditArticle(e) {
         <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
       </select>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `✅ <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.image_url ? `<button type="button" id="btn-remove-art-image" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Gambar</button>` : ''}</div>
+    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.image_url ? `<button type="button" id="btn-remove-art-image" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Gambar</button>` : ''}</div>
     <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
     <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
     <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
     <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags">${escapeHtml(item.red_flags || '')}</textarea></div>
     <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor">${escapeHtml(item.when_to_see_doctor || '')}</textarea></div>
     <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-article">💾 Simpan Perubahan</button>
+    <button class="btn-primary" data-action="submit-admin-edit-article"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-articles" style="margin-left:6px;">← Kembali</button>
   `;
   // Auto-upload on file select
@@ -2388,7 +2473,7 @@ function showAdminEditArticle(e) {
     try {
       const result = await Api.uploadImage(file);
       document.getElementById('adm-art-image-url').value = result.url;
-      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+      preview.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2432,8 +2517,8 @@ async function showAdminListVideos() {
     const data = await Api.getVideos();
     panel.innerHTML =
       '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
-        '<button class="btn-secondary" data-action="show-admin-add-video">➕ Tambah Baru</button>' +
-        '<button class="btn-secondary" data-action="show-admin-list-videos">🔄 Refresh</button>' +
+        '<button class="btn-secondary" data-action="show-admin-add-video"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-videos"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.videos.length === 0
         ? '<p class="info-text">Belum ada video.</p>'
@@ -2443,8 +2528,8 @@ async function showAdminListVideos() {
               <p class="title" style="font-size:14px;">${escapeHtml(v.title)}</p>
               <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(v.category || '')} · ${v.duration_minutes ? v.duration_minutes + ' menit' : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
-                <button class="btn-sm" data-action="show-admin-edit-video" data-id="${v.id}" data-item='${encodeURIComponent(JSON.stringify(v))}'>✏️ Edit</button>
-                <button class="btn-sm btn-danger" data-action="show-admin-delete-video" data-id="${v.id}" data-name="${escapeHtml(v.title)}">🗑 Hapus</button>
+                <button class="btn-sm" data-action="show-admin-edit-video" data-id="${v.id}" data-item='${encodeURIComponent(JSON.stringify(v))}'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-video" data-id="${v.id}" data-name="${escapeHtml(v.title)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>
               </div>
             </div>`
           ).join('')
@@ -2462,10 +2547,10 @@ function showAdminEditVideo(e) {
   const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;">✏️ Edit Video</h4>
+    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Video</h4>
     <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
     <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `✅ <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.thumbnail_url ? `<button type="button" id="btn-remove-vid-thumb" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Thumbnail</button>` : ''}</div>
+    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.thumbnail_url ? `<button type="button" id="btn-remove-vid-thumb" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Thumbnail</button>` : ''}</div>
     <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
     <div class="form-group"><label>Kategori</label>
       <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
@@ -2480,7 +2565,7 @@ function showAdminEditVideo(e) {
     <div class="form-group"><label>Rentang Usia (opsional)</label><input type="text" id="adm-vid-age" value="${escapeHtml(item.age_range || '')}"></div>
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc">${escapeHtml(item.description || '')}</textarea></div>
     <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-video">💾 Simpan Perubahan</button>
+    <button class="btn-primary" data-action="submit-admin-edit-video"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-videos" style="margin-left:6px;">← Kembali</button>
   `;
   document.getElementById('adm-vid-thumb-input').addEventListener('change', async (e) => {
@@ -2491,7 +2576,7 @@ function showAdminEditVideo(e) {
     try {
       const result = await Api.uploadImage(file);
       document.getElementById('adm-vid-thumb').value = result.url;
-      preview.innerHTML = `✅ <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
+      preview.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${result.url}" style="height:40px;border-radius:4px;vertical-align:middle;"> Terupload`;
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2535,8 +2620,8 @@ async function showAdminListProducts() {
     const data = await Api.getProducts();
     panel.innerHTML =
       '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
-        '<button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Baru</button>' +
-        '<button class="btn-secondary" data-action="show-admin-list-products">🔄 Refresh</button>' +
+        '<button class="btn-secondary" data-action="show-admin-add-product"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-products"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.products.length === 0
         ? '<p class="info-text">Belum ada produk.</p>'
@@ -2546,8 +2631,8 @@ async function showAdminListProducts() {
               <p class="title" style="font-size:14px;">${escapeHtml(p.name)}</p>
               <p class="desc" style="font-size:12px;color:#666;">Rp ${Number(p.price).toLocaleString('id-ID')}${p.images && p.images.length > 1 ? ` · ${p.images.length} foto` : ''}</p>
               <div style="display:flex;gap:6px;margin-top:6px;">
-                <button class="btn-sm" data-action="show-admin-edit-product" data-id="${p.id}" data-item='${encodeURIComponent(JSON.stringify(p))}'>✏️ Edit</button>
-                <button class="btn-sm btn-danger" data-action="show-admin-delete-product" data-id="${p.id}" data-name="${escapeHtml(p.name)}">🗑 Hapus</button>
+                <button class="btn-sm" data-action="show-admin-edit-product" data-id="${p.id}" data-item='${encodeURIComponent(JSON.stringify(p))}'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-product" data-id="${p.id}" data-name="${escapeHtml(p.name)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>
               </div>
             </div>`
           ).join('')
@@ -2566,16 +2651,16 @@ function showAdminEditProduct(e) {
   const existingImages = item.images || (item.image_url ? [item.image_url] : []);
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;">✏️ Edit Produk</h4>
+    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Produk</h4>
     <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
     <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
     <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small>${existingImages.length > 0 ? `<button type="button" id="btn-remove-prod-images" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;">🗑 Hapus Semua Gambar</button>` : ''}</div>
+    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small>${existingImages.length > 0 ? `<button type="button" id="btn-remove-prod-images" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Semua Gambar</button>` : ''}</div>
     <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
     <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
     <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
     <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-product">💾 Simpan Perubahan</button>
+    <button class="btn-primary" data-action="submit-admin-edit-product"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
     <button class="btn-secondary" data-action="show-admin-list-products" style="margin-left:6px;">← Kembali</button>
   `;
   document.getElementById('adm-prod-images-input').addEventListener('change', async (e) => {
@@ -2589,7 +2674,7 @@ function showAdminEditProduct(e) {
       const current = JSON.parse(document.getElementById('adm-prod-images').value || '[]');
       const combined = [...current, ...result.urls].slice(0, 5);
       document.getElementById('adm-prod-images').value = JSON.stringify(combined);
-      preview.innerHTML = combined.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' ✅';
+      preview.innerHTML = combined.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('') + ' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
     } catch (err) {
       preview.textContent = '❌ ' + err.message;
     }
@@ -2654,10 +2739,10 @@ async function confirmDelete(type, e) {
 // DOMAIN LABEL HELPERS
 // ============================
 const domainLabels = {
-  cognitive: 'Kecerdasan 🧠',
-  speech: 'Bicara 💬',
-  immunity: 'Imunitas 🛡️',
-  motor: 'Motorik 🚶',
+  cognitive: 'Kecerdasan',
+  speech: 'Bicara',
+  immunity: 'Imunitas',
+  motor: 'Motorik',
 };
 
 const domainEmojis = {
@@ -2665,6 +2750,13 @@ const domainEmojis = {
   speech: '💬',
   immunity: '🛡️',
   motor: '🚶',
+};
+
+const domainSvg = {
+  cognitive: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M12 2a4 4 0 014 4c0 2-2 3-4 5-2-2-4-3-4-5a4 4 0 014-4z"/><path d="M16 12c-1.5-1-2.8-1.5-4-1.5-1.2 0-2.5.5-4 1.5"/><path d="M8 16c1.5 1 2.8 1.5 4 1.5 1.2 0 2.5-.5 4-1.5"/><path d="M4 22c.5-2 2.5-3 4-3"/><path d="M20 22c-.5-2-2.5-3-4-3"/></svg>',
+  speech: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+  immunity: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  motor: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
 };
 
 function domainLabel(domain) {
@@ -2704,10 +2796,10 @@ async function loadScreeningHistory() {
       return;
     }
 
-    container.innerHTML = '<h3 style="margin-bottom:12px;">📋 Riwayat Skrining</h3>' +
+    container.innerHTML = '<h3 style="margin-bottom:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Riwayat Skrining</h3>' +
       data.sessions.map(s => {
         const label = domainLabel(s.domain);
-        const zoneIcon = s.result === 'sesuai' ? '✅' : (s.result === 'meragukan' ? '⚠️' : '❌');
+        const zoneIcon = s.result === 'sesuai' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : (s.result === 'meragukan' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>');
         return `
           <div class="screening-history-item" data-session-id="${s.id}">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -2771,7 +2863,7 @@ function showScreeningQuestion() {
   if (!q) return;
 
   document.getElementById('screening-progress').textContent =
-    `📋 ${domainLabel(screeningDomain)} — Pertanyaan ${screeningCurrentIndex + 1}/${screeningQuestions.length}`;
+    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> ${domainLabel(screeningDomain)} — Pertanyaan ${screeningCurrentIndex + 1}/${screeningQuestions.length}`;
   document.getElementById('screening-question-text').textContent = q.question_text;
 }
 
@@ -2814,19 +2906,19 @@ async function viewScreeningResult(sessionId) {
     // Zone config
     const zoneConfig = {
       sesuai: {
-        icon: '✅',
+        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
         label: 'Sesuai',
         desc: 'Perkembangan anak sesuai dengan tahap usianya. Lanjutkan stimulasi rutin!',
         color: '#10B981',
       },
       meragukan: {
-        icon: '⚠️',
+        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
         label: 'Meragukan',
         desc: 'Ada beberapa aspek yang perlu diperhatikan. Lakukan stimulasi lebih intensif dan konsultasi dengan dokter jika perlu.',
         color: '#F59E0B',
       },
       menyimpang: {
-        icon: '❌',
+        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
         label: 'Menyimpang',
         desc: 'Perkembangan anak memerlukan perhatian khusus. Segera konsultasi dengan dokter anak atau tumbuh kembang.',
         color: '#EF4444',
@@ -2847,8 +2939,8 @@ async function viewScreeningResult(sessionId) {
         <div class="result-detail">${session.answered_yes} dari ${session.total_questions} pertanyaan terjawab "Ya"</div>
         <div class="result-desc">${zone.desc}</div>
       </div>
-      <button class="btn-primary" data-action="go-stimulation">🧩 Lihat Aktivitas Stimulasi</button>
-      <button class="btn-secondary" data-action="go-screening-again">📋 Skrining Lainnya</button>
+      <button class="btn-primary" data-action="go-stimulation"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg> Lihat Aktivitas Stimulasi</button>
+      <button class="btn-secondary" data-action="go-screening-again"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Skrining Lainnya</button>
     `;
   } catch (err) {
     showToast(err.message, 'error');
@@ -2885,7 +2977,7 @@ async function loadStimulationRecommendations() {
           ${r.materials ? `<span>📦 ${escapeHtml(r.materials)}</span>` : ''}
         </div>
         <div style="margin-top:6px;">
-          <button class="complete-btn" data-rec-id="${r.id}">✅ Selesai</button>
+          <button class="complete-btn" data-rec-id="${r.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Selesai</button>
           <button class="dismiss-btn" data-rec-id="${r.id}">✖ Tutup</button>
         </div>
       </div>
@@ -2931,7 +3023,7 @@ async function loadStimulationActivities() {
 async function updateRecommendationStatus(recId, status) {
   try {
     await Api.updateRecommendation(recId, status);
-    showToast(status === 'completed' ? 'Aktivitas selesai! 🎉' : 'Rekomendasi ditutup', 'success');
+    showToast(status === 'completed' ? 'Aktivitas selesai! <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>' : 'Rekomendasi ditutup', 'success');
     loadStimulationRecommendations();
   } catch (err) {
     showToast(err.message, 'error');
@@ -3588,7 +3680,7 @@ async function loadDevelopmentPageData(age) {
       return `<div class="dev-timeline-item ${cls}">
         <div class="dev-timeline-age">${escapeHtml(t.label)}</div>
         <div class="dev-timeline-ms">
-          ${(t.milestones || []).slice(0, 3).map(m => `<div class="tl-title">${t.is_past ? '✅' : t.is_current ? '⏳' : '○'} ${escapeHtml(m)}</div>`).join('')}
+          ${(t.milestones || []).slice(0, 3).map(m => `<div class="tl-title">${t.is_past ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : t.is_current ? '⏳' : '○'} ${escapeHtml(m)}</div>`).join('')}
           ${t.milestones && t.milestones.length > 3 ? `<div class="tl-detail">+${t.milestones.length - 3} lainnya</div>` : ''}
         </div>
       </div>`;

@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const pool = require('../config/db');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 function generateTokens(user) {
   const payload = { id: user.id, role: user.role, identifier: user.email || user.phone };
@@ -95,6 +96,63 @@ router.post(
       });
     } catch (err) {
       console.error('Register error:', err);
+      res.status(500).json({ error: 'Terjadi kesalahan server' });
+    }
+  }
+);
+
+// ============================
+// REGISTER ADMIN (admin only)
+// ============================
+router.post(
+  '/register-admin',
+  authenticateToken,
+  requireAdmin,
+  [
+    body('identifier').notEmpty().withMessage('Email atau nomor telepon wajib diisi'),
+    body('password')
+      .isLength({ min: 8, max: 100 })
+      .withMessage('Password minimal 8 karakter')
+      .matches(/\d/)
+      .withMessage('Password harus mengandung minimal 1 angka'),
+    body('full_name').trim().notEmpty().isLength({ max: 255 }).withMessage('Nama wajib diisi'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { identifier, password, full_name } = req.body;
+
+    try {
+      const isEmailInput = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      const isPhoneInput = /^(\+62|62|0)8[1-9][0-9]{6,10}$/.test(identifier.replace(/[\s-]/g, ''));
+
+      if (!isEmailInput && !isPhoneInput) {
+        return res.status(400).json({ error: 'Format email atau nomor telepon tidak valid' });
+      }
+
+      const checkField = isEmailInput ? 'email' : 'phone';
+      const existing = await pool.query(`SELECT id FROM users WHERE ${checkField} = $1`, [identifier]);
+      if (existing.rows.length > 0) {
+        return res.status(409).json({ error: 'Email atau nomor telepon sudah terdaftar' });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 12);
+      const result = await pool.query(
+        `INSERT INTO users (${checkField}, password_hash, full_name, role)
+         VALUES ($1, $2, $3, 'admin')
+         RETURNING id, email, phone, full_name, role, created_at`,
+        [identifier, passwordHash, full_name]
+      );
+
+      res.status(201).json({
+        message: 'Admin baru berhasil dibuat',
+        admin: result.rows[0],
+      });
+    } catch (err) {
+      console.error('Register admin error:', err);
       res.status(500).json({ error: 'Terjadi kesalahan server' });
     }
   }
