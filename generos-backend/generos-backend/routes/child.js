@@ -113,7 +113,7 @@ router.put(
   '/profile',
   [
     body('child_name').optional().trim().notEmpty().withMessage('Nama anak tidak boleh kosong'),
-    body('child_dob').optional().isISO8601().withMessage('Tanggal lahir tidak valid'),
+    body('child_dob').optional({ values: 'falsy' }).isISO8601().withMessage('Tanggal lahir tidak valid'),
   ],
   async (req, res) => {
     const errors = validationResult(req);

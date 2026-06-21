@@ -25,7 +25,9 @@ function openChildForm() {
   // Pre-fill form with existing data from cdData (loaded via settings)
   document.getElementById('cd-fullname').value = cdData.name || '';
   document.getElementById('cd-nickname').value = cdData.nickname || '';
-  document.getElementById('cd-dob').value = cdData.dob || '';
+  // Format DOB: ambil YYYY-MM-DD aja dari ISO string
+  const dobVal = cdData.dob ? cdData.dob.split('T')[0] : '';
+  document.getElementById('cd-dob').value = dobVal;
   document.getElementById('cd-gender').value = cdData.gender || '';
   document.getElementById('cd-birth-weight').value = cdData.birth_weight || '';
   document.getElementById('cd-birth-height').value = cdData.birth_height || '';
@@ -140,7 +142,7 @@ function collectFormData() {
   return {
     child_name: document.getElementById('cd-fullname').value.trim(),
     child_nickname: document.getElementById('cd-nickname').value.trim(),
-    child_dob: document.getElementById('cd-dob').value,
+    child_dob: document.getElementById('cd-dob').value || null,
     child_gender: document.getElementById('cd-gender').value,
     child_photo: cdSelectedAvatar,
     birth_weight: document.getElementById('cd-birth-weight').value || null,
