@@ -292,9 +292,18 @@ router.post('/refresh', async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    const { accessToken } = generateTokens(user);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
 
-    res.json({ accessToken });
+    // ROTASI: hapus token lama, simpan token baru
+    await pool.query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await pool.query(
+      `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
+      [user.id, newRefreshToken, expiresAt]
+    );
+
+    res.json({ accessToken, refreshToken: newRefreshToken });
   } catch (err) {
     console.error('Refresh token error:', err);
     res.status(500).json({ error: 'Terjadi kesalahan server' });

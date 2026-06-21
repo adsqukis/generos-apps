@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Metode & Referensi — Generos Care</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.2cm;
+    @top-center {
+      content: "Generos Care — Metode & Referensi";
+      font-size: 8pt;
+      color: #999;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    @bottom-center {
+      content: "Halaman " counter(page) " dari " counter(pages);
+      font-size: 8pt;
+      color: #999;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.65;
+    color: #222;
+    counter-reset: h2-counter;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding-top: 6cm;
+  }
+  .cover .brand { font-size: 10pt; color: #0066CC; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; }
+  .cover h1 { font-size: 26pt; color: #003DA5; font-weight: 700; margin-bottom: 12px; }
+  .cover .subtitle { font-size: 13pt; color: #555; margin-bottom: 40px; }
+  .cover .meta { font-size: 9pt; color: #888; margin-top: 60px; line-height: 2; }
+  .cover .line { width: 80px; height: 3px; background: #003DA5; margin: 20px auto; }
+
+  /* ── TOC ── */
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 16pt; color: #003DA5; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #003DA5; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li {
+    padding: 8px 0;
+    border-bottom: 1px dotted #ddd;
+    font-size: 11pt;
+  }
+  .toc li a { color: #333; text-decoration: none; }
+  .toc li a::after { content: " — hlm. " target-counter(attr(href), page); color: #0066CC; font-size: 9pt; }
+  .toc .toc-section { font-weight: 700; color: #003DA5; font-size: 11pt; padding-top: 14px; }
+
+  /* ── HEADINGS ── */
+  h2.section {
+    font-size: 15pt;
+    color: #003DA5;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #003DA5;
+    page-break-before: always;
+    counter-increment: h2-counter;
+  }
+  h2.section::before { content: counter(h2-counter) ". "; }
+
+  h3 {
+    font-size: 12pt;
+    color: #1a1a1a;
+    margin-top: 24px;
+    margin-bottom: 10px;
+  }
+
+  h4 {
+    font-size: 10.5pt;
+    color: #444;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  p { margin-bottom: 10px; }
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px 0;
+    font-size: 9.5pt;
+  }
+  th {
+    background: #003DA5;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  tr:last-child td { border-bottom: 2px solid #003DA5; }
+
+  /* ── HIGHLIGHTS ── */
+  .highlight-box {
+    background: #E8F0FF;
+    border-left: 4px solid #003DA5;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 4px;
+  }
+  .highlight-box.warn {
+    background: #FFF8E8;
+    border-left-color: #F5A623;
+  }
+  .highlight-box.danger {
+    background: #FFE8E8;
+    border-left-color: #E85C5C;
+  }
+  .highlight-box.good {
+    background: #E8FFF0;
+    border-left-color: #4CAF82;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 8pt;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .badge-green { background: #4CAF82; color: #fff; }
+  .badge-yellow { background: #F5A623; color: #fff; }
+  .badge-red { background: #E85C5C; color: #fff; }
+  .badge-gray { background: #999; color: #fff; }
+
+  /* ── LISTS ── */
+  ul, ol { margin: 8px 0 12px 20px; }
+  li { margin-bottom: 5px; }
+  ul li::marker { color: #003DA5; }
+
+  /* ── SUMMARY TABLE ── */
+  .summary-table th { background: #1a1a2e; }
+  .summary-table tr:last-child td { border-bottom: 2px solid #1a1a2e; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+    font-size: 8.5pt;
+    color: #999;
+    text-align: center;
+  }
+
+  /* ── GAP ANALYSIS ── */
+  .gap-box {
+    background: #fff5f5;
+    border: 1px solid #fcc;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+  .gap-box h4 { color: #c0392b; margin-top: 0; }
+</style>
+</head>
+<body>
+
+<!-- ====== COVER ====== -->
+<div class="cover">
+  <div class="brand">Generos Care</div>
+  <h1>Metode &amp; Referensi<br>Aplikasi Parenting</h1>
+  <div class="line"></div>
+  <div class="subtitle">Skrining · Tracking · AI Chat · Daily Tracker</div>
+  <div class="meta">
+    <strong>Dokumen Teknis</strong><br>
+    Versi 1.0 — Juni 2026<br>
+    Aplikasi: https://generos-frontend-production.up.railway.app<br>
+    Backend: Node.js + Express + PostgreSQL + DeepSeek AI
+  </div>
+</div>
+
+<!-- ====== TOC ====== -->
+<div class="toc">
+  <h2>Daftar Isi</h2>
+  <ul>
+    <li class="toc-section">1. Pendahuluan</li>
+    <li><a href="#s1-1">1.1 Tentang Generos Care</a></li>
+    <li><a href="#s1-2">1.2 Arsitektur Sistem</a></li>
+
+    <li class="toc-section">2. Skrining Perkembangan (KPSP)</li>
+    <li><a href="#s2-1">2.1 Metode &amp; Landasan</a></li>
+    <li><a href="#s2-2">2.2 Empat Domain Skrining</a></li>
+    <li><a href="#s2-3">2.3 Sistem Penilaian</a></li>
+    <li><a href="#s2-4">2.4 Data &amp; Implementasi</a></li>
+
+    <li class="toc-section">3. Tracking Perkembangan &amp; Milestone</li>
+    <li><a href="#s3-1">3.1 Milestone Anak per Usia</a></li>
+    <li><a href="#s3-2">3.2 Growth Tracking (BB/TB/LK)</a></li>
+    <li><a href="#s3-3">3.3 Stimulasi &amp; Rekomendasi</a></li>
+
+    <li class="toc-section">4. AI Chat Parenting</li>
+    <li><a href="#s4-1">4.1 Model &amp; Persona</a></li>
+    <li><a href="#s4-2">4.2 Pengetahuan Produk Generos</a></li>
+    <li><a href="#s4-3">4.3 Batasan &amp; Etika</a></li>
+
+    <li class="toc-section">5. Daily Tracker</li>
+    <li><a href="#s5-1">5.1 Metode Pencatatan</a></li>
+    <li><a href="#s5-2">5.2 AI Insight</a></li>
+
+    <li class="toc-section">6. Ringkasan &amp; Gap Analysis</li>
+    <li><a href="#s6-1">6.1 Tabel Ringkasan</a></li>
+    <li><a href="#s6-2">6.2 Gap &amp; Rekomendasi Pengembangan</a></li>
+
+    <li class="toc-section">7. Referensi</li>
+    <li><a href="#s7-1">7.1 Daftar Pustaka</a></li>
+    <li><a href="#s7-2">7.2 Struktur File Pendukung</a></li>
+  </ul>
+</div>
+
+<!-- ====== 1. PENDAHULUAN ====== -->
+<h2 class="section" id="s1-1">Pendahuluan</h2>
+
+<h3 id="s1-1">1.1 Tentang Generos Care</h3>
+<p>
+Generos Care adalah aplikasi parenting berbasis web yang dirancang untuk membantu orang tua
+memantau tumbuh kembang anak usia 0–72 bulan (6 tahun). Aplikasi ini mencakup empat fungsi utama:
+</p>
+<ol>
+  <li><strong>Skrining Perkembangan</strong> — menilai kesesuaian perkembangan anak berdasarkan empat domain menggunakan metode KPSP (Kuesioner Pra Skrining Perkembangan) standar Kementerian Kesehatan RI.</li>
+  <li><strong>Tracking Perkembangan</strong> — mencatat milestone, berat badan, tinggi badan, lingkar kepala, imunisasi, dan riwayat skrining.</li>
+  <li><strong>AI Chat Parenting</strong> — asisten virtual berbasis DeepSeek AI yang menjawab pertanyaan seputar pengasuhan anak dan produk Generos.</li>
+  <li><strong>Daily Tracker</strong> — pencatatan harian tidur, menyusui, minum, BAK, BAB, dan kunjungan dokter.</li>
+</ol>
+
+<div class="highlight-box">
+  <strong>Catatan:</strong> Dokumen ini menjelaskan metode, dasar referensi, dan sumber data yang digunakan
+  di setiap fitur aplikasi. Setiap klaim terhadap standar medis atau referensi tertentu diverifikasi
+  dari kode sumber dan konfigurasi aplikasi.
+</div>
+
+<h3 id="s1-2">1.2 Arsitektur Sistem</h3>
+<table>
+  <tr><th width="25%">Komponen</th><th>Detail</th></tr>
+  <tr><td>Frontend</td><td>Vanilla JS + CSS (SPA, mobile-first), di-<em>hosting</em> di Railway</td></tr>
+  <tr><td>Backend</td><td>Node.js + Express.js, di-<em>hosting</em> di Railway</td></tr>
+  <tr><td>Database</td><td>PostgreSQL (internal Railway)</td></tr>
+  <tr><td>AI Model</td><td>DeepSeek Chat (<code>deepseek-chat</code>) via API DeepSeek</td></tr>
+  <tr><td>Domain</td><td><code>generos-frontend-production.up.railway.app</code></td></tr>
+  <tr><td>API Base</td><td><code>generos-apss-production.up.railway.app/api</code></td></tr>
+</table>
+
+<!-- ====== 2. SKRINING ====== -->
+<h2 class="section" id="s2">Skrining Perkembangan — KPSP</h2>
+
+<h3 id="s2-1">2.1 Metode &amp; Landasan</h3>
+<p>
+Fitur skrining menggunakan <strong>KPSP (Kuesioner Pra Skrining Perkembangan)</strong>,
+yaitu instrumen skrining perkembangan anak yang diterbitkan oleh <strong>Kementerian Kesehatan Republik Indonesia</strong>.
+KPSP digunakan untuk mendeteksi dini penyimpangan perkembangan pada anak usia 0–72 bulan.
+</p>
+
+<div class="highlight-box good">
+  <strong>✅ Validasi:</strong> Kode sumber secara eksplisit menyebut "KPSP (Kuesioner Pra Skrining Perkembangan) standar Kemenkes RI"
+  pada <code>config/seed-screening.js</code> baris 6.
+</div>
+
+<p>Karakteristik KPSP yang diimplementasikan:</p>
+<ul>
+  <li>Setiap sesi skrining terdiri dari <strong>9–10 pertanyaan</strong> Yes/No per domain.</li>
+  <li>Pertanyaan disesuaikan dengan <strong>usia anak</strong> dalam bulan.</li>
+  <li>Skrining dapat dilakukan untuk <strong>satu atau lebih domain</strong> sekaligus.</li>
+  <li>Hasil skrining menghasilkan rekomendasi <strong>stimulasi</strong> otomatis jika hasilnya "Meragukan" atau "Menyimpang".</li>
+</ul>
+
+<h3 id="s2-2">2.2 Empat Domain Skrining</h3>
+<table>
+  <tr><th width="22%">Domain</th><th width="18%">Kode</th><th>Fokus Penilaian</th><th width="22%">Contoh Pertanyaan (0–3 bln)</th></tr>
+  <tr>
+    <td><strong>Kecerdasan</strong></td>
+    <td><code>cognitive</code></td>
+    <td>Problem solving, cause-effect, object permanence, pretend play</td>
+    <td>Apakah bayi dapat menatap wajah Anda saat digendong?</td>
+  </tr>
+  <tr>
+    <td><strong>Bicara</strong></td>
+    <td><code>speech</code></td>
+    <td>Mengoceh, kata pertama, kalimat, perintah</td>
+    <td>Apakah bayi mengeluarkan suara "aaa" atau "ooo"?</td>
+  </tr>
+  <tr>
+    <td><strong>Imunitas</strong></td>
+    <td><code>immunity</code></td>
+    <td>Frekuensi sakit, BB, nafsu makan, recovery</td>
+    <td>Seberapa sering bayi sakit dalam 1 bulan terakhir?</td>
+  </tr>
+  <tr>
+    <td><strong>Motorik</strong></td>
+    <td><code>motor</code></td>
+    <td>Duduk, merangkak, jalan, lari, memegang</td>
+    <td>Apakah bayi dapat mengangkat kepala saat tengkurap?</td>
+  </tr>
+</table>
+
+<h3 id="s2-3">2.3 Sistem Penilaian</h3>
+<p>Penilaian mengikuti standar KPSP dengan tiga kategori hasil:</p>
+<table>
+  <tr><th>Skor</th><th>Hasil</th><th>Indikator</th><th>Tindak Lanjut</th></tr>
+  <tr>
+    <td>≥ 90%</td>
+    <td><span class="badge badge-green">Sesuai</span></td>
+    <td>Perkembangan anak sesuai usia</td>
+    <td>Stimulasi umum sesuai usia</td>
+  </tr>
+  <tr>
+    <td>70–89%</td>
+    <td><span class="badge badge-yellow">Meragukan</span></td>
+    <td>Ada beberapa keterlambatan ringan</td>
+    <td>Rekomendasi stimulasi spesifik + pantau 2 minggu</td>
+  </tr>
+  <tr>
+    <td>&lt; 70%</td>
+    <td><span class="badge badge-red">Menyimpang</span></td>
+    <td>Perlu evaluasi lebih lanjut</td>
+    <td>Rekomendasi stimulasi + saran konsultasi dokter</td>
+  </tr>
+</table>
+<p>Rumus: <code>score = (jawaban "Ya" / total pertanyaan) × 100%</code>.</p>
+
+<h3 id="s2-4">2.4 Data &amp; Implementasi</h3>
+<table>
+  <tr><th width="28%">Aspek</th><th>Detail</th></tr>
+  <tr><td>Berkas data</td><td><code>config/seed-screening.js</code> — 1.205 baris</td></tr>
+  <tr><td>Endpoint API</td><td><code>routes/screening.js</code> — 327 baris, 7 endpoint</td></tr>
+  <tr><td>Jumlah pertanyaan</td><td>6 pertanyaan per domain × 10 interval usia × 4 domain = ~240 pertanyaan</td></tr>
+  <tr><td>Interval usia</td><td>0–3, 3–6, 6–9, 9–12, 12–18, 18–24, 24–36, 36–48, 48–60, 60–72 bulan</td></tr>
+  <tr><td>Tipe soal</td><td>Yes/No (dichotomous) + beberapa multiple choice untuk domain imunitas</td></tr>
+  <tr><td>Tabel database</td><td><code>screening_questions</code>, <code>screening_sessions</code>, <code>screening_answers</code>, <code>stimulation_activities</code>, <code>stimulation_recommendations</code></td></tr>
+</table>
+
+<!-- ====== 3. TRACKING ====== -->
+<h2 class="section" id="s3">Tracking Perkembangan &amp; Milestone</h2>
+
+<h3 id="s3-1">3.1 Milestone Anak per Usia</h3>
+<p>
+Aplikasi menyediakan <strong>tabel milestone</strong> yang mencakup 14 titik usia kritis,
+dengan 4 kategori perkembangan. Data ini digunakan untuk menampilkan capaian yang diharapkan
+dan tips stimulasi sesuai usia anak.
+</p>
+
+<table>
+  <tr><th width="12%">Usia</th><th>Motorik</th><th>Bicara</th><th>Sosial</th><th>Kognitif</th></tr>
+  <tr><td>1 bln</td><td>Angkat kepala, genggam jari</td><td>Suara "a"/"o"</td><td>Senyum refleks, kenali wajah</td><td>Ikuti benda, respon suara</td></tr>
+  <tr><td>3 bln</td><td>Angkat kepala 90°, berguling</td><td>Oceh konsonan "ma"/"ba"</td><td>Tertawa</td><td>Raih benda, masukkan ke mulut</td></tr>
+  <tr><td>6 bln</td><td>Duduk sebentar, berguling 2 arah</td><td>"Mama"/"baba", menoleh ke nama</td><td>Takut orang asing</td><td>Pindahkan benda antar tangan</td></tr>
+  <tr><td>9 bln</td><td>Duduk kokoh, merangkak, berdiri pegangan</td><td>"Mama"/"baba" spesifik, paham "tidak"</td><td>Tepuk tangan, lambai, meniru gerakan</td><td>Cari benda sembunyi, menunjuk</td></tr>
+  <tr><td>12 bln</td><td>Berdiri sendiri, berjalan pegangan</td><td>1–2 kata bermakna, paham perintah</td><td>Peluk, cium, tiru aktivitas</td><td>Masukkan benda ke wadah, bentuk sederhana</td></tr>
+  <tr><td>18 bln</td><td>Berjalan sendiri, naik tangga</td><td>5–10 kata, tunjuk bagian tubuh</td><td>Bermain paralel</td><td>Susun 2–4 balok</td></tr>
+  <tr><td>24 bln</td><td>Berlari, menendang bola</td><td>50+ kata, gabung 2 kata</td><td>Kemandirian, bermain pura-pura</td><td>Susun 4–6 balok, kenal warna</td></tr>
+  <tr><td>36 bln</td><td>Naik sepeda roda tiga, gambar lingkaran</td><td>Kalimat 5–6 kata, tanya "apa/kenapa"</td><td>Bermain interaktif, ikuti aturan</td><td>Kenal 3–4 warna, hitung 1–10</td></tr>
+  <tr><td>48 bln</td><td>Berdiri 1 kaki 5 dtk, gunting kertas</td><td>Cerita panjang, kata depan</td><td>Bergiliran, empati</td><td>Kenal angka 1–20, kenal huruf</td></tr>
+  <tr><td>60 bln</td><td>Berdiri 1 kaki 10 dtk, tulis nama</td><td>Bicara lancar, baca kata sederhana</td><td>Teman akrab, aturan sosial</td><td>Hitung 1–50, kenal abjad</td></tr>
+  <tr><td>72 bln</td><td>Lompat 1 kaki, ikat tali sepatu</td><td>Baca kalimat, tulis 2–3 kata</td><td>Bermain tim, kelola emosi</td><td>Hitung 1–100, baca tulis dasar</td></tr>
+</table>
+
+<div class="highlight-box warn">
+  <strong>⚠️ Catatan referensi:</strong> Data milestone terinspirasi dari standar <strong>WHO</strong>
+  (perkembangan motorik kasar — disebut di <code>config/seed.js</code> baris 107–108) dan
+  <strong>IDAI (Ikatan Dokter Anak Indonesia)</strong> (perkembangan bicara — baris 42).
+  Namun data ini adalah <strong>adaptasi/ringkasan</strong>, bukan salinan literal dari dokumen WHO/IDAI.
+</div>
+
+<h3 id="s3-2">3.2 Growth Tracking (BB/TB/LK)</h3>
+<div class="highlight-box danger">
+  <strong>❌ Keterbatasan:</strong> Pencatatan berat badan (BB), tinggi badan (TB), dan lingkar kepala (LK)
+  menggunakan <strong>input manual oleh pengguna</strong>. Aplikasi <strong>belum mengimplementasikan</strong>
+  Z-score atau kurva pertumbuhan WHO (WHO Child Growth Standards).
+  Tidak ada validasi otomatis terhadap standar antropometri (BB/U, TB/U, BB/TB).
+</div>
+<p>Data growth disimpan di tabel <code>tracking_entries</code> dan ditampilkan sebagai riwayat kronologis.</p>
+
+<h3 id="s3-3">3.3 Stimulasi &amp; Rekomendasi</h3>
+<p>Terdapat tiga jalur rekomendasi aktivitas stimulasi:</p>
+<ol>
+  <li><strong>Stimulasi Umum</strong> — aktivitas sesuai usia untuk semua anak (optimalisasi pertumbuhan)</li>
+  <li><strong>Dari Hasil Screening</strong> — jika skor "Meragukan" atau "Menyimpang", rekomendasi spesifik digenerate otomatis</li>
+  <li><strong>Dari Tracking/Kendala</strong> — pengguna melaporkan masalah, sistem merekomendasikan aktivitas</li>
+</ol>
+<p>Data aktivitas stimulasi tersedia di <code>config/seed-screening.js</code> (bagian <code>stimulationActivities</code>),
+mencakup 4 domain, 6 tingkat kesulitan, dengan durasi dan bahan yang dibutuhkan.</p>
+
+<!-- ====== 4. AI CHAT ====== -->
+<h2 class="section" id="s4">AI Chat Parenting</h2>
+
+<h3 id="s4-1">4.1 Model &amp; Persona</h3>
+<table>
+  <tr><th width="25%">Aspek</th><th>Detail</th></tr>
+  <tr><td>Model AI</td><td><strong>DeepSeek Chat</strong> (<code>deepseek-chat</code>) via API DeepSeek</td></tr>
+  <tr><td>API Key</td><td><code>DEEPSEEK_API_KEY</code> (environment variable)</td></tr>
+  <tr><td>API URL</td><td><code>DEEPSEEK_API_URL</code> → <code>https://api.deepseek.com</code></td></tr>
+  <tr><td>Token limit</td><td>500 token per respons</td></tr>
+  <tr><td>Temperature</td><td>0.5 (konsisten, tidak terlalu kreatif)</td></tr>
+  <tr><td>Kontekstual</td><td>5 pesan terakhir dari riwayat percakapan user</td></tr>
+</table>
+
+<p><strong>Persona:</strong> <em>"Ibu cerdas yang jadi teman ngobrol sesama orang tua di aplikasi Generos Care."</em></p>
+<ul>
+  <li>First person ("aku"), hangat dan personal</li>
+  <li>Panggil user <strong>"Bunda"</strong></li>
+  <li>Singkat (2–3 kalimat), langsung ke inti</li>
+  <li>Tidak menggurui — "kalau menurut yang aku tahu ya..."</li>
+</ul>
+
+<h3 id="s4-2">4.2 Pengetahuan Produk Generos</h3>
+<p>
+System prompt AI menyertakan pengetahuan lengkap tentang produk <strong>Generos</strong>
+(suplemen herbal madu untuk anak). Informasi ini <strong>dikodekan secara manual</strong>
+di dalam <code>routes/chat.js</code> (baris 10–156), bukan diambil dari database.
+</p>
+
+<table>
+  <tr><th width="25%">Topik</th><th>Isi</th></tr>
+  <tr><td><strong>Dosis</strong></td><td>1–1,5 thn: 5 tetes · 1,5–6 thn: 7–10 tetes · 7–16 thn: 11–15 tetes · ≥17: 15–30 tetes · 2×/hari</td></tr>
+  <tr><td><strong>Komposisi</strong></td><td>5 bahan: Madu Hutan, Ikan Sidat (DHA), Daun Pegagan (Centella asiatica), Temulawak, Mengkudu</td></tr>
+  <tr><td><strong>Cara konsumsi</strong></td><td>Tetes di tengah lidah, tahan 5 detik, tarik napas. Pagi & malam, perut kosong.</td></tr>
+  <tr><td><strong>Keamanan</strong></td><td>Gluten free, sugar free (gula alami madu ~0,98gr/porsi), tidak menyebabkan ketergantungan</td></tr>
+  <tr><td><strong>Efek detoks</strong></td><td>BAB, mual, muntah — umumnya 3–5 hari. Jika >3 hari, hentikan sementara.</td></tr>
+  <tr><td><strong>Interaksi obat</strong></td><td>Aman sinergi. Beri jeda 1–1,5 jam dari obat/suplemen lain.</td></tr>
+  <tr><td><strong>Kondisi khusus</strong></td><td>Autisme, ADHD, Down Syndrome, Cerebral Palsy, Epilepsi, Mikrosefalus, Hipotiroid — masing-masing punya panduan spesifik</td></tr>
+  <tr><td><strong>Penyimpanan</strong></td><td>Suhu ruang, sejuk, kering. Setelah dibuka habiskan ≤2 bulan.</td></tr>
+  <tr><td><strong>Keaslian produk</strong></td><td>Ciri: box eksklusif, hologram INDOJAMU/ASLI/BUMI WIJAYA, HALAL & BPOM</td></tr>
+</table>
+
+<h3 id="s4-3">4.3 Batasan &amp; Etika</h3>
+<div class="highlight-box danger">
+  <strong>❌ Tidak Boleh:</strong>
+  <ul style="margin: 6px 0 0 0;">
+    <li>Memberikan diagnosis medis atau menilai kondisi kesehatan spesifik</li>
+    <li>Mengatakan anak user memiliki speech delay, autisme, ADHD, dll</li>
+    <li>Mengklaim sebagai pengganti saran medis profesional</li>
+  </ul>
+</div>
+<p>Jika user bertanya soal kondisi anak, pola jawaban: info umum dulu → "kalau menurut yang umum sih..." → saran konsultasi dokter anak.</p>
+
+<div class="highlight-box warn">
+  <strong>⚠️ Keterbatasan:</strong> AI chat <strong>tidak terintegrasi dengan database artikel atau knowledge base</strong>.
+  Semua pengetahuan ada di system prompt statis. Tidak ada RAG (Retrieval-Augmented Generation).
+  Informasi produk tidak otomatis ter-update jika ada perubahan komposisi atau dosis.
+</div>
+
+<!-- ====== 5. DAILY TRACKER ====== -->
+<h2 class="section" id="s5">Daily Tracker</h2>
+
+<h3 id="s5-1">5.1 Metode Pencatatan</h3>
+<p>
+Daily tracker menggunakan metode <strong>self-reporting</strong> — pengguna mencatat sendiri
+aktivitas harian anak. Tersedia 7 kategori pencatatan dengan tabel database terpisah:
+</p>
+<table>
+  <tr><th width="22%">Kategori</th><th>Tabel</th><th>Data yang Dicatat</th></tr>
+  <tr><td>😴 Tidur</td><td><code>sleep_records</code></td><td>Waktu mulai, selesai, durasi (menit), catatan</td></tr>
+  <tr><td>🍼 Menyusui</td><td><code>feeding_records</code></td><td>Tipe (ASI/Sufor), jumlah (ml), durasi, catatan</td></tr>
+  <tr><td>💧 Minum</td><td><code>drink_records</code></td><td>Tipe minuman, jumlah (ml), catatan</td></tr>
+  <tr><td>🚽 BAK</td><td><code>pee_records</code></td><td>Frekuensi, catatan</td></tr>
+  <tr><td>💩 BAB</td><td><code>poop_records</code></td><td>Frekuensi, konsistensi, warna, catatan</td></tr>
+  <tr><td>🏥 Kunjungan Dokter</td><td><code>doctor_visits</code></td><td>Tanggal kunjungan, catatan</td></tr>
+  <tr><td>💉 Imunisasi</td><td><code>immunization_records</code></td><td>Jenis imunisasi, tanggal, status</td></tr>
+</table>
+
+<div class="highlight-box warn">
+  <strong>⚠️ Validasi:</strong> Tidak ada validasi medis otomatis. Data sepenuhnya berdasarkan input pengguna.
+  Tidak ada peringatan jika pola tidur/makan menyimpang dari standar usia.
+</div>
+
+<h3 id="s5-2">5.2 AI Insight (Tracking)</h3>
+<p>
+Endpoint <code>POST /tracking/:id/ai-insight</code> memungkinkan pengguna meminta analisis
+DeepSeek AI terhadap entri tracking tertentu. Prompt mencakup kategori, usia anak, deskripsi,
+dan tingkat keparahan — AI memberikan insight 1–2 kalimat apakah kondisi tersebut normal
+dan saran actionable, tanpa diagnosis medis.
+</p>
+
+<!-- ====== 6. RINGKASAN ====== -->
+<h2 class="section" id="s6">Ringkasan &amp; Gap Analysis</h2>
+
+<h3 id="s6-1">6.1 Tabel Ringkasan</h3>
+<table class="summary-table">
+  <tr><th width="20%">Fitur</th><th>Metode</th><th>Referensi</th><th width="16%">Validasi Medis</th></tr>
+  <tr>
+    <td><strong>Skrining</strong></td>
+    <td>KPSP — Kuesioner Pra Skrining Perkembangan</td>
+    <td>Kemenkes RI (standar nasional)</td>
+    <td><span class="badge badge-green">✅ Sesuai standar</span></td>
+  </tr>
+  <tr>
+    <td><strong>Milestone</strong></td>
+    <td>Tabel lookup custom</td>
+    <td>WHO + IDAI (inspirasi)</td>
+    <td><span class="badge badge-yellow">⚠️ Adaptasi</span></td>
+  </tr>
+  <tr>
+    <td><strong>Growth (BB/TB/LK)</strong></td>
+    <td>Input manual pengguna</td>
+    <td>—</td>
+    <td><span class="badge badge-red">❌ Tidak ada</span></td>
+  </tr>
+  <tr>
+    <td><strong>AI Parenting</strong></td>
+    <td>DeepSeek Chat + system prompt statis</td>
+    <td>Pengetahuan umum + data produk</td>
+    <td><span class="badge badge-yellow">⚠️ Prompt-based</span></td>
+  </tr>
+  <tr>
+    <td><strong>Daily Tracker</strong></td>
+    <td>Self-reporting</td>
+    <td>—</td>
+    <td><span class="badge badge-red">❌ Tidak ada</span></td>
+  </tr>
+  <tr>
+    <td><strong>Stimulasi</strong></td>
+    <td>Rekomendasi dari hasil screening</td>
+    <td>Aktivitas dari seed-screening.js</td>
+    <td><span class="badge badge-yellow">⚠️ Custom</span></td>
+  </tr>
+</table>
+
+<h3 id="s6-2">6.2 Gap &amp; Rekomendasi Pengembangan</h3>
+
+<div class="gap-box">
+  <h4>🔴 Gap 1 — Growth Chart Tanpa Standar WHO</h4>
+  <p><strong>Masalah:</strong> BB/TB/LK hanya catatan manual. Tidak ada Z-score, percentile, atau kurva WHO.</p>
+  <p><strong>Rekomendasi:</strong> Integrasikan WHO Child Growth Standards (zscore-who.py atau API eksternal) untuk validasi otomatis dan visualisasi kurva pertumbuhan.</p>
+</div>
+
+<div class="gap-box">
+  <h4>🔴 Gap 2 — AI Chat Tanpa Knowledge Base</h4>
+  <p><strong>Masalah:</strong> Semua pengetahuan AI ada di system prompt statis. Tidak ada RAG (Retrieval-Augmented Generation) dari database artikel.</p>
+  <p><strong>Rekomendasi:</strong> Implementasi RAG pipeline: embedding artikel → vector search → context injection ke prompt AI. Update konten produk cukup di database, tidak perlu edit kode.</p>
+</div>
+
+<div class="gap-box">
+  <h4>🟡 Gap 3 — Daily Tracker Tanpa Validasi</h4>
+  <p><strong>Masalah:</strong> Tidak ada peringatan jika pola tidur/makan menyimpang dari standar usia.</p>
+  <p><strong>Rekomendasi:</strong> Tambahkan aturan validasi berbasis usia (contoh: total tidur <10 jam untuk bayi 0–6 bln → peringatan).</p>
+</div>
+
+<div class="gap-box">
+  <h4>🟡 Gap 4 — Milestone Tanpa Sumber Primer</h4>
+  <p><strong>Masalah:</strong> Data milestone adalah adaptasi, bukan salinan langsung dari dokumen WHO/IDAI yang bisa diverifikasi.</p>
+  <p><strong>Rekomendasi:</strong> Cantumkan DOI/tautan ke dokumen asli WHO (WHO Motor Development Study) atau IDAI untuk setiap klaim milestone.</p>
+</div>
+
+<!-- ====== 7. REFERENSI ====== -->
+<h2 class="section" id="s7">Referensi</h2>
+
+<h3 id="s7-1">7.1 Daftar Pustaka</h3>
+<ol>
+  <li>Kementerian Kesehatan RI. <em>Kuesioner Pra Skrining Perkembangan (KPSP)</em>. Buku Kesehatan Ibu dan Anak (KIA).</li>
+  <li>WHO. <em>Child Growth Standards: Length/height-for-age, weight-for-age, weight-for-length, weight-for-height and body mass index-for-age</em>. WHO, Geneva, 2006.</li>
+  <li>WHO Multicentre Growth Reference Study Group. <em>WHO Motor Development Study: Windows of achievement for six gross motor development milestones</em>. Acta Paediatrica Supplement, 2006.</li>
+  <li>IDAI (Ikatan Dokter Anak Indonesia). <em>Jadwal Imunisasi Anak Usia 0–18 Tahun Rekomendasi IDAI 2023</em>.</li>
+  <li>IDAI. <em>Buku Ajar Tumbuh Kembang Anak</em>. Badan Penerbit IDAI, 2021.</li>
+  <li>DeepSeek. <em>DeepSeek Chat API Documentation</em>. https://platform.deepseek.com/api-docs.</li>
+</ol>
+
+<h3 id="s7-2">7.2 Struktur File Pendukung</h3>
+<table>
+  <tr><th width="38%">Path (backend)</th><th>Fungsi</th></tr>
+  <tr><td><code>config/seed-screening.js</code></td><td>Data master pertanyaan KPSP (1.205 baris) + aktivitas stimulasi</td></tr>
+  <tr><td><code>config/milestones.js</code></td><td>Tabel milestone 4 kategori × 14 usia + tips perkembangan</td></tr>
+  <tr><td><code>config/seed.js</code></td><td>Seed artikel (referensi WHO/IDAI untuk konten edukasi)</td></tr>
+  <tr><td><code>config/daily-migrate.js</code></td><td>Migrasi tabel daily tracker (7 tabel)</td></tr>
+  <tr><td><code>routes/screening.js</code></td><td>Endpoint CRUD screening + scoring</td></tr>
+  <tr><td><code>routes/chat.js</code></td><td>Endpoint AI chat + system prompt (266 baris)</td></tr>
+  <tr><td><code>routes/daily.js</code></td><td>Endpoint daily tracker + AI chat harian (845 baris)</td></tr>
+  <tr><td><code>routes/tracking.js</code></td><td>Endpoint growth tracking + AI insight (410 baris)</td></tr>
+  <tr><td><code>server.js</code></td><td>Registrasi semua route + auto-seed database</td></tr>
+</table>
+
+<div class="doc-footer">
+  Dokumen ini digenerate dari kode sumber aplikasi Generos Care per Juni 2026.<br>
+  Sumber data: <code>generos-apps-work/generos-backend</code> — commit terbaru.
+</div>
+
+</body>
+</html>
