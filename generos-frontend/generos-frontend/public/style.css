@@ -2508,3 +2508,173 @@ textarea {
     max-height: 260px;
   }
 }
+
+/* ============================
+   ADMIN FORM POLISH
+   ============================ */
+.admin-form-wrap {
+  max-width: 600px;
+  padding: 20px;
+}
+.admin-form-group {
+  margin-bottom: 20px;
+}
+.admin-form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+.af-input,
+.af-select,
+.af-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #FAFAFA;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
+  outline: none;
+}
+.af-input:focus,
+.af-select:focus,
+.af-textarea:focus {
+  border-color: #003DA5;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0,61,165,0.1);
+}
+.af-input:hover,
+.af-select:hover,
+.af-textarea:hover {
+  border-color: #ccc;
+}
+.af-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.af-select {
+  appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+.af-file {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 12px;
+  font-size: 14px;
+  background: #FAFAFA;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.af-file:hover {
+  border-color: #ccc;
+}
+.af-file-status {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+}
+.af-file-status .check {
+  color: #4CAF82;
+}
+.af-hint {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  margin-top: 6px;
+}
+.af-del-btn {
+  background: transparent;
+  border: none;
+  color: #E85C5C;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.af-del-btn:hover {
+  color: #D45252;
+}
+.af-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E8E8E8;
+}
+.af-header svg {
+  vertical-align: middle;
+  margin-right: 6px;
+  color: #999;
+}
+.af-btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  background: #003DA5;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.af-btn-primary:hover {
+  background: #0052CC;
+  box-shadow: 0 4px 12px rgba(0,61,165,0.2);
+}
+.af-btn-secondary {
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1.5px solid #003DA5;
+  color: #003DA5;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.af-btn-secondary:hover {
+  background: #E8F0FF;
+}
+.af-btn-danger {
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1.5px solid #E85C5C;
+  color: #E85C5C;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background 0.15s;
+}
+.af-btn-danger:hover {
+  background: #FFE8E8;
+}

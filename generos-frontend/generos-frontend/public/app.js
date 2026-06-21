@@ -2133,25 +2133,27 @@ async function saveCsSettings() {
 function showAdminAddArticle() {
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <div class="form-group"><label>Judul</label><input type="text" id="adm-art-title"></div>
-    <div class="form-group"><label>Kategori</label>
-      <select id="adm-art-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
-        <option value="speech">Bicara</option>
-        <option value="immunity">Imunitas</option>
-        <option value="brain">Otak</option>
-        <option value="tantrum">Tantrum</option>
-        <option value="adhd">ADHD</option>
-        <option value="autism">Autisme</option>
-        <option value="other">Lainnya</option>
-      </select>
+    <div class="admin-form-wrap">
+      <div class="admin-form-group"><label>Judul</label><input type="text" class="af-input" id="adm-art-title"></div>
+      <div class="admin-form-group"><label>Kategori</label>
+        <select class="af-select" id="adm-art-category">
+          <option value="speech">Bicara</option>
+          <option value="immunity">Imunitas</option>
+          <option value="brain">Otak</option>
+          <option value="tantrum">Tantrum</option>
+          <option value="adhd">ADHD</option>
+          <option value="autism">Autisme</option>
+          <option value="other">Lainnya</option>
+        </select>
+      </div>
+      <div class="admin-form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" class="af-file" id="adm-art-image-input"><div class="af-file-status" id="adm-art-image-preview"></div><span class="af-hint">Maksimal 5MB — format: JPG, PNG, WebP, GIF</span></div>
+      <input type="hidden" id="adm-art-image-url" value="">
+      <div class="admin-form-group"><label>Ringkasan</label><textarea class="af-textarea" id="adm-art-summary"></textarea></div>
+      <div class="admin-form-group"><label>Konten</label><textarea class="af-textarea" id="adm-art-content"></textarea></div>
+      <div class="admin-form-group"><label>Tanda Bahaya (opsional)</label><textarea class="af-textarea" id="adm-art-redflags"></textarea></div>
+      <div class="admin-form-group"><label>Kapan ke Dokter (opsional)</label><textarea class="af-textarea" id="adm-art-doctor"></textarea></div>
+      <button class="af-btn-primary" data-action="submit-admin-article">Simpan Artikel</button>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
-    <input type="hidden" id="adm-art-image-url" value="">
-    <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary"></textarea></div>
-    <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;"></textarea></div>
-    <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags"></textarea></div>
-    <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor"></textarea></div>
-    <button class="btn-primary" data-action="submit-admin-article">Simpan Artikel</button>
   `;
   // Auto-upload on file select
   document.getElementById('adm-art-image-input').addEventListener('change', async (e) => {
@@ -2216,13 +2218,15 @@ async function submitAdminFood() {
 function showAdminAddProduct() {
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name"></div>
-    <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price"></div>
-    <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small></div>
-    <input type="hidden" id="adm-prod-images" value="[]">
-    <div class="form-group"><label>URL Gambar Utama (opsional, jika tidak upload)</label><input type="text" id="adm-prod-image" placeholder="https://..."></div>
-    <button class="btn-primary" data-action="submit-admin-product">Simpan Produk</button>
+    <div class="admin-form-wrap">
+      <div class="admin-form-group"><label>Nama Produk</label><input type="text" class="af-input" id="adm-prod-name"></div>
+      <div class="admin-form-group"><label>Harga (Rp)</label><input type="number" class="af-input" id="adm-prod-price"></div>
+      <div class="admin-form-group"><label>Link Shopee</label><input type="text" class="af-input" id="adm-prod-link" placeholder="https://shopee.co.id/..."></div>
+      <div class="admin-form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple class="af-file" id="adm-prod-images-input"><div class="af-file-status" id="adm-prod-images-preview"></div><span class="af-hint">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</span></div>
+      <input type="hidden" id="adm-prod-images" value="[]">
+      <div class="admin-form-group"><label>URL Gambar Utama (opsional, jika tidak upload)</label><input type="text" class="af-input" id="adm-prod-image" placeholder="https://..."></div>
+      <button class="af-btn-primary" data-action="submit-admin-product">Simpan Produk</button>
+    </div>
   `;
   document.getElementById('adm-prod-images-input').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
@@ -2261,23 +2265,25 @@ async function submitAdminProduct() {
 function showAdminAddVideo() {
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title"></div>
-    <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" placeholder="https://youtube.com/..."></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;"></div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small></div>
-    <input type="hidden" id="adm-vid-thumb" value="">
-    <div class="form-group"><label>Kategori</label>
-      <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
-        <option value="speech">Bicara</option>
-        <option value="motor">Motorik</option>
-        <option value="immunity">Imunitas</option>
-        <option value="cognitive">Kognitif</option>
-        <option value="parenting">Parenting</option>
-      </select>
+    <div class="admin-form-wrap">
+      <div class="admin-form-group"><label>Judul Video</label><input type="text" class="af-input" id="adm-vid-title"></div>
+      <div class="admin-form-group"><label>URL Video (YouTube)</label><input type="text" class="af-input" id="adm-vid-url" placeholder="https://youtube.com/..."></div>
+      <div class="admin-form-group"><label>Thumbnail</label><input type="file" accept="image/*" class="af-file" id="adm-vid-thumb-input"><div class="af-file-status" id="adm-vid-thumb-preview"></div><span class="af-hint">Maksimal 5MB — format: JPG, PNG, WebP, GIF</span></div>
+      <input type="hidden" id="adm-vid-thumb" value="">
+      <div class="admin-form-group"><label>Kategori</label>
+        <select class="af-select" id="adm-vid-category">
+          <option value="speech">Bicara</option>
+          <option value="motor">Motorik</option>
+          <option value="immunity">Imunitas</option>
+          <option value="cognitive">Kognitif</option>
+          <option value="parenting">Parenting</option>
+        </select>
+      </div>
+      <div class="admin-form-group"><label>Durasi (menit, opsional)</label><input type="number" class="af-input" id="adm-vid-dur" placeholder="5"></div>
+      <div class="admin-form-group"><label>Rentang Usia (opsional)</label><input type="text" class="af-input" id="adm-vid-age" placeholder="contoh: 1-3 tahun"></div>
+      <div class="admin-form-group"><label>Deskripsi (opsional)</label><textarea class="af-textarea" id="adm-vid-desc"></textarea></div>
+      <button class="af-btn-primary" data-action="submit-admin-video">Simpan Video</button>
     </div>
-    <div class="form-group"><label>Durasi (menit, opsional)</label><input type="number" id="adm-vid-dur" placeholder="5"></div>
-    <div class="form-group"><label>Rentang Usia (opsional)</label><input type="text" id="adm-vid-age" placeholder="contoh: 1-3 tahun"></div>
-    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc"></textarea></div>
-    <button class="btn-primary" data-action="submit-admin-video">Simpan Video</button>
   `;
   document.getElementById('adm-vid-thumb-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
@@ -2441,28 +2447,30 @@ function showAdminEditArticle(e) {
   const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Artikel</h4>
-    <div class="form-group"><label>Judul</label><input type="text" id="adm-art-title" value="${escapeHtml(item.title || '')}"></div>
-    <div class="form-group"><label>Kategori</label>
-      <select id="adm-art-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
-        <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
-        <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
-        <option value="brain" ${item.category === 'brain' ? 'selected' : ''}>Otak</option>
-        <option value="tantrum" ${item.category === 'tantrum' ? 'selected' : ''}>Tantrum</option>
-        <option value="adhd" ${item.category === 'adhd' ? 'selected' : ''}>ADHD</option>
-        <option value="autism" ${item.category === 'autism' ? 'selected' : ''}>Autisme</option>
-        <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
-      </select>
+    <div class="admin-form-wrap">
+      <h4 class="af-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Artikel</h4>
+      <div class="admin-form-group"><label>Judul</label><input type="text" class="af-input" id="adm-art-title" value="${escapeHtml(item.title || '')}"></div>
+      <div class="admin-form-group"><label>Kategori</label>
+        <select class="af-select" id="adm-art-category">
+          <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
+          <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
+          <option value="brain" ${item.category === 'brain' ? 'selected' : ''}>Otak</option>
+          <option value="tantrum" ${item.category === 'tantrum' ? 'selected' : ''}>Tantrum</option>
+          <option value="adhd" ${item.category === 'adhd' ? 'selected' : ''}>ADHD</option>
+          <option value="autism" ${item.category === 'autism' ? 'selected' : ''}>Autisme</option>
+          <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
+        </select>
+      </div>
+      <div class="admin-form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" class="af-file" id="adm-art-image-input"><div class="af-file-status" id="adm-art-image-preview">${item.image_url ? `<span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><span class="af-hint">Maksimal 5MB — format: JPG, PNG, WebP, GIF</span>${item.image_url ? `<button type="button" class="af-del-btn" id="btn-remove-art-image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Gambar</button>` : ''}</div>
+      <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
+      <div class="admin-form-group"><label>Ringkasan</label><textarea class="af-textarea" id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
+      <div class="admin-form-group"><label>Konten</label><textarea class="af-textarea" id="adm-art-content">${escapeHtml(item.content || '')}</textarea></div>
+      <div class="admin-form-group"><label>Tanda Bahaya (opsional)</label><textarea class="af-textarea" id="adm-art-redflags">${escapeHtml(item.red_flags || '')}</textarea></div>
+      <div class="admin-form-group"><label>Kapan ke Dokter (opsional)</label><textarea class="af-textarea" id="adm-art-doctor">${escapeHtml(item.when_to_see_doctor || '')}</textarea></div>
+      <input type="hidden" id="adm-edit-id" value="${item.id}">
+      <button class="af-btn-primary" data-action="submit-admin-edit-article"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
+      <button class="af-btn-secondary" data-action="show-admin-list-articles">← Kembali</button>
     </div>
-    <div class="form-group"><label>Gambar Ilustrasi</label><input type="file" accept="image/*" id="adm-art-image-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-art-image-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.image_url ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${item.image_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.image_url ? `<button type="button" id="btn-remove-art-image" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Gambar</button>` : ''}</div>
-    <input type="hidden" id="adm-art-image-url" value="${item.image_url || ''}">
-    <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
-    <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
-    <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags">${escapeHtml(item.red_flags || '')}</textarea></div>
-    <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor">${escapeHtml(item.when_to_see_doctor || '')}</textarea></div>
-    <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-article"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
-    <button class="btn-secondary" data-action="show-admin-list-articles" style="margin-left:6px;">← Kembali</button>
   `;
   // Auto-upload on file select
   document.getElementById('adm-art-image-input').addEventListener('change', async (e) => {
@@ -2547,26 +2555,28 @@ function showAdminEditVideo(e) {
   const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Video</h4>
-    <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
-    <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
-    <div class="form-group"><label>Thumbnail</label><input type="file" accept="image/*" id="adm-vid-thumb-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-vid-thumb-preview" style="margin-top:4px;font-size:12px;color:#666;">${item.thumbnail_url ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB — format: JPG, PNG, WebP, GIF</small>${item.thumbnail_url ? `<button type="button" id="btn-remove-vid-thumb" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Thumbnail</button>` : ''}</div>
-    <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
-    <div class="form-group"><label>Kategori</label>
-      <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
-        <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
-        <option value="motor" ${item.category === 'motor' ? 'selected' : ''}>Motorik</option>
-        <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
-        <option value="cognitive" ${item.category === 'cognitive' ? 'selected' : ''}>Kognitif</option>
-        <option value="parenting" ${item.category === 'parenting' ? 'selected' : ''}>Parenting</option>
-      </select>
+    <div class="admin-form-wrap">
+      <h4 class="af-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Video</h4>
+      <div class="admin-form-group"><label>Judul Video</label><input type="text" class="af-input" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
+      <div class="admin-form-group"><label>URL Video (YouTube)</label><input type="text" class="af-input" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
+      <div class="admin-form-group"><label>Thumbnail</label><input type="file" accept="image/*" class="af-file" id="adm-vid-thumb-input"><div class="af-file-status" id="adm-vid-thumb-preview">${item.thumbnail_url ? `<span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> <img src="${item.thumbnail_url}" style="height:40px;border-radius:4px;vertical-align:middle;">` : ''}</div><span class="af-hint">Maksimal 5MB — format: JPG, PNG, WebP, GIF</span>${item.thumbnail_url ? `<button type="button" class="af-del-btn" id="btn-remove-vid-thumb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Thumbnail</button>` : ''}</div>
+      <input type="hidden" id="adm-vid-thumb" value="${item.thumbnail_url || ''}">
+      <div class="admin-form-group"><label>Kategori</label>
+        <select class="af-select" id="adm-vid-category">
+          <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
+          <option value="motor" ${item.category === 'motor' ? 'selected' : ''}>Motorik</option>
+          <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
+          <option value="cognitive" ${item.category === 'cognitive' ? 'selected' : ''}>Kognitif</option>
+          <option value="parenting" ${item.category === 'parenting' ? 'selected' : ''}>Parenting</option>
+        </select>
+      </div>
+      <div class="admin-form-group"><label>Durasi (menit, opsional)</label><input type="number" class="af-input" id="adm-vid-dur" value="${item.duration_minutes || ''}"></div>
+      <div class="admin-form-group"><label>Rentang Usia (opsional)</label><input type="text" class="af-input" id="adm-vid-age" value="${escapeHtml(item.age_range || '')}"></div>
+      <div class="admin-form-group"><label>Deskripsi (opsional)</label><textarea class="af-textarea" id="adm-vid-desc">${escapeHtml(item.description || '')}</textarea></div>
+      <input type="hidden" id="adm-edit-id" value="${item.id}">
+      <button class="af-btn-primary" data-action="submit-admin-edit-video"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
+      <button class="af-btn-secondary" data-action="show-admin-list-videos">← Kembali</button>
     </div>
-    <div class="form-group"><label>Durasi (menit, opsional)</label><input type="number" id="adm-vid-dur" value="${item.duration_minutes || ''}"></div>
-    <div class="form-group"><label>Rentang Usia (opsional)</label><input type="text" id="adm-vid-age" value="${escapeHtml(item.age_range || '')}"></div>
-    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc">${escapeHtml(item.description || '')}</textarea></div>
-    <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-video"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
-    <button class="btn-secondary" data-action="show-admin-list-videos" style="margin-left:6px;">← Kembali</button>
   `;
   document.getElementById('adm-vid-thumb-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
@@ -2651,17 +2661,19 @@ function showAdminEditProduct(e) {
   const existingImages = item.images || (item.image_url ? [item.image_url] : []);
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML = `
-    <h4 style="margin:0 0 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Produk</h4>
-    <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
-    <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
-    <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
-    <div class="form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple id="adm-prod-images-input" style="width:100%;padding:8px;border:2px solid #E5E7EB;border-radius:8px;"><div id="adm-prod-images-preview" style="margin-top:4px;font-size:12px;color:#666;">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><small style="display:block;margin-top:3px;font-size:11px;color:#999;">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</small>${existingImages.length > 0 ? `<button type="button" id="btn-remove-prod-images" style="margin-top:6px;padding:4px 10px;background:#fee2e2;border:none;border-radius:6px;font-size:12px;color:#dc2626;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Semua Gambar</button>` : ''}</div>
-    <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
-    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
-    <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
-    <input type="hidden" id="adm-edit-id" value="${item.id}">
-    <button class="btn-primary" data-action="submit-admin-edit-product"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
-    <button class="btn-secondary" data-action="show-admin-list-products" style="margin-left:6px;">← Kembali</button>
+    <div class="admin-form-wrap">
+      <h4 class="af-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit Produk</h4>
+      <div class="admin-form-group"><label>Nama Produk</label><input type="text" class="af-input" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
+      <div class="admin-form-group"><label>Harga (Rp)</label><input type="number" class="af-input" id="adm-prod-price" value="${item.price || ''}"></div>
+      <div class="admin-form-group"><label>Link Shopee</label><input type="text" class="af-input" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
+      <div class="admin-form-group"><label>Gambar Produk (max 5)</label><input type="file" accept="image/*" multiple class="af-file" id="adm-prod-images-input"><div class="af-file-status" id="adm-prod-images-preview">${existingImages.map((u) => `<img src="${u}" style="height:40px;border-radius:4px;margin:2px;">`).join('')} ${existingImages.length > 0 ? 'Gambar existing' : ''}</div><span class="af-hint">Maksimal 5MB per gambar — format: JPG, PNG, WebP, GIF</span>${existingImages.length > 0 ? `<button type="button" class="af-del-btn" id="btn-remove-prod-images"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus Semua Gambar</button>` : ''}</div>
+      <input type="hidden" id="adm-prod-images" value='${JSON.stringify(existingImages)}'>
+      <div class="admin-form-group"><label>Deskripsi (opsional)</label><textarea class="af-textarea" id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
+      <div class="admin-form-group"><label>Kategori (opsional)</label><input type="text" class="af-input" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
+      <input type="hidden" id="adm-edit-id" value="${item.id}">
+      <button class="af-btn-primary" data-action="submit-admin-edit-product"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Simpan Perubahan</button>
+      <button class="af-btn-secondary" data-action="show-admin-list-products">← Kembali</button>
+    </div>
   `;
   document.getElementById('adm-prod-images-input').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
