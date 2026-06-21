@@ -484,9 +484,16 @@ async function loadChildProfile(user, growthRecords) {
   document.getElementById('child-name').textContent = childName;
   document.getElementById('child-age').textContent = `${age} bulan ${extraDays} hari`;
 
-  // Avatar initial
-  const initial = (childName.charAt(0) || '·').toUpperCase();
-  document.getElementById('child-avatar').textContent = initial;
+  // Avatar — gender-based
+  const gender = user.child_gender;
+  const avatarEl = document.getElementById('child-avatar');
+  if (gender === 'Laki-laki') {
+    avatarEl.textContent = '👦';
+  } else if (gender === 'Perempuan') {
+    avatarEl.textContent = '👧';
+  } else {
+    avatarEl.textContent = (childName.charAt(0) || '·').toUpperCase();
+  }
 
   // Ambil data pertumbuhan terakhir (dari parameter)
   const latest = growthRecords && growthRecords[0];
@@ -1843,11 +1850,15 @@ async function loadChildProfileSettings() {
     cdData = child;
     const g = data.growth || {};
 
-    // Avatar
+    // Avatar — gender-based
     const avatar = document.getElementById('cd-avatar-settings');
     if (avatar) {
       if (child.photo) {
         avatar.innerHTML = `<img src="${escapeHtml(child.photo)}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else if (child.gender === 'Laki-laki') {
+        avatar.textContent = '👦';
+      } else if (child.gender === 'Perempuan') {
+        avatar.textContent = '👧';
       } else {
         avatar.textContent = (child.name || 'A')[0].toUpperCase();
       }
