@@ -223,6 +223,19 @@ const { Pool } = require('pg');
     console.warn('[user-columns-migrate]', e.message.slice(0,200));
   }
 
+  // Fallback: alter columns for articles & products (in case main migration skipped)
+  try {
+    const fpPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    await fpPool.query(`
+      ALTER TABLE articles ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);
+      ALTER TABLE products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]';
+    `);
+    await fpPool.end();
+    console.log('✓ Article/product columns ready');
+  } catch(e) {
+    console.warn('[fallback-migrate]', e.message.slice(0,200));
+  }
+
   // Auto seed video data if empty (background — jangan delay server start)
   setTimeout(async () => {
     try {
