@@ -2018,19 +2018,20 @@ async function loadChildProfileSettings() {
     cdData = child;
     const g = data.growth || {};
 
-    // Avatar — photo/emoji/gender
+    // Avatar — photo/emoji/SVG
     const avatar = document.getElementById('cd-avatar-settings');
     if (avatar) {
-      if (child.photo && child.photo.startsWith('http')) {
+      if (child.photo && typeof child.photo === 'string' && child.photo.startsWith('http')) {
         avatar.innerHTML = `<img src="${escapeHtml(child.photo)}" style="width:100%;height:100%;object-fit:cover;">`;
-      } else if (child.photo) {
-        avatar.textContent = child.photo;
+      } else if (child.photo && child.photo.length > 2) {
+        // New SVG avatar system (JSON) or legacy emoji
+        avatar.innerHTML = avatarGenerateSVG(child.photo, 72);
       } else if (child.gender === 'Laki-laki') {
-        avatar.textContent = '👦';
+        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'short-flat', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'navy' }, 72);
       } else if (child.gender === 'Perempuan') {
-        avatar.textContent = '👧';
+        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'long-straight', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'coral' }, 72);
       } else {
-        avatar.textContent = (child.name || 'A')[0].toUpperCase();
+        avatar.innerHTML = (child.name || 'A')[0].toUpperCase();
       }
     }
 
