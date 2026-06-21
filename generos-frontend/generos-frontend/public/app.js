@@ -1826,6 +1826,7 @@ async function loadChildProfileSettings() {
   try {
     const data = await Api.getChildProfile();
     const child = data.child || {};
+    cdData = child;
     const g = data.growth || {};
 
     // Avatar

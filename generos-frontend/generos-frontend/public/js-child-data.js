@@ -39,7 +39,7 @@ function showStep(step) {
   document.getElementById('child-form-title').textContent = titles[step - 1];
 
   // Step dots
-  document.querySelectorAll('.step-dot').forEach((dot, i) => {
+  document.querySelectorAll('.cd-step-dot').forEach((dot, i) => {
     const idx = i + 1;
     dot.classList.remove('active', 'done');
     if (idx === step) { dot.classList.add('active'); dot.style.background = '#E8682E'; }
@@ -70,7 +70,6 @@ function nextStep() {
 
 function buildReview() {
   const data = collectFormData();
-  const genderMap = { male: 'Laki-laki', female: 'Perempuan', '': '-' };
 
   const html = `
     <div class="cd-review-section">
@@ -78,7 +77,7 @@ function buildReview() {
       <div class="cd-review-item"><span class="cd-review-label">Nama Lengkap</span><span class="cd-review-value">${escapeHtml(data.child_name) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Nama Panggilan</span><span class="cd-review-value">${escapeHtml(data.child_nickname) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Tanggal Lahir</span><span class="cd-review-value">${data.child_dob || '-'}</span></div>
-      <div class="cd-review-item"><span class="cd-review-label">Jenis Kelamin</span><span class="cd-review-value">${genderMap[data.child_gender] || '-'}</span></div>
+      <div class="cd-review-item"><span class="cd-review-label">Jenis Kelamin</span><span class="cd-review-value">${data.child_gender || '-'}</span></div>
     </div>
     <div class="cd-review-section">
       <div class="cd-review-title">👶 Data Kelahiran</div>
