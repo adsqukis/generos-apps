@@ -7,7 +7,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Generos Care</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="login-icon.png">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="phone">
@@ -15,7 +16,7 @@
 
         <!-- ============ LOGIN PAGE ============ -->
         <div id="page-login" class="page login active">
-            <div class="login-logo">🧠</div>
+            <div class="login-logo"><img src="login-icon.png" alt="Generos Care" class="login-icon-img"></div>
             <h1>Generos Care</h1>
             <p class="subtitle">Teman tumbuh kembang anak Anda</p>
 
@@ -33,8 +34,10 @@
             </div>
 
             <div id="register-form" class="form-box hidden">
+                <h3 style="font-family:var(--font-heading);color:var(--primary);font-size:20px;margin-bottom:4px;text-align:center;">Mulai Perjalanan</h3>
+                <p style="font-family:var(--font-heading);color:var(--coral);font-size:16px;font-weight:600;margin-bottom:20px;text-align:center;">Tumbuh Kembang Buah Hati ✨</p>
                 <div class="form-group">
-                    <label>Nomor Telpon atau Email</label>
+                    <label>Nomor HP atau Email</label>
                     <input type="text" id="reg-identifier" placeholder="08xx xxxx xxxx atau email@example.com">
                 </div>
                 <div class="form-group">
@@ -161,7 +164,6 @@
                     <div id="reminders-list"><p class="info-text">Memuat...</p></div>
                 </div>
             </div>
-
 
             <!-- Growth Add Modal -->
             <div id="growth-modal" class="modal-overlay hidden">
@@ -803,28 +805,62 @@
             </div>
         </div>
 
-        <!-- ============ NAVIGATION BAR ============ -->
+        <!-- ============ MENU PAGE (hub: settings, chat, video, tools) ============ -->
+        <div id="page-menu" class="page hidden">
+            <div class="header" style="background:var(--primary);">
+                <h1 style="font-family:var(--font-heading);">☰ Menu</h1>
+            </div>
+            <div class="container">
+                <div class="menu-grid-full" id="menu-grid">
+                    <div class="menu-item-card" onclick="navigate('chat')">
+                        <span class="menu-item-icon">💬</span>
+                        <span class="menu-item-label">Chat Assistant</span>
+                    </div>
+                    <div class="menu-item-card" onclick="navigate('video')">
+                        <span class="menu-item-icon">🎬</span>
+                        <span class="menu-item-label">Video Edukasi</span>
+                    </div>
+                    <div class="menu-item-card" onclick="navigate('screening')">
+                        <span class="menu-item-icon">📋</span>
+                        <span class="menu-item-label">Skrining</span>
+                    </div>
+                    <div class="menu-item-card" onclick="navigate('stimulation')">
+                        <span class="menu-item-icon">🧩</span>
+                        <span class="menu-item-label">Stimulasi</span>
+                    </div>
+                    <div class="menu-item-card" onclick="navigate('tracking')">
+                        <span class="menu-item-icon">📈</span>
+                        <span class="menu-item-label">Tumbuh Kembang</span>
+                    </div>
+                    <div class="menu-item-card" onclick="navigate('settings')">
+                        <span class="menu-item-icon">⚙️</span>
+                        <span class="menu-item-label">Pengaturan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ NAVIGATION BAR (5-item: Design Spec) ============ -->
         <div id="nav-bar" class="nav-bar hidden">
-            <button class="nav-btn admin-only" data-page="settings" id="nav-btn-settings" style="display:none;">
-                <span>⚙️</span><span>Setting</span>
-            </button>
-            <button class="nav-btn" data-page="home">
-                <span>🏠</span><span>Beranda</span>
-            </button>
-            <button class="nav-btn" data-page="development">
-                <span>🌟</span><span>Kembang</span>
-            </button>
-            <button class="nav-btn" data-page="video">
-                <span>🎬</span><span>Video</span>
-            </button>
-            <button class="nav-btn" data-page="knowledge">
-                <span>📚</span><span>Artikel</span>
-            </button>
-            <button class="nav-btn" data-page="chat">
-                <span>💬</span><span>Chat</span>
+            <button class="nav-btn active" data-page="home">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Beranda</span>
             </button>
             <button class="nav-btn" data-page="shop">
-                <span>🛍️</span><span>Belanja</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <span>Belanja</span>
+            </button>
+            <button class="nav-btn" data-page="development">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12a5 5 0 00-5-5H2"/><path d="M12 12a5 5 0 015-5h5"/><path d="M7 3v3"/><path d="M17 3v3"/></svg>
+                <span>Kembang</span>
+            </button>
+            <button class="nav-btn" data-page="knowledge">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
+                <span>Artikel</span>
+            </button>
+            <button class="nav-btn" data-page="menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <span>Menu</span>
             </button>
         </div>
     </div>
@@ -845,6 +881,6 @@
     <script src="config.js"></script>
     <script src="api.js"></script>
     <script src="js-child-data.js"></script>
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>

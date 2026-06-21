@@ -403,18 +403,14 @@ function navigate(page) {
     navBar.classList.add('hidden');
   } else {
     navBar.classList.remove('hidden');
+    // Highlight active nav button
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.page === page);
     });
-    // Show Settings nav button only for admin
-    const user = Api.getUser();
-    const settingsBtn = document.getElementById('nav-btn-settings');
-    if (settingsBtn) {
-      settingsBtn.style.display = (user && user.role === 'admin') ? '' : 'none';
-    }
-    // Hide top-right gear icon for admin (using nav instead)
+    // Hide top-right gear icon for admin (using settings page instead)
     const headerSettings = document.getElementById('btn-settings');
     if (headerSettings) {
+      const user = Api.getUser();
       headerSettings.style.display = (user && user.role === 'admin') ? 'none' : '';
     }
   }
