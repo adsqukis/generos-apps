@@ -159,6 +159,24 @@ router.post(
 );
 
 // ============================
+// PROMOTE TO ADMIN (first admin only)
+// ============================
+router.post('/promote-admin', authenticateToken, async (req, res) => {
+  try {
+    // Only works if no admin exists yet
+    const adminCheck = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'admin'");
+    if (parseInt(adminCheck.rows[0].count) > 0) {
+      return res.status(403).json({ error: 'Sudah ada admin. Fitur ini hanya untuk setup awal.' });
+    }
+    await pool.query('UPDATE users SET role = $1 WHERE id = $2', ['admin', req.user.id]);
+    res.json({ message: 'Akun Anda sekarang adalah admin', role: 'admin' });
+  } catch (err) {
+    console.error('Promote admin error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// ============================
 // LOGIN (phone or email)
 // ============================
 router.post(
