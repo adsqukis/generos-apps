@@ -1580,6 +1580,13 @@ textarea {
   font-weight: 600;
   cursor: pointer;
 }
+
+.btn-sm.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 2px solid var(--danger);
+  width: auto;
+}
 .sleep-hist-group {
   margin-bottom: 12px;
 }

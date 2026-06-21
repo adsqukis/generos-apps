@@ -206,6 +206,10 @@ const Api = {
     return this.request('/shop/products');
   },
 
+  async getProduct(id) {
+    return this.request(`/shop/products/${id}`);
+  },
+
   async trackProductClick(productId) {
     return this.request(`/shop/products/${productId}/click`, { method: 'POST' });
   },
@@ -213,6 +217,10 @@ const Api = {
   // ============ VIDEOS ============
   async getVideos() {
     return this.request('/videos');
+  },
+
+  async getVideo(id) {
+    return this.request(`/videos/${id}`);
   },
 
   // ============ ADMIN ============
@@ -228,12 +236,36 @@ const Api = {
     return this.request('/shop/products', { method: 'POST', body: JSON.stringify(payload) });
   },
 
+  async updateArticle(id, payload) {
+    return this.request(`/knowledge/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async deleteArticle(id) {
+    return this.request(`/knowledge/${id}`, { method: 'DELETE' });
+  },
+
   async getClickAnalytics() {
     return this.request('/shop/analytics/clicks');
   },
 
   async createVideo(payload) {
     return this.request('/videos', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async updateVideo(id, payload) {
+    return this.request(`/videos/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async deleteVideo(id) {
+    return this.request(`/videos/${id}`, { method: 'DELETE' });
+  },
+
+  async updateProduct(id, payload) {
+    return this.request(`/shop/products/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async deleteProduct(id) {
+    return this.request(`/shop/products/${id}`, { method: 'DELETE' });
   },
 
   async getSettings() {

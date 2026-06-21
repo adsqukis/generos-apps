@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    let query = `SELECT id, title, slug, category, summary, published_at FROM articles WHERE is_active = true`;
+    let query = `SELECT id, title, slug, category, summary, content, red_flags, when_to_see_doctor, published_at FROM articles WHERE is_active = true`;
     const params = [];
 
     if (category) {

@@ -255,12 +255,24 @@ function initApp() {
   // Settings page admin buttons (show forms)
   safeAddListener('settings-content', 'click', (e) => {
     const action = e.target.dataset.action;
-    if (action === 'show-admin-add-article') showAdminAddArticle();
+    if (action === 'show-admin-list-articles') showAdminListArticles();
+    else if (action === 'show-admin-list-videos') showAdminListVideos();
+    else if (action === 'show-admin-list-products') showAdminListProducts();
+    else if (action === 'show-admin-add-article') showAdminAddArticle();
     else if (action === 'show-admin-add-video') showAdminAddVideo();
     else if (action === 'show-admin-add-product') showAdminAddProduct();
     else if (action === 'submit-admin-article') submitAdminArticle();
     else if (action === 'submit-admin-video') submitAdminVideo();
     else if (action === 'submit-admin-product') submitAdminProduct();
+    else if (action === 'submit-admin-edit-article') submitAdminEditArticle();
+    else if (action === 'submit-admin-edit-video') submitAdminEditVideo();
+    else if (action === 'submit-admin-edit-product') submitAdminEditProduct();
+    else if (action === 'show-admin-edit-article') showAdminEditArticle(e);
+    else if (action === 'show-admin-edit-video') showAdminEditVideo(e);
+    else if (action === 'show-admin-edit-product') showAdminEditProduct(e);
+    else if (action === 'show-admin-delete-article') confirmDelete('article', e);
+    else if (action === 'show-admin-delete-video') confirmDelete('video', e);
+    else if (action === 'show-admin-delete-product') confirmDelete('product', e);
     else if (action === 'show-admin-analytics') showAdminAnalytics();
     else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
     else if (action === 'save-cs-settings') saveCsSettings();
@@ -1911,10 +1923,10 @@ function loadSettings() {
     const adminHtml = `
       <div class="admin-section" style="margin-top: 20px;">
         <h4>🔧 Admin Panel</h4>
-        <button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Artikel</button>
-        <button class="btn-secondary" data-action="show-admin-add-video">🎬 Tambah Video</button>
-        <button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Produk</button>
-        <button class="btn-secondary" data-action="show-admin-analytics">📊 Lihat Analytics</button>
+        <button class="btn-secondary" data-action="show-admin-list-articles">📋 Artikel</button>
+        <button class="btn-secondary" data-action="show-admin-list-videos">🎬 Video</button>
+        <button class="btn-secondary" data-action="show-admin-list-products">📦 Produk</button>
+        <button class="btn-secondary" data-action="show-admin-analytics">📊 Analytics</button>
         <div id="admin-panel-content"></div>
       </div>
     `;
@@ -2148,6 +2160,257 @@ async function showAdminAnalytics() {
       data.analytics
         .map((item) => `<div class="card" style="border-left:none;"><p class="title">${escapeHtml(item.name)}</p><p class="desc">${item.click_count} klik</p></div>`)
         .join('');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: List Articles
+// ============================
+async function showAdminListArticles() {
+  const panel = document.getElementById('admin-panel-content');
+  try {
+    const data = await Api.getArticles();
+    panel.innerHTML =
+      '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
+        '<button class="btn-secondary" data-action="show-admin-add-article">➕ Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-articles">🔄 Refresh</button>' +
+      '</div>' +
+      (data.articles.length === 0
+        ? '<p class="info-text">Belum ada artikel.</p>'
+        : data.articles.map((a) =>
+            `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              <p class="title" style="font-size:14px;">${escapeHtml(a.title)}</p>
+              <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(a.category || '')} · ${a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : ''}</p>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button class="btn-sm" data-action="show-admin-edit-article" data-id="${a.id}" data-item='${encodeURIComponent(JSON.stringify(a))}'>✏️ Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-article" data-id="${a.id}" data-name="${escapeHtml(a.title)}">🗑 Hapus</button>
+              </div>
+            </div>`
+          ).join('')
+      );
+  } catch (err) {
+    panel.innerHTML = '<p class="info-text" style="color:red;">Gagal memuat daftar artikel.</p>';
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Edit Article
+// ============================
+function showAdminEditArticle(e) {
+  const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML = `
+    <h4 style="margin:0 0 10px;">✏️ Edit Artikel</h4>
+    <div class="form-group"><label>Judul</label><input type="text" id="adm-art-title" value="${escapeHtml(item.title || '')}"></div>
+    <div class="form-group"><label>Kategori</label>
+      <select id="adm-art-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
+        <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
+        <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
+        <option value="brain" ${item.category === 'brain' ? 'selected' : ''}>Otak</option>
+        <option value="tantrum" ${item.category === 'tantrum' ? 'selected' : ''}>Tantrum</option>
+        <option value="adhd" ${item.category === 'adhd' ? 'selected' : ''}>ADHD</option>
+        <option value="autism" ${item.category === 'autism' ? 'selected' : ''}>Autisme</option>
+        <option value="other" ${item.category === 'other' ? 'selected' : ''}>Lainnya</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Ringkasan</label><textarea id="adm-art-summary">${escapeHtml(item.summary || '')}</textarea></div>
+    <div class="form-group"><label>Konten</label><textarea id="adm-art-content" style="height:120px;">${escapeHtml(item.content || '')}</textarea></div>
+    <div class="form-group"><label>Tanda Bahaya (opsional)</label><textarea id="adm-art-redflags">${escapeHtml(item.red_flags || '')}</textarea></div>
+    <div class="form-group"><label>Kapan ke Dokter (opsional)</label><textarea id="adm-art-doctor">${escapeHtml(item.when_to_see_doctor || '')}</textarea></div>
+    <input type="hidden" id="adm-edit-id" value="${item.id}">
+    <button class="btn-primary" data-action="submit-admin-edit-article">💾 Simpan Perubahan</button>
+    <button class="btn-secondary" data-action="show-admin-list-articles" style="margin-left:6px;">← Kembali</button>
+  `;
+}
+
+async function submitAdminEditArticle() {
+  const id = document.getElementById('adm-edit-id').value;
+  try {
+    await Api.updateArticle(id, {
+      title: document.getElementById('adm-art-title').value,
+      category: document.getElementById('adm-art-category').value,
+      summary: document.getElementById('adm-art-summary').value,
+      content: document.getElementById('adm-art-content').value,
+      red_flags: document.getElementById('adm-art-redflags').value,
+      when_to_see_doctor: document.getElementById('adm-art-doctor').value,
+    });
+    showToast('Artikel berhasil diperbarui', 'success');
+    showAdminListArticles();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: List Videos
+// ============================
+async function showAdminListVideos() {
+  const panel = document.getElementById('admin-panel-content');
+  try {
+    const data = await Api.getVideos();
+    panel.innerHTML =
+      '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
+        '<button class="btn-secondary" data-action="show-admin-add-video">➕ Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-videos">🔄 Refresh</button>' +
+      '</div>' +
+      (data.videos.length === 0
+        ? '<p class="info-text">Belum ada video.</p>'
+        : data.videos.map((v) =>
+            `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              <p class="title" style="font-size:14px;">${escapeHtml(v.title)}</p>
+              <p class="desc" style="font-size:12px;color:#666;">${escapeHtml(v.category || '')} · ${v.duration_minutes ? v.duration_minutes + ' menit' : ''}</p>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button class="btn-sm" data-action="show-admin-edit-video" data-id="${v.id}" data-item='${encodeURIComponent(JSON.stringify(v))}'>✏️ Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-video" data-id="${v.id}" data-name="${escapeHtml(v.title)}">🗑 Hapus</button>
+              </div>
+            </div>`
+          ).join('')
+      );
+  } catch (err) {
+    panel.innerHTML = '<p class="info-text" style="color:red;">Gagal memuat daftar video.</p>';
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Edit Video
+// ============================
+function showAdminEditVideo(e) {
+  const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML = `
+    <h4 style="margin:0 0 10px;">✏️ Edit Video</h4>
+    <div class="form-group"><label>Judul Video</label><input type="text" id="adm-vid-title" value="${escapeHtml(item.title || '')}"></div>
+    <div class="form-group"><label>URL Video (YouTube)</label><input type="text" id="adm-vid-url" value="${escapeHtml(item.video_url || '')}"></div>
+    <div class="form-group"><label>URL Thumbnail (opsional)</label><input type="text" id="adm-vid-thumb" value="${escapeHtml(item.thumbnail_url || '')}"></div>
+    <div class="form-group"><label>Kategori</label>
+      <select id="adm-vid-category" style="width:100%; padding:10px; border:2px solid #E5E7EB; border-radius:8px;">
+        <option value="speech" ${item.category === 'speech' ? 'selected' : ''}>Bicara</option>
+        <option value="motor" ${item.category === 'motor' ? 'selected' : ''}>Motorik</option>
+        <option value="immunity" ${item.category === 'immunity' ? 'selected' : ''}>Imunitas</option>
+        <option value="cognitive" ${item.category === 'cognitive' ? 'selected' : ''}>Kognitif</option>
+        <option value="parenting" ${item.category === 'parenting' ? 'selected' : ''}>Parenting</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Durasi (menit, opsional)</label><input type="number" id="adm-vid-dur" value="${item.duration_minutes || ''}"></div>
+    <div class="form-group"><label>Rentang Usia (opsional)</label><input type="text" id="adm-vid-age" value="${escapeHtml(item.age_range || '')}"></div>
+    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-vid-desc">${escapeHtml(item.description || '')}</textarea></div>
+    <input type="hidden" id="adm-edit-id" value="${item.id}">
+    <button class="btn-primary" data-action="submit-admin-edit-video">💾 Simpan Perubahan</button>
+    <button class="btn-secondary" data-action="show-admin-list-videos" style="margin-left:6px;">← Kembali</button>
+  `;
+}
+
+async function submitAdminEditVideo() {
+  const id = document.getElementById('adm-edit-id').value;
+  try {
+    await Api.updateVideo(id, {
+      title: document.getElementById('adm-vid-title').value,
+      video_url: document.getElementById('adm-vid-url').value,
+      thumbnail_url: document.getElementById('adm-vid-thumb').value || null,
+      category: document.getElementById('adm-vid-category').value,
+      duration_minutes: parseInt(document.getElementById('adm-vid-dur').value) || null,
+      age_range: document.getElementById('adm-vid-age').value || null,
+      description: document.getElementById('adm-vid-desc').value || null,
+    });
+    showToast('Video berhasil diperbarui', 'success');
+    showAdminListVideos();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: List Products
+// ============================
+async function showAdminListProducts() {
+  const panel = document.getElementById('admin-panel-content');
+  try {
+    const data = await Api.getProducts();
+    panel.innerHTML =
+      '<div style="display:flex;gap:6px;margin-bottom:10px;">' +
+        '<button class="btn-secondary" data-action="show-admin-add-product">➕ Tambah Baru</button>' +
+        '<button class="btn-secondary" data-action="show-admin-list-products">🔄 Refresh</button>' +
+      '</div>' +
+      (data.products.length === 0
+        ? '<p class="info-text">Belum ada produk.</p>'
+        : data.products.map((p) =>
+            `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
+              <p class="title" style="font-size:14px;">${escapeHtml(p.name)}</p>
+              <p class="desc" style="font-size:12px;color:#666;">Rp ${Number(p.price).toLocaleString('id-ID')}${p.image_url ? ' · 🖼 Ada gambar' : ''}</p>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button class="btn-sm" data-action="show-admin-edit-product" data-id="${p.id}" data-item='${encodeURIComponent(JSON.stringify(p))}'>✏️ Edit</button>
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-product" data-id="${p.id}" data-name="${escapeHtml(p.name)}">🗑 Hapus</button>
+              </div>
+            </div>`
+          ).join('')
+      );
+  } catch (err) {
+    panel.innerHTML = '<p class="info-text" style="color:red;">Gagal memuat daftar produk.</p>';
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Edit Product
+// ============================
+function showAdminEditProduct(e) {
+  const item = JSON.parse(decodeURIComponent(e.target.dataset.item));
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML = `
+    <h4 style="margin:0 0 10px;">✏️ Edit Produk</h4>
+    <div class="form-group"><label>Nama Produk</label><input type="text" id="adm-prod-name" value="${escapeHtml(item.name || '')}"></div>
+    <div class="form-group"><label>Harga (Rp)</label><input type="number" id="adm-prod-price" value="${item.price || ''}"></div>
+    <div class="form-group"><label>Link Shopee</label><input type="text" id="adm-prod-link" value="${escapeHtml(item.shopee_link || '')}"></div>
+    <div class="form-group"><label>Deskripsi (opsional)</label><textarea id="adm-prod-desc">${escapeHtml(item.description || '')}</textarea></div>
+    <div class="form-group"><label>URL Gambar (opsional)</label><input type="text" id="adm-prod-image" value="${escapeHtml(item.image_url || '')}"></div>
+    <div class="form-group"><label>Kategori (opsional)</label><input type="text" id="adm-prod-category" value="${escapeHtml(item.category || '')}"></div>
+    <input type="hidden" id="adm-edit-id" value="${item.id}">
+    <button class="btn-primary" data-action="submit-admin-edit-product">💾 Simpan Perubahan</button>
+    <button class="btn-secondary" data-action="show-admin-list-products" style="margin-left:6px;">← Kembali</button>
+  `;
+}
+
+async function submitAdminEditProduct() {
+  const id = document.getElementById('adm-edit-id').value;
+  try {
+    await Api.updateProduct(id, {
+      name: document.getElementById('adm-prod-name').value,
+      price: parseFloat(document.getElementById('adm-prod-price').value),
+      shopee_link: document.getElementById('adm-prod-link').value,
+      description: document.getElementById('adm-prod-desc').value || null,
+      image_url: document.getElementById('adm-prod-image').value || null,
+      category: document.getElementById('adm-prod-category').value || null,
+    });
+    showToast('Produk berhasil diperbarui', 'success');
+    showAdminListProducts();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Confirm & Delete
+// ============================
+async function confirmDelete(type, e) {
+  const id = e.target.dataset.id;
+  const name = e.target.dataset.name || id;
+  const typeLabel = { article: 'artikel', video: 'video', product: 'produk' }[type] || type;
+
+  if (!confirm(`Hapus ${typeLabel} "${name}"?`)) return;
+
+  try {
+    if (type === 'article') await Api.deleteArticle(id);
+    else if (type === 'video') await Api.deleteVideo(id);
+    else if (type === 'product') await Api.deleteProduct(id);
+    showToast(`${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} berhasil dihapus`, 'success');
+    // Refresh the list
+    if (type === 'article') showAdminListArticles();
+    else if (type === 'video') showAdminListVideos();
+    else if (type === 'product') showAdminListProducts();
   } catch (err) {
     showToast(err.message, 'error');
   }

@@ -118,4 +118,89 @@ router.post(
   }
 );
 
+// ============================
+// PUT /api/videos/:id — Admin update video
+// ============================
+router.put(
+  '/:id',
+  authenticateToken,
+  requireAdmin,
+  [
+    body('title').optional().notEmpty().withMessage('Judul video tidak boleh kosong'),
+    body('category').optional().isIn(['speech', 'motor', 'immunity', 'cognitive', 'parenting'])
+      .withMessage('Kategori harus salah satu: speech, motor, immunity, cognitive, parenting'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+      title, description, duration_minutes, video_url,
+      thumbnail_url, category, age_range, source, is_active
+    } = req.body;
+
+    try {
+      const result = await pool.query(
+        `UPDATE video_education SET
+          title = COALESCE($1, title),
+          description = COALESCE($2, description),
+          duration_minutes = COALESCE($3, duration_minutes),
+          video_url = COALESCE($4, video_url),
+          thumbnail_url = COALESCE($5, thumbnail_url),
+          category = COALESCE($6, category),
+          age_range = COALESCE($7, age_range),
+          source = COALESCE($8, source),
+          is_active = COALESCE($9, is_active),
+          updated_at = NOW()
+         WHERE id = $10 AND is_active = true
+         RETURNING *`,
+        [
+          title || null,
+          description !== undefined ? description : null,
+          duration_minutes !== undefined ? duration_minutes : null,
+          video_url || null,
+          thumbnail_url !== undefined ? thumbnail_url : null,
+          category || null,
+          age_range !== undefined ? age_range : null,
+          source || null,
+          is_active !== undefined ? is_active : null,
+          req.params.id
+        ]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Video tidak ditemukan' });
+      }
+
+      res.json({ video: result.rows[0] });
+    } catch (err) {
+      console.error('Update video error:', err);
+      res.status(500).json({ error: 'Terjadi kesalahan server' });
+    }
+  }
+);
+
+// ============================
+// DELETE /api/videos/:id — Admin soft delete video
+// ============================
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE video_education SET is_active = false, updated_at = NOW() WHERE id = $1 RETURNING id`,
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Video tidak ditemukan' });
+    }
+
+    res.json({ message: 'Video berhasil dihapus' });
+  } catch (err) {
+    console.error('Delete video error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
 module.exports = router;
