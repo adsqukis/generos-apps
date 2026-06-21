@@ -208,7 +208,14 @@ function initApp() {
     if (card && card.dataset.videoId) {
       const videos = window._videosCache || [];
       const video = videos.find(v => v.id == card.dataset.videoId);
-      if (video) openVideoModal(video);
+      if (video && video.video_url) {
+        // Convert embed URL to watch URL if needed
+        let url = video.video_url;
+        if (url.includes('/embed/')) {
+          url = url.replace('/embed/', '/watch?v=');
+        }
+        window.open(url, '_blank');
+      }
     }
   });
 
