@@ -3709,6 +3709,31 @@ async function loadTrackerDetailPage() {
   document.getElementById('tracker-form-fields').innerHTML = cfg.formFields();
   document.getElementById('g-sl-date').value = today;
 
+  // Set character illustration based on tracker type
+  const characterMap = {
+    sleep: 'child-sleep',
+    feeding: 'child-eating',
+    eating: 'child-eating',
+    drink: 'child-playful',
+    poop: 'child-thinking',
+    pee: 'child-playful',
+  };
+  const charName = characterMap[type] || 'child-playful';
+  const header = document.querySelector('#page-tracker-detail .header');
+  if (header) {
+    const existing = header.querySelector('.header-character');
+    if (!existing) {
+      const img = document.createElement('img');
+      img.className = 'header-character';
+      img.src = `images/characters/${charName}.png`;
+      img.alt = '';
+      img.style.cssText = 'width:32px;height:32px;object-fit:contain;opacity:0.9;';
+      header.appendChild(img);
+    } else {
+      existing.src = `images/characters/${charName}.png`;
+    }
+  }
+
   await loadTrackerToday(type, cfg);
   await loadTrackerAnalytics(type, cfg);
   await loadTrackerArticles(type, cfg);

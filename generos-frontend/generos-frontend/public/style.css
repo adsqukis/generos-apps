@@ -409,6 +409,50 @@ body {
   background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 15%, #FFFFFF 85%, #FFF5F0 100%);
 }
 
+#page-tracking {
+  background: linear-gradient(180deg, #E8F4F0 0%, #FFFFFF 20%, #FFFFFF 80%, #F0FFF5 100%);
+}
+
+#page-video {
+  background: linear-gradient(180deg, #FFF0F4 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-knowledge {
+  background: linear-gradient(180deg, #F5F0FF 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-chat {
+  background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-shop {
+  background: linear-gradient(180deg, #FFF8F0 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-settings {
+  background: linear-gradient(180deg, #F5F5F5 0%, #FFFFFF 15%, #FFFFFF 100%);
+}
+
+#page-screening, #page-screening-result {
+  background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-stimulation {
+  background: linear-gradient(180deg, #FFF5F0 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-sleep {
+  background: linear-gradient(180deg, #E8F4FF 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-development {
+  background: linear-gradient(180deg, #F0FFF4 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
+#page-tracker-detail {
+  background: linear-gradient(180deg, #FFF8F0 0%, #FFFFFF 20%, #FFFFFF 100%);
+}
+
 .login {
   background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 35%);
 }
