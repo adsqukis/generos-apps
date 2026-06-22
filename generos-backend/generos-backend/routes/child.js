@@ -37,11 +37,11 @@ router.get('/profile', async (req, res) => {
       }
     }
 
-    // Ambil growth terakhir
+    // Ambil growth terakhir (pakai created_at DESC juga biar akurat)
     const growthResult = await pool.query(
       `SELECT weight_kg, height_cm, head_circumference_cm, record_date
        FROM growth_records WHERE user_id = $1
-       ORDER BY record_date DESC LIMIT 1`,
+       ORDER BY record_date DESC, created_at DESC LIMIT 1`,
       [req.user.id]
     );
     const lastGrowth = growthResult.rows[0] || null;
