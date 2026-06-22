@@ -517,7 +517,10 @@ async function loadHomeData() {
     const apiData = await Api.getChildProfile();
     childData = apiData.child || null;
     childGrowth = apiData.growth || null;
-  } catch (e) { /* fallback ke localStorage */ }
+  } catch (e) {
+    console.error('[loadHomeData] getChildProfile error:', e);
+    /* fallback ke localStorage */
+  }
 
   // Merge: API data lebih prioritas, localStorage sebagai fallback
   const childName = (childData && childData.name) || user.child_name || 'Anak';
@@ -591,6 +594,7 @@ async function loadChildProfile(user, growthRecords) {
 
   // Ambil data pertumbuhan terakhir (dari parameter)
   const latest = growthRecords && growthRecords[0];
+  console.log('[loadChildProfile] growthRecords:', growthRecords, 'latest:', latest);
   if (latest) {
       document.getElementById('stat-bb').textContent = latest.weight_kg != null ? `${latest.weight_kg} kg` : '-';
       document.getElementById('stat-tb').textContent = latest.height_cm != null ? `${latest.height_cm} cm` : '-';
