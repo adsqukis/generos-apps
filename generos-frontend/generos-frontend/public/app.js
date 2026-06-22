@@ -864,7 +864,11 @@ async function loadBerandaGrowthRingkasan(growthRecords) {
   } catch (e) { /* skip */ }
 
   const container = document.getElementById('home-recent-tracking');
-  container.innerHTML = html || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang!</p>';
+  if (!html) {
+    container.innerHTML = '<div class="character-empty"><img src="images/characters/child-thinking.png" alt="Belum ada data"><p>Belum ada data. Mulai catat tumbuh kembang!</p></div>';
+  } else {
+    container.innerHTML = html;
+  }
 }
 
 // === 6. Reminders ===
@@ -874,7 +878,7 @@ async function loadReminders() {
     const data = await Api.getReminders();
     const reminders = data.reminders || [];
     if (reminders.length === 0) {
-      container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
+      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
       return;
     }
     container.innerHTML = reminders.slice(0, 3).map(r => {
@@ -898,7 +902,7 @@ async function loadReminders() {
           this.closest('.reminder-item').remove();
           // If no more items, show empty state
           if (container.querySelectorAll('.reminder-item').length === 0) {
-            container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
+            container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
           }
         } catch (e) {
           this.textContent = '✗';
@@ -908,7 +912,7 @@ async function loadReminders() {
       });
     });
   } catch (e) {
-    container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
+    container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
   }
 }
 

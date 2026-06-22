@@ -443,44 +443,124 @@ router.get('/development', async (req, res) => {
 // ============================
 // REMINDERS (upcoming immunizations + doctor visits)
 // ============================
+
+// IDAI Jadwal Imunisasi Anak (rekomendasi IDAI 2023)
+const IDAI_SCHEDULE = [
+  { age_months: 0, vaccine: 'Hepatitis B (Hb-0)' },
+  { age_months: 1, vaccine: 'BCG' },
+  { age_months: 1, vaccine: 'Polio 1' },
+  { age_months: 2, vaccine: 'DPT-HB-Hib 1' },
+  { age_months: 2, vaccine: 'Polio 2' },
+  { age_months: 2, vaccine: 'PCV 1' },
+  { age_months: 2, vaccine: 'Rotavirus 1' },
+  { age_months: 3, vaccine: 'DPT-HB-Hib 2' },
+  { age_months: 3, vaccine: 'Polio 3' },
+  { age_months: 3, vaccine: 'Rotavirus 2' },
+  { age_months: 4, vaccine: 'DPT-HB-Hib 3' },
+  { age_months: 4, vaccine: 'Polio 4' },
+  { age_months: 4, vaccine: 'IPV 1' },
+  { age_months: 4, vaccine: 'PCV 2' },
+  { age_months: 4, vaccine: 'Rotavirus 3' },
+  { age_months: 6, vaccine: 'Influenza 1' },
+  { age_months: 9, vaccine: 'Campak/MR 1' },
+  { age_months: 12, vaccine: 'MMR' },
+  { age_months: 12, vaccine: 'PCV Booster' },
+  { age_months: 15, vaccine: 'Hib Booster' },
+  { age_months: 18, vaccine: 'DPT-HB-Hib 4' },
+  { age_months: 18, vaccine: 'Campak/MR 2' },
+  { age_months: 18, vaccine: 'Polio 5 (OPV)' },
+  { age_months: 24, vaccine: 'Hepatitis A' },
+  { age_months: 24, vaccine: 'Tifoid' },
+  { age_months: 36, vaccine: 'Influenza (tahunan)' },
+  { age_months: 60, vaccine: 'DPT Booster' },
+  { age_months: 60, vaccine: 'Polio Booster' },
+  { age_months: 72, vaccine: 'DT' },
+  { age_months: 72, vaccine: 'Campak/MR 3' },
+  { age_months: 120, vaccine: 'HPV (dosis 1)' },
+  { age_months: 122, vaccine: 'HPV (dosis 2)' },
+  { age_months: 126, vaccine: 'HPV (dosis 3)' },
+  { age_months: 144, vaccine: 'Td Booster' },
+  { age_months: 216, vaccine: 'Td Booster' },
+];
+
 router.get('/reminders', async (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
   try {
-    const [immun, visits] = await Promise.all([
+    // 1. Get child DOB + existing immunization records
+    const [userResult, immunResult, visitsResult] = await Promise.all([
+      pool.query('SELECT child_dob FROM users WHERE id = $1', [req.user.id]),
       pool.query(
-        `SELECT vaccine_name, next_schedule AS due_date
-         FROM immunization_records
-         WHERE user_id = $1 AND next_schedule IS NOT NULL AND next_schedule >= $2
-         ORDER BY next_schedule ASC LIMIT 5`,
-        [req.user.id, today]
+        `SELECT vaccine_name FROM immunization_records WHERE user_id = $1`,
+        [req.user.id]
       ),
       pool.query(
         `SELECT doctor_name, reason, next_visit AS due_date
          FROM doctor_visits
-         WHERE user_id = $1 AND next_visit IS NOT NULL AND next_visit >= $2
+         WHERE user_id = $1 AND next_visit IS NOT NULL AND next_visit >= $2::date
          ORDER BY next_visit ASC LIMIT 5`,
-        [req.user.id, today]
+        [req.user.id, todayStr]
       ),
     ]);
 
-    const daysUntil = (d) => Math.ceil((new Date(d) - new Date(today)) / (1000 * 60 * 60 * 24));
+    // 2. Calculate child age in months
+    const childDob = userResult.rows[0]?.child_dob;
+    const recordedVaccines = new Set(immunResult.rows.map(r => r.vaccine_name.trim().toLowerCase()));
 
-    const reminders = [
-      ...immun.rows.map((r) => ({
-        type: 'immunization',
-        icon: '💉',
-        title: `Imunisasi ${r.vaccine_name}`,
-        due_date: r.due_date,
-        days_left: daysUntil(r.due_date),
-      })),
-      ...visits.rows.map((r) => ({
+    const daysUntil = (d) => Math.ceil((new Date(d) - today) / (1000 * 60 * 60 * 24));
+
+    // 3. Generate reminders from IDAI schedule
+    let reminders = [];
+
+    if (childDob) {
+      const dob = new Date(childDob);
+      const ageMonths = (today.getFullYear() - dob.getFullYear()) * 12
+        + (today.getMonth() - dob.getMonth())
+        + (today.getDate() - dob.getDate()) / 30.4375;
+
+      for (const item of IDAI_SCHEDULE) {
+        // Skip if vaccine already recorded
+        if (recordedVaccines.has(item.vaccine.trim().toLowerCase())) continue;
+
+        // Calculate due date: DOB + age_months
+        const dueDate = new Date(dob);
+        dueDate.setMonth(dob.getMonth() + item.age_months);
+        const dueStr = dueDate.toISOString().split('T')[0];
+
+        // Show if due within -7 days (overdue) to +3 months (upcoming)
+        const daysDiff = daysUntil(dueStr);
+        if (daysDiff > 90) continue; // too far away
+        if (daysDiff < -365) continue; // too old (>1 year overdue, skip)
+
+        reminders.push({
+          type: 'imunisasi',
+          icon: '💉',
+          title: `Imunisasi ${item.vaccine}`,
+          due_date: dueStr,
+          days_left: daysDiff,
+        });
+      }
+    }
+
+    // 4. Add doctor visits
+    for (const row of visitsResult.rows) {
+      reminders.push({
         type: 'doctor_visit',
         icon: '🏥',
-        title: r.doctor_name ? `Kontrol Dokter (${r.doctor_name})` : 'Kontrol Dokter',
-        due_date: r.due_date,
-        days_left: daysUntil(r.due_date),
-      })),
-    ].sort((a, b) => a.days_left - b.days_left);
+        title: row.doctor_name ? `Kontrol Dokter (${row.doctor_name})` : 'Kontrol Dokter',
+        due_date: row.due_date,
+        days_left: daysUntil(row.due_date),
+      });
+    }
+
+    // 5. Sort & limit
+    reminders.sort((a, b) => {
+      // Show overdue items first (negative days_left), then upcoming
+      if (a.days_left < 0 && b.days_left >= 0) return -1;
+      if (a.days_left >= 0 && b.days_left < 0) return 1;
+      return a.days_left - b.days_left;
+    });
+    reminders = reminders.slice(0, 5);
 
     res.json({ reminders });
   } catch (err) {

@@ -24,7 +24,7 @@
       .login { background: #E8F0FF; }
       .logo-circle { background: #003DA5; }
     </style>
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
     <div class="phone">
@@ -39,6 +39,10 @@
             </div>
             <h1>Generos Care</h1>
             <p class="subtitle">Teman tumbuh kembang anak Anda</p>
+          </div>
+
+          <div class="login-character-wrap">
+            <img src="images/characters/parent-welcome.png" alt="Orang tua" class="login-character-img">
           </div>
 
           <div class="login-card">
@@ -106,9 +110,12 @@
         <!-- ============ HOME PAGE ============ -->
         <div id="page-home" class="page hidden">
             <div id="home-header">
-                <div>
+                <div class="character-greeting">
+                  <img src="images/characters/child-playful.png" alt="Anak" class="character-greeting-img">
+                  <div>
                     <p class="greeting" id="home-greeting">Hi!</p>
                     <p class="greeting-sub">Pantau tumbuh kembang si kecil</p>
+                  </div>
                 </div>
                 <div class="header-actions">
                     <button class="icon-btn-round" id="btn-notif"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
@@ -118,6 +125,9 @@
             <div class="container">
                 <!-- Child Profile Card -->
                 <div id="child-profile" class="child-card">
+                    <div class="child-card-deco">
+                      <img src="images/characters/child-excited.png" alt="" class="child-card-deco-img">
+                    </div>
                     <div class="child-top">
                         <div class="child-avatar" id="child-avatar">·</div>
                         <div class="child-info">
@@ -183,9 +193,14 @@
 
                 <!-- Development Today -->
                 <div id="development-today" class="card info-card" style="cursor:default;">
-                    <p class="cat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Milestone Hari Ini</p>
-                    <p class="title" id="dev-title">Memuat...</p>
-                    <p class="desc" id="dev-text"></p>
+                    <div style="display:flex;align-items:flex-start;gap:12px;">
+                      <img src="images/characters/child-excited.png" alt="" class="character-card-img" style="width:48px;height:48px;flex-shrink:0;">
+                      <div>
+                        <p class="cat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Milestone Hari Ini</p>
+                        <p class="title" id="dev-title">Memuat...</p>
+                        <p class="desc" id="dev-text"></p>
+                      </div>
+                    </div>
                 </div>
 
                 <!-- Quick menu (akses skrining & stimulasi) -->
@@ -211,6 +226,9 @@
             <!-- Growth Add Modal -->
             <div id="growth-modal" class="modal-overlay hidden">
                 <div class="modal-box">
+                    <div class="modal-peek">
+                      <img src="images/characters/modal-peek-happy.png" alt="" class="modal-peek-img">
+                    </div>
                     <div class="modal-head">
                         <h3>Tambah Data Pertumbuhan</h3>
                         <button class="modal-close" data-close-modal="growth-modal">✕</button>
@@ -238,6 +256,9 @@
             <!-- Quick Add Tracker Modal -->
             <div id="quickadd-modal" class="modal-overlay hidden">
                 <div class="modal-box">
+                    <div class="modal-peek">
+                      <img src="images/characters/modal-peek-surprise.png" alt="" class="modal-peek-img">
+                    </div>
                     <div class="modal-head">
                         <h3 id="quickadd-title">Tambah</h3>
                         <button class="modal-close" data-close-modal="quickadd-modal">✕</button>
