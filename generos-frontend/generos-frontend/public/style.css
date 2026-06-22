@@ -14,10 +14,22 @@
   --danger: #EF4444;
   --danger-light: #FEE2E2;
   --success: #10B981;
+
+  /* Playful redesign */
+  --coral: #FF8A6B;
+  --coral-light: #FFE8E0;
+  --emerald: #4CAF82;
+  --emerald-light: #E8F5E9;
+  --amber: #F5A623;
+  --amber-light: #FFF3E0;
+  --radius-btn: 16px;
+  --radius-card: 20px;
+  --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-card: 0 8px 30px rgba(0,0,0,0.12);
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f0f0f0;
 }
 
@@ -131,7 +143,6 @@ body {
 }
 
 .login h1 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #003DA5;
@@ -198,7 +209,6 @@ body {
   border-radius: 12px;
   background: #FAFAFA;
   font-size: 14px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #333333;
   transition: all 0.15s ease;
   box-sizing: border-box;
@@ -227,8 +237,7 @@ body {
   border-radius: 12px;
   padding: 14px 24px;
   font-size: 16px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   margin: 0;
@@ -272,20 +281,22 @@ button {
 
 .btn-primary {
   width: 100%;
-  background: var(--primary);
+  background: var(--coral);
   color: var(--white);
   border: none;
-  border-radius: 24px;
-  padding: 13px;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  border-radius: var(--radius-btn);
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
   margin-bottom: 10px;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #002970;
+  background: #E67A5E;
+  box-shadow: 0 4px 12px rgba(255,138,107,0.3);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -397,12 +408,13 @@ h3 {
 
 /* Cards */
 .card {
-  background: var(--primary-light);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  border-left: 4px solid var(--primary);
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-soft);
   cursor: pointer;
+  border: 1px solid var(--border);
 }
 
 .card .cat {
@@ -1449,11 +1461,14 @@ textarea {
 }
 .reminder-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 4px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
   font-size: 13px;
+}
+.reminder-item > span:first-of-type {
+  flex: 1;
 }
 .reminder-item:last-child {
   border-bottom: none;
@@ -1465,6 +1480,32 @@ textarea {
   background: #FEF3C7;
   padding: 2px 8px;
   border-radius: 10px;
+}
+.reminder-done-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid #4CAF82;
+  border-radius: 50%;
+  background: #fff;
+  color: #4CAF82;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  transition: all 0.15s;
+}
+.reminder-done-btn:hover {
+  background: #4CAF82;
+  color: #fff;
+}
+.reminder-done-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* Modal Overlay */
@@ -1640,10 +1681,9 @@ textarea {
   width: 100%;
   padding: 14px 24px;
   font-size: 16px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
   color: #FFFFFF;
-  background: #003DA5;
+  background: var(--coral);
   border: none;
   border-radius: 12px;
   cursor: pointer;
