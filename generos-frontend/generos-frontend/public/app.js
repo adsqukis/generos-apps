@@ -1343,7 +1343,7 @@ async function loadTrackingList() {
         <p class="desc">${escapeHtml(entry.description)}</p>
         <span class="severity-badge severity-${entry.severity}">${entry.severity}</span>
         <br><small>${formatDate(entry.date)}</small>
-        ${entry.ai_insight ? `<p style="margin-top: 6px; font-size: 11px; color: #003DA5; font-style: italic;">${escapeHtml(entry.ai_insight)}</p>` : '<p style="margin-top: 6px; font-size: 11px; color: #666;">Tap untuk AI insight</p>'}
+        ${entry.ai_insight ? `<p style="margin-top: 6px; font-size: 11px; color: #8A9BDB; font-style: italic;">${escapeHtml(entry.ai_insight)}</p>` : '<p style="margin-top: 6px; font-size: 11px; color: #666;">Tap untuk AI insight</p>'}
       </div>
     `
         )
@@ -1631,7 +1631,7 @@ function showFoodDetail(idx) {
     <button class="btn-secondary" data-action="back-food-list" style="text-align: center;">← Kembali</button>
     <div style="text-align: center; margin: 16px 0;">
       <div style="font-size: 50px;">🍽️</div>
-      <h2 style="color: #003DA5; margin: 8px 0 4px;">${escapeHtml(food.name)}</h2>
+      <h2 style="color: #8A9BDB; margin: 8px 0 4px;">${escapeHtml(food.name)}</h2>
       <p class="info-text">Usia: ${escapeHtml(food.age_range)}</p>
     </div>
     <div class="card" style="border-left: none;">
@@ -1834,7 +1834,7 @@ async function showArticleDetail(id) {
     detail.innerHTML = `
       <button class="btn-secondary" data-action="back-article-list" style="text-align: center;">← Kembali</button>
       ${article.image_url ? `<img src="${imgUrl(article.image_url)}" alt="${escapeHtml(article.title)}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin:8px 0;">` : ''}
-      <h2 style="color: #003DA5; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
+      <h2 style="color: #8A9BDB; margin: 12px 0 8px; font-size: 17px;">${escapeHtml(article.title)}</h2>
       <p style="font-size: 13px; color: #1A1A1A; line-height: 1.6;">${escapeHtml(article.content).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</p>
       ${article.red_flags ? `
         <div class="card" style="border-left-color: #EF4444; background: #FEE2E2;">
