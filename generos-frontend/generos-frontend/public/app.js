@@ -916,35 +916,35 @@ function openQuickAdd(trackerType) {
     sleep: { title: 'Tambah Tidur', html: `
       <div class="form-group"><label>Jam Mulai Tidur</label><input type="time" id="qa-sleep-start"></div>
       <div class="form-group"><label>Jam Bangun</label><input type="time" id="qa-sleep-end"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
     feeding: { title: 'Tambah Menyusui', html: `
       <div class="form-group"><label>Jenis</label>
         <select id="qa-feeding-type"><option value="ASI">ASI</option><option value="Susu Formula">Susu Formula</option><option value="MPASI">MPASI</option></select>
       </div>
-      <div class="form-group"><label>Jumlah (ml)</label><input type="number" step="1" min="0" id="qa-amount"></div>
-      <div class="form-group"><label>Durasi (menit)</label><input type="number" min="0" id="qa-duration"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Jumlah <span class="label-unit">(ml)</span></label><input type="number" step="1" min="0" id="qa-amount"></div>
+      <div class="form-group"><label>Durasi <span class="label-unit">(menit)</span></label><input type="number" min="0" id="qa-duration"></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
     drink: { title: 'Tambah Minum', html: `
-      <div class="form-group"><label>Jumlah (ml)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Jumlah <span class="label-unit">(ml)</span></label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
     pee: { title: 'Tambah BAK', html: `
-      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Jumlah <span class="label-unit">(kali)</span></label><input type="number" min="1" id="qa-count" value="1"></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
     poop: { title: 'Tambah BAB', html: `
-      <div class="form-group"><label>Jumlah</label><input type="number" min="1" id="qa-count" value="1"></div>
+      <div class="form-group"><label>Jumlah <span class="label-unit">(kali)</span></label><input type="number" min="1" id="qa-count" value="1"></div>
       <div class="form-group"><label>Konsistensi</label>
         <select id="qa-consistency"><option value="normal">Normal</option><option value="cair">Cair (diare)</option><option value="keras">Keras (sembelit)</option><option value="lendir">Berlendir</option></select>
       </div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
     eating: { title: 'Tambah Makan (MPASI)', html: `
       <div class="form-group"><label>Menu Makanan</label><input type="text" id="qa-menu" placeholder="contoh: bubur ayam"></div>
-      <div class="form-group"><label>Jumlah (ml/porsi)</label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
+      <div class="form-group"><label>Jumlah <span class="label-unit">(ml/porsi)</span></label><input type="number" step="1" min="0" id="qa-amount" value="100"></div>
+      <div class="form-group"><label>Catatan <span class="label-optional">(opsional)</span></label><textarea id="qa-notes" placeholder="Catatan..."></textarea></div>
     `},
   };
 
