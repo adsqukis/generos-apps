@@ -2442,7 +2442,7 @@ async function showAdminUserList() {
               </p>
               <div style="display:flex;gap:6px;margin-top:6px;">
                 <button class="btn-sm" data-action="show-admin-edit-user" data-id="${u.id}" data-item='${encodeURIComponent(JSON.stringify({id:u.id,full_name:u.full_name,email:u.email,phone:u.phone,child_name:u.child_name,role:u.role}))}'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
-                ${u.role !== 'admin' ? `<button class="btn-sm btn-danger" data-action="show-admin-delete-user" data-id="${u.id}" data-name="${escapeHtml(u.full_name)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>` : ''}
+                <button class="btn-sm btn-danger" data-action="show-admin-delete-user" data-id="${u.id}" data-name="${escapeHtml(u.full_name)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>
               </div>
             </div>`
           ).join('')
@@ -2503,8 +2503,10 @@ async function submitAdminAddAdmin() {
 // ============================
 // ADMIN: Edit User Form
 // ============================
-function showAdminEditUser(e) {
-  const itemRaw = decodeURIComponent(e.dataset.item);
+function showAdminEditUser(evt) {
+  const btn = evt.target.closest('[data-action]');
+  if (!btn) return;
+  const itemRaw = decodeURIComponent(btn.dataset.item);
   const u = JSON.parse(itemRaw);
   const panel = document.getElementById('admin-panel-content');
   panel.innerHTML =
@@ -2555,9 +2557,11 @@ async function submitAdminEditUser() {
 // ============================
 // ADMIN: Delete User
 // ============================
-async function submitAdminDeleteUser(e) {
-  const id = e.dataset.id;
-  const name = e.dataset.name;
+async function submitAdminDeleteUser(evt) {
+  const btn = evt.target.closest('[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const name = btn.dataset.name;
   if (!confirm('Hapus user "' + name + '"? Tindakan ini tidak bisa dibatalkan.')) return;
   try {
     const result = await Api.deleteUser(id);
