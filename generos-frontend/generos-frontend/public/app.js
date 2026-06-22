@@ -796,6 +796,41 @@ function updateStreakGoal(summaryData) {
 
   document.getElementById('streak-count').textContent = streak.count;
   streakBar.classList.remove('hidden');
+
+  // Milestone celebration
+  const milestones = [7, 30, 100, 365];
+  if (milestones.includes(streak.count) && done > 0) {
+    let celebrated = {};
+    try {
+      const raw = localStorage.getItem('generos_milestones');
+      if (raw) celebrated = JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+
+    const key = `streak_${streak.count}`;
+    if (!celebrated[key]) {
+      celebrated[key] = true;
+      localStorage.setItem('generos_milestones', JSON.stringify(celebrated));
+
+      // Show special celebration
+      const overlay = document.createElement('div');
+      overlay.className = 'celebration-overlay';
+      overlay.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;animation:scaleIn 0.5s ease forwards;text-align:center;">
+          <img src="images/characters/child-extra-yellow.png" alt="" style="width:160px;height:auto;">
+          <img src="images/characters/celebration-badge.png" alt="" style="width:80px;height:auto;margin-top:-20px;">
+          <p style="font-size:22px;font-weight:800;color:#E8682E;text-shadow:0 2px 8px rgba(232,104,46,0.2);">🔥 ${streak.count} Hari Berturut-turut!</p>
+          <p style="font-size:14px;color:#666;margin-top:-4px;">Luar biasa! Terus jaga konsistensi!</p>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        overlay.style.transition = 'opacity 0.5s ease';
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 600);
+      }, 3000);
+    }
+  }
 }
 
 // === 3. Daily Summary ===
