@@ -110,64 +110,54 @@
         <!-- ============ HOME PAGE ============ -->
         <div id="page-home" class="page page-home hidden">
             <!-- ===== HERO SECTION ===== -->
-            <section class="section-wrapper hero-section" id="home-hero">
-                <div class="hero-bg">
-                    <div class="hero-content">
-                        <div class="hero-top">
-                            <div class="hero-greeting">
-                                <p class="greeting" id="home-greeting">Halo, <span id="home-parent-name">Ibu/Ayah</span>! 👋</p>
-                                <p class="greeting-sub" id="home-hero-tagline">Pantau Tumbuh Kembang Anak Setiap Hari</p>
-                            </div>
-                            <div class="header-actions">
-                                <button class="icon-btn-round" id="btn-notif">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-                                </button>
-                                <button class="icon-btn-round" id="btn-settings">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                                </button>
-                            </div>
+            <section class="hero-section" id="home-hero">
+                <div class="hero-top">
+                    <div class="hero-greeting">
+                        <img src="images/characters/child-playful.png" alt="" class="hero-greeting-img">
+                        <div>
+                            <p class="hero-greeting-text" id="home-greeting-text">Halo, <span id="home-parent-name">Ibu/Ayah</span>!</p>
+                            <p class="hero-greeting-name" id="home-greeting-name">Pantau Tumbuh Kembang</p>
                         </div>
-                        <div class="hero-profile-row">
-                            <div class="hero-avatar-wrap">
-                                <div class="child-avatar" id="child-avatar-home">
-                                    <img src="images/characters/child-playful.png" alt="Anak" class="hero-character-img">
-                                </div>
-                            </div>
-                            <div class="hero-child-info">
-                                <h2 id="child-name-home">Memuat...</h2>
-                                <p id="child-age-home">-</p>
-                            </div>
-                            <div class="hero-growth-badge">
-                                <span class="badge-label">Tinggi</span>
-                                <span class="badge-value" id="stat-height">-</span>
-                                <span class="badge-unit">cm</span>
-                            </div>
-                        </div>
-                        <div class="hero-stats-row">
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-label">Berat</span>
-                                <span class="hero-stat-value" id="stat-weight">-</span>
-                                <span class="hero-stat-unit">kg</span>
-                            </div>
-                            <div class="hero-stat-divider"></div>
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-label">Target Tinggi</span>
-                                <span class="hero-stat-value" id="growth-target">-</span>
-                                <span class="hero-stat-unit">cm</span>
-                            </div>
-                            <div class="hero-stat-divider"></div>
-                            <div class="hero-stat-item">
-                                <span class="hero-stat-label">Progres</span>
-                                <span class="hero-stat-value" id="growth-progress">0</span>
-                                <span class="hero-stat-unit">%</span>
-                            </div>
-                        </div>
-                        <button class="btn-primary hero-cta" id="hero-cta">📏 Cek Tinggi Ideal Anak</button>
                     </div>
-                    <div class="hero-illustration">
-                        <img src="images/characters/child-playful.png" alt="Generos" class="hero-illustration-img">
+                    <div class="header-actions">
+                        <button class="icon-btn-round" id="btn-notif" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                        </button>
+                        <button class="icon-btn-round" id="btn-settings" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        </button>
                     </div>
                 </div>
+
+                <div class="hero-child-card">
+                    <div class="hero-child-avatar" id="child-avatar-home">
+                      <img src="images/characters/child-playful.png" alt="Anak">
+                    </div>
+                    <div class="hero-child-info">
+                        <p class="hero-child-name" id="child-name-home">Memuat...</p>
+                        <p class="hero-child-age" id="child-age-home">-</p>
+                    </div>
+                    <span class="hero-badge" id="stat-height-badge">- cm</span>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <p class="hero-stat-value" id="stat-weight">-</p>
+                        <p class="hero-stat-label">Berat (kg)</p>
+                    </div>
+                    <div class="hero-stat">
+                        <p class="hero-stat-value" id="growth-target">-</p>
+                        <p class="hero-stat-label">Target (cm)</p>
+                    </div>
+                    <div class="hero-stat">
+                        <p class="hero-stat-value" id="growth-progress">0%</p>
+                        <p class="hero-stat-label">Progres</p>
+                    </div>
+                </div>
+
+                <p class="hero-headline">Pantau Tumbuh Kembang Anak Setiap Hari</p>
+                <p class="hero-subheadline">Cek tinggi badan, nutrisi, dan perkembangan anak dalam satu aplikasi.</p>
+                <button class="btn-hero" id="hero-cta">📏 Cek Tinggi Ideal Anak</button>
             </section>
 
             <!-- ===== QUICK ACCESS MENU ===== -->
@@ -175,7 +165,7 @@
                 <h3 class="section-title">Menu Cepat</h3>
                 <div class="quick-menu-grid" id="quick-menu">
                     <button class="quick-menu-item" data-menu="height-weight">
-                        <span class="quick-menu-icon" style="background: var(--primary-light, #E8F1FB);">📏</span>
+                        <span class="quick-menu-icon" style="background: var(--primary-light);">📏</span>
                         <span class="quick-menu-label">Tinggi &amp; Berat</span>
                     </button>
                     <button class="quick-menu-item" data-menu="nutrition">
@@ -201,81 +191,63 @@
                 </div>
             </section>
 
-            <!-- ===== CHILD GROWTH TRACKER CARD ===== -->
+            <!-- ===== GROWTH TRACKER CARD ===== -->
             <section class="section-wrapper">
-                <div class="card growth-tracker-card" id="growth-tracker-card">
-                    <div class="growth-tracker-header">
-                        <div class="growth-tracker-avatar">
-                            <img src="images/characters/child-excited.png" alt="Anak" class="growth-tracker-img">
+                <div class="growth-card" id="growth-tracker-card">
+                    <div class="growth-card-top">
+                        <div class="growth-card-avatar">
+                            <img src="images/characters/child-excited.png" alt="Anak">
                         </div>
-                        <div class="growth-tracker-info">
-                            <h4 id="growth-tracker-name">Memuat...</h4>
-                            <p class="growth-tracker-age" id="growth-tracker-age">-</p>
+                        <div class="growth-card-info">
+                            <p class="growth-card-name" id="growth-tracker-name">Memuat...</p>
+                            <p class="growth-card-age" id="growth-tracker-age">-</p>
                         </div>
-                        <span class="growth-status-badge" id="growth-status-badge">Normal</span>
+                        <span class="growth-status-badge on-track" id="growth-status-badge">Normal</span>
                     </div>
-                    <div class="growth-tracker-body">
-                        <div class="growth-metrics">
-                            <div class="growth-metric">
-                                <span class="growth-metric-label">Tinggi Saat Ini</span>
-                                <span class="growth-metric-value" id="growth-current-height">-</span>
-                                <span class="growth-metric-unit">cm</span>
-                            </div>
-                            <div class="growth-metric">
-                                <span class="growth-metric-label">Target Usia Ini</span>
-                                <span class="growth-metric-value" id="growth-target-height">-</span>
-                                <span class="growth-metric-unit">cm</span>
-                            </div>
+                    <div class="growth-stats-row">
+                        <div class="growth-stat-item">
+                            <p class="growth-stat-val" id="growth-current-height">-</p>
+                            <p class="growth-stat-lbl">Tinggi (cm)</p>
                         </div>
-                        <div class="growth-progress-wrap">
-                            <div class="growth-progress-header">
-                                <span class="growth-progress-label">Progres Pertumbuhan</span>
-                                <span class="growth-progress-pct" id="growth-progress-pct">0%</span>
-                            </div>
-                            <div class="growth-progress-bar">
-                                <div class="growth-progress-fill" id="growth-progress-fill" style="width:0%;"></div>
-                            </div>
+                        <div class="growth-stat-item">
+                            <p class="growth-stat-val" id="growth-target-height">-</p>
+                            <p class="growth-stat-lbl">Target (cm)</p>
                         </div>
                     </div>
-                    <button class="btn-outline" id="btn-add-growth">+ Tambah Data Pertumbuhan</button>
+                    <div class="growth-target-row">
+                        <span>Progres Pertumbuhan</span>
+                        <span id="growth-progress-pct">0%</span>
+                    </div>
+                    <div class="growth-progress-track">
+                        <div class="growth-progress-fill" id="growth-progress-fill" style="width:0%;"></div>
+                    </div>
+                    <button class="btn-outline" id="btn-add-growth" style="margin-top:10px;">+ Tambah Data Pertumbuhan</button>
                 </div>
             </section>
 
             <!-- ===== AI GENEROS ASSISTANT CARD ===== -->
             <section class="section-wrapper">
-                <div class="card ai-assistant-card" id="ai-assistant-card">
+                <div class="ai-card" id="ai-assistant-card">
                     <div class="ai-card-header">
-                        <div class="ai-card-title-row">
-                            <span class="ai-avatar">🤖</span>
-                            <div>
-                                <h4>AI Generos Assistant</h4>
-                                <p class="ai-subtitle">Tanya apa saja tentang tumbuh kembang</p>
-                            </div>
+                        <span class="ai-card-icon">🤖</span>
+                        <div>
+                            <p class="ai-card-title">AI Generos Assistant</p>
+                            <p class="ai-card-sub">Tanya apa saja tentang tumbuh kembang</p>
                         </div>
-                        <span class="ai-badge">Online</span>
                     </div>
                     <div class="ai-chat-preview" id="ai-chat-preview">
-                        <div class="ai-message ai-bot-msg">
-                            <span class="ai-msg-bot-icon">🤖</span>
-                            <span class="ai-msg-text">Halo! Ada yang bisa saya bantu tentang tumbuh kembang si kecil hari ini?</span>
-                        </div>
-                        <div class="ai-message ai-user-msg hidden" id="ai-last-user-msg">
-                            <span class="ai-msg-text"></span>
-                        </div>
+                        🤖 Halo! Ada yang bisa saya bantu tentang tumbuh kembang si kecil hari ini?
                     </div>
                     <div class="ai-suggestions" id="ai-suggestions">
-                        <p class="ai-suggest-title">Pertanyaan Populer:</p>
-                        <div class="ai-suggest-chips">
-                            <button class="ai-suggest-chip" data-question="Berapa tinggi ideal anak 2 tahun?">Tinggi Ideal Anak</button>
-                            <button class="ai-suggest-chip" data-question="Makanan untuk meningkatkan berat badan anak">Menu Sehat BB</button>
-                            <button class="ai-suggest-chip" data-question="Jadwal imunisasi lengkap">Imunisasi</button>
-                            <button class="ai-suggest-chip" data-question="Tips stimulasi anak 18 bulan">Stimulasi 18 Bulan</button>
-                        </div>
+                        <button class="ai-chip" data-question="Berapa tinggi ideal anak 2 tahun?">Tinggi Ideal Anak</button>
+                        <button class="ai-chip" data-question="Makanan untuk meningkatkan berat badan anak">Menu Sehat BB</button>
+                        <button class="ai-chip" data-question="Jadwal imunisasi lengkap">Imunisasi</button>
+                        <button class="ai-chip" data-question="Tips stimulasi anak 18 bulan">Stimulasi 18 Bulan</button>
                     </div>
                     <div class="ai-input-row">
                         <input type="text" class="ai-input" id="ai-chat-input" placeholder="Tanya AI Generos..." autocomplete="off">
-                        <button class="ai-send-btn" id="ai-send-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        <button class="ai-send" id="ai-send-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
                     </div>
                 </div>
@@ -284,47 +256,47 @@
             <!-- ===== NUTRITION SCORE SECTION ===== -->
             <section class="section-wrapper">
                 <h3 class="section-title">Skor Nutrisi Hari Ini</h3>
-                <div class="card nutrition-scores" id="nutrition-scores">
-                    <div class="nutrition-grid">
-                        <div class="nutrition-item">
-                            <div class="nutri-circle" id="nutri-protein" style="--pct:0%;">
-                                <svg viewBox="0 0 36 36" class="nutri-svg">
-                                    <path class="nutri-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="nutri-fill" id="nutri-protein-arc" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <div class="card" style="padding:18px;">
+                    <div class="nutri-grid">
+                        <div class="nutri-item">
+                            <div class="nutri-ring" id="nutri-protein">
+                                <svg viewBox="0 0 36 36">
+                                    <path class="nutri-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="nutri-ring-fill" id="nutri-protein-arc" stroke="#4A90E2" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                                 </svg>
-                                <span class="nutri-pct" id="nutri-protein-pct">0%</span>
+                                <span class="nutri-ring-label" id="nutri-protein-pct">0%</span>
                             </div>
-                            <span class="nutri-label">Protein</span>
+                            <p class="nutri-name">Protein</p>
                         </div>
-                        <div class="nutrition-item">
-                            <div class="nutri-circle" id="nutri-calcium" style="--pct:0%;">
-                                <svg viewBox="0 0 36 36" class="nutri-svg">
-                                    <path class="nutri-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="nutri-fill" id="nutri-calcium-arc" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <div class="nutri-item">
+                            <div class="nutri-ring" id="nutri-calcium">
+                                <svg viewBox="0 0 36 36">
+                                    <path class="nutri-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="nutri-ring-fill" id="nutri-calcium-arc" stroke="#34A853" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                                 </svg>
-                                <span class="nutri-pct" id="nutri-calcium-pct">0%</span>
+                                <span class="nutri-ring-label" id="nutri-calcium-pct">0%</span>
                             </div>
-                            <span class="nutri-label">Kalsium</span>
+                            <p class="nutri-name">Kalsium</p>
                         </div>
-                        <div class="nutrition-item">
-                            <div class="nutri-circle" id="nutri-vitamin" style="--pct:0%;">
-                                <svg viewBox="0 0 36 36" class="nutri-svg">
-                                    <path class="nutri-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="nutri-fill" id="nutri-vitamin-arc" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <div class="nutri-item">
+                            <div class="nutri-ring" id="nutri-vitamin">
+                                <svg viewBox="0 0 36 36">
+                                    <path class="nutri-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="nutri-ring-fill" id="nutri-vitamin-arc" stroke="#FFC83D" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                                 </svg>
-                                <span class="nutri-pct" id="nutri-vitamin-pct">0%</span>
+                                <span class="nutri-ring-label" id="nutri-vitamin-pct">0%</span>
                             </div>
-                            <span class="nutri-label">Vitamin</span>
+                            <p class="nutri-name">Vitamin</p>
                         </div>
-                        <div class="nutrition-item">
-                            <div class="nutri-circle" id="nutri-water" style="--pct:0%;">
-                                <svg viewBox="0 0 36 36" class="nutri-svg">
-                                    <path class="nutri-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="nutri-fill" id="nutri-water-arc" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <div class="nutri-item">
+                            <div class="nutri-ring" id="nutri-water">
+                                <svg viewBox="0 0 36 36">
+                                    <path class="nutri-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="nutri-ring-fill" id="nutri-water-arc" stroke="#4FC3F7" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                                 </svg>
-                                <span class="nutri-pct" id="nutri-water-pct">0%</span>
+                                <span class="nutri-ring-label" id="nutri-water-pct">0%</span>
                             </div>
-                            <span class="nutri-label">Air</span>
+                            <p class="nutri-name">Air</p>
                         </div>
                     </div>
                 </div>
@@ -332,60 +304,45 @@
 
             <!-- ===== EDUCATIONAL CONTENT SECTION ===== -->
             <section class="section-wrapper">
-                <div class="section-title-row">
+                <div class="section-header">
                     <h3 class="section-title">Edukasi &amp; Tips</h3>
-                    <button class="btn-text" id="edu-see-all">Lihat Semua →</button>
+                    <span class="section-link" id="edu-see-all">Lihat Semua →</span>
                 </div>
                 <div class="edu-carousel" id="edu-carousel">
                     <div class="edu-card" data-category="nutrisi">
-                        <div class="edu-card-img">
-                            <img src="images/characters/child-eating.png" alt="Nutrisi">
+                        <div class="edu-card-img" style="display:flex;align-items:center;justify-content:center;">
+                            <img src="images/characters/child-eating.png" alt="Nutrisi" style="width:60px;height:60px;object-fit:contain;">
                         </div>
-                        <div class="edu-card-body">
-                            <span class="edu-category">Nutrisi</span>
-                            <h4 class="edu-title">MPASI Bergizi untuk Si Kecil</h4>
-                            <p class="edu-desc">Panduan lengkap makanan pendamping ASI</p>
-                        </div>
+                        <span class="edu-card-cat">Nutrisi</span>
+                        <p class="edu-card-title">MPASI Bergizi untuk Si Kecil</p>
                     </div>
                     <div class="edu-card" data-category="tidur">
-                        <div class="edu-card-img">
-                            <img src="images/characters/child-sleep.png" alt="Tidur">
+                        <div class="edu-card-img" style="display:flex;align-items:center;justify-content:center;">
+                            <img src="images/characters/child-sleep.png" alt="Tidur" style="width:60px;height:60px;object-fit:contain;">
                         </div>
-                        <div class="edu-card-body">
-                            <span class="edu-category">Tidur</span>
-                            <h4 class="edu-title">Pola Tidur Sehat Bayi</h4>
-                            <p class="edu-desc">Tips mengatur jadwal tidur anak</p>
-                        </div>
+                        <span class="edu-card-cat">Tidur</span>
+                        <p class="edu-card-title">Pola Tidur Sehat Bayi</p>
                     </div>
                     <div class="edu-card" data-category="stimulasi">
-                        <div class="edu-card-img">
-                            <img src="images/characters/child-thinking.png" alt="Stimulasi">
+                        <div class="edu-card-img" style="display:flex;align-items:center;justify-content:center;">
+                            <img src="images/characters/child-thinking.png" alt="Stimulasi" style="width:60px;height:60px;object-fit:contain;">
                         </div>
-                        <div class="edu-card-body">
-                            <span class="edu-category">Stimulasi</span>
-                            <h4 class="edu-title">Mainan Edukatif 1-3 Tahun</h4>
-                            <p class="edu-desc">Stimulasi motorik dan kognitif</p>
-                        </div>
+                        <span class="edu-card-cat">Stimulasi</span>
+                        <p class="edu-card-title">Mainan Edukatif 1-3 Tahun</p>
                     </div>
                     <div class="edu-card" data-category="imunitas">
-                        <div class="edu-card-img">
-                            <img src="images/characters/child-excited.png" alt="Imunitas">
+                        <div class="edu-card-img" style="display:flex;align-items:center;justify-content:center;">
+                            <img src="images/characters/child-excited.png" alt="Imunitas" style="width:60px;height:60px;object-fit:contain;">
                         </div>
-                        <div class="edu-card-body">
-                            <span class="edu-category">Imunitas</span>
-                            <h4 class="edu-title">Jadwal Imunisasi Lengkap</h4>
-                            <p class="edu-desc">Lindungi anak dari penyakit berbahaya</p>
-                        </div>
+                        <span class="edu-card-cat">Imunitas</span>
+                        <p class="edu-card-title">Jadwal Imunisasi Lengkap</p>
                     </div>
                     <div class="edu-card" data-category="tumbuh-kembang">
-                        <div class="edu-card-img">
-                            <img src="images/characters/child-extra-yellow.png" alt="Tumbuh Kembang">
+                        <div class="edu-card-img" style="display:flex;align-items:center;justify-content:center;">
+                            <img src="images/characters/child-extra-yellow.png" alt="Tumbuh Kembang" style="width:60px;height:60px;object-fit:contain;">
                         </div>
-                        <div class="edu-card-body">
-                            <span class="edu-category">Tumbuh Kembang</span>
-                            <h4 class="edu-title">Milestone Anak 0-12 Bulan</h4>
-                            <p class="edu-desc">Pantau setiap tahapan penting</p>
-                        </div>
+                        <span class="edu-card-cat">Tumbuh Kembang</span>
+                        <p class="edu-card-title">Milestone Anak 0-12 Bulan</p>
                     </div>
                 </div>
             </section>
@@ -393,65 +350,42 @@
             <!-- ===== REWARD & ACHIEVEMENT SECTION ===== -->
             <section class="section-wrapper">
                 <h3 class="section-title">Pencapaian</h3>
-                <div class="card rewards-section" id="rewards-section">
-                    <div class="rewards-header">
-                        <div class="rewards-points">
-                            <span class="rewards-points-icon">⭐</span>
-                            <div>
-                                <span class="rewards-points-label">Poin</span>
-                                <span class="rewards-points-value" id="points-count">0</span>
-                            </div>
-                        </div>
-                        <div class="rewards-streak">
-                            <span class="rewards-streak-icon">🔥</span>
-                            <div>
-                                <span class="rewards-streak-label">Streak</span>
-                                <span class="rewards-streak-value" id="streak-count-home">0</span>
-                                <span class="rewards-streak-unit">hari</span>
-                            </div>
+                <div class="rewards-bar" id="rewards-bar">
+                    <div class="rewards-item">
+                        <span class="rewards-icon">⭐</span>
+                        <div>
+                            <p class="rewards-val" id="points-count">0</p>
+                            <p class="rewards-label">Poin</p>
                         </div>
                     </div>
-                    <div class="rewards-badges">
-                        <div class="rewards-badge-title">Lencana</div>
-                        <div class="rewards-badge-row" id="rewards-badge-row">
-                            <div class="badge-item locked">
-                                <img src="images/characters/celebration-badge.png" alt="Badge" class="badge-img">
-                                <span class="badge-name">Pelapor Baru</span>
-                            </div>
-                            <div class="badge-item locked">
-                                <img src="images/characters/celebration-stars.png" alt="Stars" class="badge-img">
-                                <span class="badge-name">Bintang Nutrisi</span>
-                            </div>
-                            <div class="badge-item locked">
-                                <span class="badge-placeholder">🏆</span>
-                                <span class="badge-name">Rutin 30 Hari</span>
-                            </div>
-                            <div class="badge-item locked">
-                                <span class="badge-placeholder">🎯</span>
-                                <span class="badge-name">Target Tercapai</span>
-                            </div>
+                    <div class="rewards-item">
+                        <span class="rewards-icon">🔥</span>
+                        <div>
+                            <p class="rewards-val" id="streak-count-home">0</p>
+                            <p class="rewards-label">Streak</p>
                         </div>
                     </div>
-                    <div class="rewards-milestones" id="rewards-milestones">
-                        <div class="milestone-item">
-                            <div class="milestone-icon">🎉</div>
-                            <div class="milestone-info">
-                                <span class="milestone-label">Data Pertumbuhan Pertama</span>
-                                <span class="milestone-status">Belum tercapai</span>
-                            </div>
+                </div>
+                <div style="margin-top:12px;">
+                    <p style="font-size:11px;font-weight:600;color:var(--text-light);margin-bottom:8px;">Lencana</p>
+                    <div class="rewards-badges" id="rewards-badge-row">
+                        <div class="rewards-badge">
+                            <img src="images/characters/celebration-badge.png" alt="Pelapor Baru">
                         </div>
-                        <div class="milestone-item">
-                            <div class="milestone-icon">📊</div>
-                            <div class="milestone-info">
-                                <span class="milestone-label">10 Data Tercatat</span>
-                                <span class="milestone-status">Belum tercapai</span>
-                            </div>
+                        <div class="rewards-badge">
+                            <img src="images/characters/celebration-stars.png" alt="Bintang Nutrisi">
+                        </div>
+                        <div class="rewards-badge">
+                            <span style="font-size:20px;">🏆</span>
+                        </div>
+                        <div class="rewards-badge">
+                            <span style="font-size:20px;">🎯</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ===== Reminder Widget (minimal) ===== -->
+            <!-- ===== Reminder Widget ===== -->
             <section class="section-wrapper">
                 <div class="card" id="reminders" style="cursor:default;">
                     <p class="cat">📅 Pengingat</p>
@@ -509,7 +443,7 @@
                 </div>
             </div>
 
-            <!-- Tracker Detail Modal (riwayat hari ini) -->
+            <!-- Tracker Detail Modal -->
             <div id="tracker-detail-modal" class="modal-overlay hidden">
                 <div class="modal-box">
                     <div class="modal-head">
@@ -1122,7 +1056,7 @@
         <nav id="nav-bar" class="nav-bar hidden">
           <button class="nav-btn active" data-page="home">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Home</span>
+            <span>Beranda</span>
           </button>
           <button class="nav-btn" data-page="tracking">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
@@ -1130,10 +1064,14 @@
           </button>
           <button class="nav-btn" data-page="nutrition">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-            <span>Nutrition</span>
+            <span>Nutrisi</span>
           </button>
           <button class="nav-btn" data-page="community">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            <span>Komunitas</span>
+          </button>
+          <button class="nav-btn" data-page="settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <span>Akun</span>
           </button>
         </nav>

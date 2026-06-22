@@ -584,8 +584,8 @@ async function loadHomeData() {
   // Personal greeting
   const nameParts = (user.full_name || '').split(' ');
   const firstName = nameParts[0] || 'Pengguna';
-  const greetingEl = document.getElementById('home-greeting');
-  if (greetingEl) greetingEl.textContent = `Hi, ${firstName}! 👋`;
+  const greetingNameEl = document.getElementById('home-parent-name');
+  if (greetingNameEl) greetingNameEl.textContent = firstName;
 
   // Fetch child data
   let childName = user.child_name || 'Anak';
@@ -606,27 +606,47 @@ async function loadHomeData() {
   const nameEl = document.getElementById('child-name-home');
   if (nameEl) nameEl.textContent = childName;
 
+  // Also update growth card name/age
+  const gcNameEl = document.getElementById('growth-tracker-name');
+  if (gcNameEl) gcNameEl.textContent = childName;
+
   const age = calculateAgeMonths(childDob);
   const ageEl = document.getElementById('child-age-home');
   if (ageEl) {
     const parts = getAgeParts(childDob);
     ageEl.textContent = `${parts.months} bulan ${parts.days} hari`;
   }
+  const gcAgeEl = document.getElementById('growth-tracker-age');
+  if (gcAgeEl) {
+    const parts = getAgeParts(childDob);
+    gcAgeEl.textContent = `${parts.months} bulan ${parts.days} hari`;
+  }
 
   // Avatar
   const avatarEl = document.getElementById('child-avatar-home');
   if (avatarEl) {
-    if (childGender === 'Laki-laki') avatarEl.textContent = '👦';
-    else if (childGender === 'Perempuan') avatarEl.textContent = '👧';
-    else avatarEl.textContent = (childName.charAt(0) || '·').toUpperCase();
+    const img = avatarEl.querySelector('img');
+    if (img) {
+      if (childGender === 'Laki-laki') img.src = 'images/characters/child-playful.png';
+      else if (childGender === 'Perempuan') img.src = 'images/characters/child-excited.png';
+      else img.src = 'images/characters/child-playful.png';
+    }
   }
 
   // Growth stats in hero
   if (growthData) {
-    const hEl = document.getElementById('stat-height');
-    if (hEl) hEl.textContent = growthData.height_cm ? `${growthData.height_cm} cm` : '-';
+    const hEl = document.getElementById('stat-height-badge');
+    if (hEl) hEl.textContent = growthData.height_cm ? `${growthData.height_cm} cm` : '- cm';
     const wEl = document.getElementById('stat-weight');
-    if (wEl) wEl.textContent = growthData.weight_kg ? `${growthData.weight_kg} kg` : '-';
+    if (wEl) wEl.textContent = growthData.weight_kg || '-';
+    
+    // Hero progress & target
+    const targetEl = document.getElementById('growth-target');
+    if (targetEl) {
+      const targets = {12:78, 24:87, 36:96, 48:103, 60:110, 72:116};
+      const target = Object.entries(targets).reduce((a,[k,v]) => age >= parseInt(k) ? v : a, 110);
+      targetEl.textContent = target;
+    }
   }
 
   // Growth Tracker Card
@@ -647,6 +667,9 @@ async function loadHomeData() {
       const pctEl = document.getElementById('growth-progress-pct');
       if (fill) fill.style.width = `${pct}%`;
       if (pctEl) pctEl.textContent = `${pct}%`;
+      // Hero progress stat
+      const heroProgress = document.getElementById('growth-progress');
+      if (heroProgress) heroProgress.textContent = `${pct}%`;
     }
   }
 

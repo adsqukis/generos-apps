@@ -1327,6 +1327,35 @@ textarea {
   transform: scale(0.97);
 }
 
+/* Header Actions (top-right buttons on hero) */
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Round icon button — used in hero and other headers */
+.icon-btn-round {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn-round:active {
+  transform: scale(0.9);
+  background: rgba(255,255,255,0.35);
+}
+
 /* Section Wrapper */
 .section-wrapper {
   padding: 20px 16px 0;
