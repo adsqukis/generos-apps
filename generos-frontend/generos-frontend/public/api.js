@@ -317,7 +317,8 @@ const Api = {
   // ============ DAILY TRACKER ============
   async getDailySummary(date) {
     const q = date ? `?date=${date}` : '';
-    return this.request(`/daily/summary${q}`);
+    const sep = q ? '&' : '?';
+    return this.request(`/daily/summary${q}${sep}_t=${Date.now()}`);
   },
 
   async getDailySleep(date) {
@@ -516,7 +517,7 @@ const Api = {
 
   // ============ CHILD DATA ============
   async getChildProfile() {
-    return this.request('/child/profile');
+    return this.request(`/child/profile?_t=${Date.now()}`);
   },
 
   async updateChildProfile(data) {
