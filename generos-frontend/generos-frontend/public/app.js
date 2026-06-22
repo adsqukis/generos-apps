@@ -17,39 +17,6 @@ function imgUrl(url) {
 }
 
 // ============================
-// CELEBRATION
-// ============================
-function showCelebration(message) {
-  // Remove existing celebration overlay
-  const existing = document.querySelector('.celebration-overlay');
-  if (existing) existing.remove();
-
-  const overlay = document.createElement('div');
-  overlay.className = 'celebration-overlay';
-  overlay.innerHTML = `
-    <div class="celebration-stars">
-      <img src="images/characters/celebration-stars.png" alt="">
-      <img src="images/characters/celebration-stars.png" alt="">
-      <img src="images/characters/celebration-stars.png" alt="">
-      <img src="images/characters/celebration-stars.png" alt="">
-      <img src="images/characters/celebration-stars.png" alt="">
-    </div>
-    <div class="celebration-content">
-      <img src="images/characters/celebration-badge.png" alt="🎉">
-      <p style="font-size:18px;font-weight:700;color:#003DA5;text-align:center;">${message || 'Kerja bagus! 🎉'}</p>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  // Auto-hide after 2 seconds
-  setTimeout(() => {
-    overlay.style.transition = 'opacity 0.4s ease';
-    overlay.style.opacity = '0';
-    setTimeout(() => overlay.remove(), 500);
-  }, 2000);
-}
-
-// ============================
 // INIT — jalan langsung karena script di akhir <body> (DOM sudah siap)
 // ============================
 function initApp() {
@@ -115,26 +82,6 @@ function initApp() {
   });
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
   safeAddListener('btn-notif', 'click', openNotifModal);
-  // Quick menu items
-  document.querySelectorAll('.quick-menu-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.dataset.menu;
-      if (page) navigate(page);
-    });
-  });
-  // Hero CTA
-  safeAddListener('hero-cta', 'click', () => navigate('tracking'));
-  // AI chips (suggestion chips)
-  document.querySelectorAll('.ai-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.getElementById('ai-chat-input').value = chip.textContent.trim();
-    });
-  });
-  // AI send button
-  safeAddListener('ai-send-btn', 'click', () => {
-    const input = document.getElementById('ai-chat-input');
-    if (input.value.trim()) navigate('chat');
-  });
   // Child Data page listeners
   if (typeof initChildDataListeners === 'function') initChildDataListeners();
   safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
@@ -461,28 +408,8 @@ function showToast(message, type = 'info') {
 // NAVIGATION
 // ============================
 function navigate(page) {
-  const currentEl = document.getElementById(`page-${currentPage}`);
-  const nextEl = document.getElementById(`page-${page}`);
-  if (!nextEl || page === currentPage) return;
-
-  // Animate exit current page
-  if (currentEl && !currentEl.classList.contains('hidden')) {
-    currentEl.classList.add('page-exit');
-    setTimeout(() => {
-      currentEl.classList.add('hidden');
-      currentEl.classList.remove('page-exit');
-    }, 200);
-  } else if (currentEl) {
-    currentEl.classList.add('hidden');
-  }
-
-  // Animate enter next page
-  nextEl.classList.remove('hidden');
-  nextEl.classList.add('page-enter');
-  setTimeout(() => {
-    nextEl.classList.remove('page-enter');
-  }, 350);
-
+  document.querySelectorAll('.page').forEach((p) => p.classList.add('hidden'));
+  document.getElementById(`page-${page}`).classList.remove('hidden');
   currentPage = page;
 
   const navBar = document.getElementById('nav-bar');
@@ -581,105 +508,58 @@ async function loadHomeData() {
   const user = Api.getUser();
   if (!user) return;
 
-  // Personal greeting
+  // 1. Header greeting
   const nameParts = (user.full_name || '').split(' ');
   const firstName = nameParts[0] || 'Pengguna';
-  const greetingNameEl = document.getElementById('home-parent-name');
-  if (greetingNameEl) greetingNameEl.textContent = firstName;
+  document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
 
-  // Fetch child data
-  let childName = user.child_name || 'Anak';
-  let childDob = user.child_dob;
-  let childGender = user.child_gender;
-  let growthData = null;
-
+  // 2. Fetch fresh child profile dari API (satu sumber utk semua data anak)
+  let childData = null;
+  let childGrowth = null;
   try {
     const apiData = await Api.getChildProfile();
-    const child = apiData.child || {};
-    if (child.name) childName = child.name;
-    if (child.dob) childDob = child.dob;
-    if (child.gender) childGender = child.gender;
-    growthData = apiData.growth || null;
-  } catch (e) { /* fallback */ }
+    childData = apiData.child || null;
+    childGrowth = apiData.growth || null;
+  } catch (e) {
+    console.error('[loadHomeData] getChildProfile error:', e);
+    /* fallback ke localStorage */
+  }
 
-  // Update child name/age in hero
-  const nameEl = document.getElementById('child-name-home');
-  if (nameEl) nameEl.textContent = childName;
+  // Merge: API data lebih prioritas, localStorage sebagai fallback
+  const childName = (childData && childData.name) || user.child_name || 'Anak';
+  const childDob = (childData && childData.dob) || user.child_dob;
+  const childGender = (childData && childData.gender) || user.child_gender;
+  const childPhoto = (childData && childData.photo) || user.child_photo;
 
-  // Also update growth card name/age
-  const gcNameEl = document.getElementById('growth-tracker-name');
-  if (gcNameEl) gcNameEl.textContent = childName;
-
+  // Hitung usia anak
   const age = calculateAgeMonths(childDob);
-  const ageEl = document.getElementById('child-age-home');
-  if (ageEl) {
-    const parts = getAgeParts(childDob);
-    ageEl.textContent = `${parts.months} bulan ${parts.days} hari`;
-  }
-  const gcAgeEl = document.getElementById('growth-tracker-age');
-  if (gcAgeEl) {
-    const parts = getAgeParts(childDob);
-    gcAgeEl.textContent = `${parts.months} bulan ${parts.days} hari`;
-  }
 
-  // Avatar
-  const avatarEl = document.getElementById('child-avatar-home');
-  if (avatarEl) {
-    const img = avatarEl.querySelector('img');
-    if (img) {
-      if (childGender === 'Laki-laki') img.src = 'images/characters/child-playful.png';
-      else if (childGender === 'Perempuan') img.src = 'images/characters/child-excited.png';
-      else img.src = 'images/characters/child-playful.png';
-    }
-  }
+  // Sembunyikan tracker yang gak relevan berdasarkan usia
+  applyAgeBasedVisibility(age);
 
-  // Growth stats in hero
-  if (growthData) {
-    const hEl = document.getElementById('stat-height-badge');
-    if (hEl) hEl.textContent = growthData.height_cm ? `${growthData.height_cm} cm` : '- cm';
-    const wEl = document.getElementById('stat-weight');
-    if (wEl) wEl.textContent = growthData.weight_kg || '-';
-    
-    // Hero progress & target
-    const targetEl = document.getElementById('growth-target');
-    if (targetEl) {
-      const targets = {12:78, 24:87, 36:96, 48:103, 60:110, 72:116};
-      const target = Object.entries(targets).reduce((a,[k,v]) => age >= parseInt(k) ? v : a, 110);
-      targetEl.textContent = target;
-    }
-  }
+  // 3. Child Profile — pake data fresh dari API (growth juga dari sini)
+  // Gabungin API data + localStorage jadi satu object user
+  const mergedUser = {
+    ...user,
+    child_name: childName,
+    child_dob: childDob,
+    child_gender: childGender,
+    child_photo: childPhoto,
+  };
+  // Growth record pake dari child profile API biar sinkron dgn Settings
+  const growthRecord = childGrowth ? [childGrowth] : [];
+  await loadChildProfile(mergedUser, growthRecord);
 
-  // Growth Tracker Card
-  if (growthData) {
-    const curH = document.getElementById('growth-current-height');
-    if (curH) curH.textContent = growthData.height_cm || '-';
-    const targetH = document.getElementById('growth-target-height');
-    if (targetH) {
-      // Estimate target based on age (rough WHO-based)
-      const targets = {12:78, 24:87, 36:96, 48:103, 60:110, 72:116};
-      const target = Object.entries(targets).reduce((a,[k,v]) => age >= parseInt(k) ? v : a, 110);
-      targetH.textContent = `${target} cm`;
-    }
-    // Progress %
-    if (growthData.height_cm) {
-      const pct = Math.min(100, Math.round((parseFloat(growthData.height_cm) / 110) * 100));
-      const fill = document.getElementById('growth-progress-fill');
-      const pctEl = document.getElementById('growth-progress-pct');
-      if (fill) fill.style.width = `${pct}%`;
-      if (pctEl) pctEl.textContent = `${pct}%`;
-      // Hero progress stat
-      const heroProgress = document.getElementById('growth-progress');
-      if (heroProgress) heroProgress.textContent = `${pct}%`;
-    }
-  }
-
-  // Daily summary
+  // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
   await loadDailySummary();
 
-  // Development today
+  // 4. Development Today
   await loadDevelopmentToday(user);
 
-  // Reminders
+  // 5. Growth summary (pake data growth yg udah diambil)
+  await loadBerandaGrowthRingkasan(growthRecord);
+
+  // 6. Reminders
   await loadReminders();
 }
 
@@ -809,97 +689,6 @@ function applyAgeBasedVisibility(age) {
   showCard('pee', true);
 }
 
-// === Streak & Daily Goal ===
-function updateStreakGoal(summaryData) {
-  const streakBar = document.getElementById('streak-bar');
-  if (!streakBar) return;
-
-  if (!summaryData) {
-    streakBar.classList.add('hidden');
-    return;
-  }
-
-  // Hitung tracker yang aktif hari ini (count > 0)
-  const trackers = [
-    summaryData.sleep?.count > 0,
-    summaryData.feeding?.count > 0,
-    summaryData.eating?.count > 0,
-    summaryData.drink?.count > 0,
-    summaryData.poop?.total > 0,
-    summaryData.pee?.count > 0,
-  ];
-  const done = trackers.filter(Boolean).length;
-  const total = trackers.length;
-  const pct = Math.round((done / total) * 100);
-  const today = new Date().toISOString().split('T')[0];
-
-  // Update goal bar
-  document.getElementById('goal-label').textContent = `${done}/${total}`;
-  document.getElementById('goal-fill').style.width = `${pct}%`;
-
-  // Streak dari localStorage
-  let streak = { count: 0, lastDate: '' };
-  try {
-    const raw = localStorage.getItem('generos_streak');
-    if (raw) streak = JSON.parse(raw);
-  } catch (e) { /* ignore */ }
-
-  if (done > 0) {
-    // Hari ini ada aktivitas
-    if (streak.lastDate !== today) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yStr = yesterday.toISOString().split('T')[0];
-
-      if (streak.lastDate === yStr) {
-        streak.count += 1; // lanjut streak
-      } else if (streak.lastDate !== today) {
-        streak.count = 1; // reset streak
-      }
-      streak.lastDate = today;
-      localStorage.setItem('generos_streak', JSON.stringify(streak));
-    }
-  }
-
-  document.getElementById('streak-count').textContent = streak.count;
-  streakBar.classList.remove('hidden');
-
-  // Milestone celebration
-  const milestones = [7, 30, 100, 365];
-  if (milestones.includes(streak.count) && done > 0) {
-    let celebrated = {};
-    try {
-      const raw = localStorage.getItem('generos_milestones');
-      if (raw) celebrated = JSON.parse(raw);
-    } catch (e) { /* ignore */ }
-
-    const key = `streak_${streak.count}`;
-    if (!celebrated[key]) {
-      celebrated[key] = true;
-      localStorage.setItem('generos_milestones', JSON.stringify(celebrated));
-
-      // Show special celebration
-      const overlay = document.createElement('div');
-      overlay.className = 'celebration-overlay';
-      overlay.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;animation:scaleIn 0.5s ease forwards;text-align:center;">
-          <img src="images/characters/child-extra-yellow.png" alt="" style="width:160px;height:auto;">
-          <img src="images/characters/celebration-badge.png" alt="" style="width:80px;height:auto;margin-top:-20px;">
-          <p style="font-size:22px;font-weight:800;color:#E8682E;text-shadow:0 2px 8px rgba(232,104,46,0.2);">🔥 ${streak.count} Hari Berturut-turut!</p>
-          <p style="font-size:14px;color:#666;margin-top:-4px;">Luar biasa! Terus jaga konsistensi!</p>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-
-      setTimeout(() => {
-        overlay.style.transition = 'opacity 0.5s ease';
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.remove(), 600);
-      }, 3000);
-    }
-  }
-}
-
 // === 3. Daily Summary ===
 async function loadDailySummary() {
   const today = new Date().toISOString().split('T')[0];
@@ -988,9 +777,6 @@ async function loadDailySummary() {
       eatVal.textContent = '0';
       eatTime.textContent = '—';
     }
-
-    // Update streak & goal
-    updateStreakGoal(s);
   } catch (err) {
     console.error('Failed to load daily summary:', err);
     document.querySelectorAll('.tracker-value').forEach(el => el.textContent = '!');
@@ -1078,11 +864,7 @@ async function loadBerandaGrowthRingkasan(growthRecords) {
   } catch (e) { /* skip */ }
 
   const container = document.getElementById('home-recent-tracking');
-  if (!html) {
-    container.innerHTML = '<div class="character-empty"><img src="images/characters/child-thinking.png" alt="Belum ada data"><p>Belum ada data. Mulai catat tumbuh kembang!</p></div>';
-  } else {
-    container.innerHTML = html;
-  }
+  container.innerHTML = html || '<p class="info-text">Belum ada data. Mulai catat tumbuh kembang!</p>';
 }
 
 // === 6. Reminders ===
@@ -1092,7 +874,7 @@ async function loadReminders() {
     const data = await Api.getReminders();
     const reminders = data.reminders || [];
     if (reminders.length === 0) {
-      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
+      container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
       return;
     }
     container.innerHTML = reminders.slice(0, 3).map(r => {
@@ -1116,7 +898,7 @@ async function loadReminders() {
           this.closest('.reminder-item').remove();
           // If no more items, show empty state
           if (container.querySelectorAll('.reminder-item').length === 0) {
-            container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
+            container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
           }
         } catch (e) {
           this.textContent = '✗';
@@ -1126,7 +908,7 @@ async function loadReminders() {
       });
     });
   } catch (e) {
-    container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-reminder.png" alt="Tidak ada pengingat"><p>Tidak ada pengingat.</p></div>';
+    container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
   }
 }
 
@@ -1277,7 +1059,6 @@ async function submitQuickAdd() {
       }
     }
     showToast('Data tersimpan', 'success');
-    showCelebration('Catatan harian tersimpan! ✨');
     document.getElementById('quickadd-modal').classList.add('hidden');
     await loadDailySummary(); // refresh
   } catch (err) {
@@ -1401,7 +1182,6 @@ async function submitHomeGrowth() {
       notes: notes || null,
     });
     showToast('Data pertumbuhan tersimpan', 'success');
-    showCelebration('Data pertumbuhan tersimpan! 🎉');
     document.getElementById('growth-modal').classList.add('hidden');
     document.getElementById('hg-weight').value = '';
     document.getElementById('hg-height').value = '';
@@ -1905,7 +1685,7 @@ async function loadVideoPage() {
     }
 
     if (videos.length === 0) {
-      grid.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada video untuk kategori ini.</p></div>';
+      grid.innerHTML = '<p class="info-text">Belum ada video untuk kategori ini.</p>';
       return;
     }
 
@@ -2007,7 +1787,7 @@ async function loadArticles() {
     container.classList.remove('hidden');
 
     if (data.articles.length === 0) {
-      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada artikel. Nantikan artikel terbaru!</p></div>';
+      container.innerHTML = '<p class="info-text">Belum ada artikel.</p>';
       return;
     }
 
@@ -2132,7 +1912,7 @@ async function loadProducts() {
     const container = document.getElementById('product-list');
 
     if (data.products.length === 0) {
-      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada produk.</p></div>';
+      container.innerHTML = '<p class="info-text">Belum ada produk.</p>';
       return;
     }
 
@@ -2805,7 +2585,7 @@ async function showAdminListArticles() {
         '<button class="btn-secondary" data-action="show-admin-list-articles"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.articles.length === 0
-        ? '<div class="character-empty" style="padding:24px 16px;"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada artikel.</p></div>'
+        ? '<p class="info-text">Belum ada artikel.</p>'
         : data.articles.map((a) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
               ${a.image_url ? `<img src="${a.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
@@ -3018,7 +2798,7 @@ async function showAdminListProducts() {
         '<button class="btn-secondary" data-action="show-admin-list-products"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.products.length === 0
-        ? '<div class="character-empty" style="padding:24px 16px;"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada produk.</p></div>'
+        ? '<p class="info-text">Belum ada produk.</p>'
         : data.products.map((p) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
               ${p.images && p.images.length > 0 ? `<img src="${p.images[0]}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
@@ -3286,7 +3066,6 @@ async function submitScreeningAnswer(answer) {
 
       const result = await Api.completeScreeningSession(screeningSessionId);
       showToast('Skrining selesai!', 'success');
-      showCelebration('Skrining selesai! 🎉');
 
       // Navigate to result page
       viewScreeningResult(screeningSessionId);
@@ -3889,31 +3668,6 @@ async function loadTrackerDetailPage() {
   document.getElementById('tracker-form-title').textContent = cfg.formTitle;
   document.getElementById('tracker-form-fields').innerHTML = cfg.formFields();
   document.getElementById('g-sl-date').value = today;
-
-  // Set character illustration based on tracker type
-  const characterMap = {
-    sleep: 'child-sleep',
-    feeding: 'child-eating',
-    eating: 'child-eating',
-    drink: 'child-playful',
-    poop: 'child-thinking',
-    pee: 'child-playful',
-  };
-  const charName = characterMap[type] || 'child-playful';
-  const header = document.querySelector('#page-tracker-detail .header');
-  if (header) {
-    const existing = header.querySelector('.header-character');
-    if (!existing) {
-      const img = document.createElement('img');
-      img.className = 'header-character';
-      img.src = `images/characters/${charName}.png`;
-      img.alt = '';
-      img.style.cssText = 'width:32px;height:32px;object-fit:contain;opacity:0.9;';
-      header.appendChild(img);
-    } else {
-      existing.src = `images/characters/${charName}.png`;
-    }
-  }
 
   await loadTrackerToday(type, cfg);
   await loadTrackerAnalytics(type, cfg);
