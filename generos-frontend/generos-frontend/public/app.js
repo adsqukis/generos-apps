@@ -595,8 +595,6 @@ async function loadChildProfile(user, growthRecords) {
   // Ambil data pertumbuhan terakhir (dari parameter)
   const latest = growthRecords && growthRecords[0];
   if (latest) {
-      console.log('[loadChildProfile] growthRecords:', growthRecords, 'latest:', latest);
-      showToast(`Data: BB=${latest.weight_kg}, TB=${latest.height_cm}, LK=${latest.head_circumference_cm}`, 'success');
       document.getElementById('stat-bb').textContent = latest.weight_kg != null ? `${latest.weight_kg} kg` : '-';
       document.getElementById('stat-tb').textContent = latest.height_cm != null ? `${latest.height_cm} cm` : '-';
       document.getElementById('stat-lk').textContent = latest.head_circumference_cm != null ? `${latest.head_circumference_cm} cm` : '-';
@@ -693,7 +691,7 @@ async function loadDailySummary() {
   const today = new Date().toISOString().split('T')[0];
   try {
     const data = await Api.getDailySummary(today);
-    const s = data.summary || {};
+    const s = data || {};
     const fmtLast = (val) => {
       if (!val) return '—';
       if (val.includes('T')) return val.split('T')[1].slice(0, 5); // ISO → HH:MM
