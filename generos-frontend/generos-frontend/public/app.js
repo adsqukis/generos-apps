@@ -17,6 +17,39 @@ function imgUrl(url) {
 }
 
 // ============================
+// CELEBRATION
+// ============================
+function showCelebration(message) {
+  // Remove existing celebration overlay
+  const existing = document.querySelector('.celebration-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  overlay.innerHTML = `
+    <div class="celebration-stars">
+      <img src="images/characters/celebration-stars.png" alt="">
+      <img src="images/characters/celebration-stars.png" alt="">
+      <img src="images/characters/celebration-stars.png" alt="">
+      <img src="images/characters/celebration-stars.png" alt="">
+      <img src="images/characters/celebration-stars.png" alt="">
+    </div>
+    <div class="celebration-content">
+      <img src="images/characters/celebration-badge.png" alt="🎉">
+      <p style="font-size:18px;font-weight:700;color:#003DA5;text-align:center;">${message || 'Kerja bagus! 🎉'}</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Auto-hide after 2 seconds
+  setTimeout(() => {
+    overlay.style.transition = 'opacity 0.4s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 500);
+  }, 2000);
+}
+
+// ============================
 // INIT — jalan langsung karena script di akhir <body> (DOM sudah siap)
 // ============================
 function initApp() {
@@ -1063,6 +1096,7 @@ async function submitQuickAdd() {
       }
     }
     showToast('Data tersimpan', 'success');
+    showCelebration('Catatan harian tersimpan! ✨');
     document.getElementById('quickadd-modal').classList.add('hidden');
     await loadDailySummary(); // refresh
   } catch (err) {
@@ -1186,6 +1220,7 @@ async function submitHomeGrowth() {
       notes: notes || null,
     });
     showToast('Data pertumbuhan tersimpan', 'success');
+    showCelebration('Data pertumbuhan tersimpan! 🎉');
     document.getElementById('growth-modal').classList.add('hidden');
     document.getElementById('hg-weight').value = '';
     document.getElementById('hg-height').value = '';

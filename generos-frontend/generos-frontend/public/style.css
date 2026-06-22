@@ -338,6 +338,162 @@ body {
   line-height: 1.5;
 }
 
+/* ====================
+   ANIMATIONS
+   ==================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounceIn {
+  0%   { opacity: 0; transform: scale(0.3); }
+  50%  { opacity: 1; transform: scale(1.08); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@keyframes celebrationPop {
+  0%   { opacity: 0; transform: scale(0) rotate(-10deg); }
+  60%  { opacity: 1; transform: scale(1.15) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* Utility classes */
+.anim-fade-up    { animation: fadeInUp 0.5s ease forwards; }
+.anim-fade-in    { animation: fadeIn 0.4s ease forwards; }
+.anim-scale-in   { animation: scaleIn 0.4s ease forwards; }
+.anim-slide-up   { animation: slideUp 0.6s ease forwards; }
+.anim-bounce-in  { animation: bounceIn 0.5s ease forwards; }
+.anim-float      { animation: float 3s ease-in-out infinite; }
+.anim-pulse      { animation: pulse 2s ease-in-out infinite; }
+.anim-celebrate  { animation: celebrationPop 0.6s ease forwards; }
+
+/* Staggered delays */
+.delay-1  { animation-delay: 0.1s; }
+.delay-2  { animation-delay: 0.2s; }
+.delay-3  { animation-delay: 0.3s; }
+.delay-4  { animation-delay: 0.4s; }
+.delay-5  { animation-delay: 0.5s; }
+.delay-6  { animation-delay: 0.6s; }
+.delay-7  { animation-delay: 0.7s; }
+.delay-8  { animation-delay: 0.8s; }
+
+/* Page background gradient */
+.page-home {
+  background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 15%, #FFFFFF 85%, #FFF5F0 100%);
+}
+
+.login {
+  background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 35%);
+}
+
+/* Card entrance animation */
+.card, .child-card, .tracker-card, .menu-btn, .reminder-item, .video-card {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+/* Stagger individual cards */
+.child-card { animation-delay: 0.05s; }
+#daily-trackers .tracker-card:nth-child(1) { animation-delay: 0.1s; }
+#daily-trackers .tracker-card:nth-child(2) { animation-delay: 0.15s; }
+#daily-trackers .tracker-card:nth-child(3) { animation-delay: 0.2s; }
+#daily-trackers .tracker-card:nth-child(4) { animation-delay: 0.25s; }
+#daily-trackers .tracker-card:nth-child(5) { animation-delay: 0.3s; }
+#daily-trackers .tracker-card:nth-child(6) { animation-delay: 0.35s; }
+#development-today  { animation-delay: 0.4s; }
+.menu-grid .menu-btn:nth-child(1) { animation-delay: 0.45s; }
+.menu-grid .menu-btn:nth-child(2) { animation-delay: 0.5s; }
+.menu-grid .menu-btn:nth-child(3) { animation-delay: 0.55s; }
+#home-recent-tracking { animation-delay: 0.6s; }
+#reminders           { animation-delay: 0.65s; }
+
+/* Login page character entrance */
+.login-character-wrap {
+  animation: bounceIn 0.6s ease forwards;
+  opacity: 0;
+}
+
+.login-card {
+  animation: fadeInUp 0.5s ease 0.2s forwards;
+  opacity: 0;
+}
+
+/* Character float animation on home */
+.character-greeting-img {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Celebration overlay */
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.celebration-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: celebrationPop 0.6s ease forwards;
+}
+
+.celebration-content img {
+  width: 120px;
+  height: auto;
+}
+
+.celebration-stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.celebration-stars img {
+  position: absolute;
+  width: 40px;
+  height: auto;
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+.celebration-stars img:nth-child(1) { top: 10%; left: 10%; animation-delay: 0.1s; }
+.celebration-stars img:nth-child(2) { top: 5%; right: 15%; animation-delay: 0.2s; }
+.celebration-stars img:nth-child(3) { bottom: 20%; left: 5%; animation-delay: 0.3s; }
+.celebration-stars img:nth-child(4) { bottom: 10%; right: 10%; animation-delay: 0.4s; }
+.celebration-stars img:nth-child(5) { top: 30%; right: 5%; animation-delay: 0.5s; }
+
 /* Buttons */
 button {
   font-family: inherit;
