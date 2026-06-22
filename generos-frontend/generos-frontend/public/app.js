@@ -694,8 +694,8 @@ async function loadDailySummary() {
     const s = data || {};
     const fmtLast = (val) => {
       if (!val) return '—';
-      if (val.includes('T')) return val.split('T')[1].slice(0, 5); // ISO → HH:MM
-      return val.slice(0, 5); // already TIME format
+      let time = val.includes('T') ? val.split('T')[1].slice(0, 5) : val.slice(0, 5);
+      return time + ' WIB';
     };
 
     // Tidur
