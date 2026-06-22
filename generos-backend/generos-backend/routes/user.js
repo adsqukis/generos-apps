@@ -98,6 +98,67 @@ router.put('/settings', async (req, res) => {
   }
 });
 
+// ============================
+// ADMIN: Update user
+// ============================
+router.put('/:id', async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Hanya admin yang dapat mengedit pengguna' });
+  }
+  const { id } = req.params;
+  const { full_name, child_name, role, email, phone } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET
+        full_name = COALESCE($1, full_name),
+        child_name = COALESCE($2, child_name),
+        role = COALESCE($3, role),
+        email = COALESCE($4, email),
+        phone = COALESCE($5, phone),
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $6
+       RETURNING id, email, phone, full_name, child_name, role, created_at`,
+      [full_name, child_name, role, email, phone, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    res.json({ user: result.rows[0] });
+  } catch (err) {
+    console.error('Update user error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
+// ============================
+// ADMIN: Delete user
+// ============================
+router.delete('/:id', async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Hanya admin yang dapat menghapus pengguna' });
+  }
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id, full_name`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    res.json({ message: `User ${result.rows[0].full_name} berhasil dihapus` });
+  } catch (err) {
+    console.error('Delete user error:', err);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+});
+
 module.exports = router;
 
 // ============================
