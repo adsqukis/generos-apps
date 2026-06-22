@@ -1724,7 +1724,7 @@ async function loadVideoPage() {
     }
 
     if (videos.length === 0) {
-      grid.innerHTML = '<p class="info-text">Belum ada video untuk kategori ini.</p>';
+      grid.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada video untuk kategori ini.</p></div>';
       return;
     }
 
@@ -1826,7 +1826,7 @@ async function loadArticles() {
     container.classList.remove('hidden');
 
     if (data.articles.length === 0) {
-      container.innerHTML = '<p class="info-text">Belum ada artikel.</p>';
+      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada artikel. Nantikan artikel terbaru!</p></div>';
       return;
     }
 
@@ -1951,7 +1951,7 @@ async function loadProducts() {
     const container = document.getElementById('product-list');
 
     if (data.products.length === 0) {
-      container.innerHTML = '<p class="info-text">Belum ada produk.</p>';
+      container.innerHTML = '<div class="character-empty"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada produk.</p></div>';
       return;
     }
 
@@ -2624,7 +2624,7 @@ async function showAdminListArticles() {
         '<button class="btn-secondary" data-action="show-admin-list-articles"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.articles.length === 0
-        ? '<p class="info-text">Belum ada artikel.</p>'
+        ? '<div class="character-empty" style="padding:24px 16px;"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada artikel.</p></div>'
         : data.articles.map((a) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
               ${a.image_url ? `<img src="${a.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
@@ -2837,7 +2837,7 @@ async function showAdminListProducts() {
         '<button class="btn-secondary" data-action="show-admin-list-products"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>' +
       '</div>' +
       (data.products.length === 0
-        ? '<p class="info-text">Belum ada produk.</p>'
+        ? '<div class="character-empty" style="padding:24px 16px;"><img src="images/characters/empty-explore.png" alt=""><p>Belum ada produk.</p></div>'
         : data.products.map((p) =>
             `<div class="card" style="border-left:none;margin-bottom:8px;padding:10px;">
               ${p.images && p.images.length > 0 ? `<img src="${p.images[0]}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">` : ''}
@@ -3105,6 +3105,7 @@ async function submitScreeningAnswer(answer) {
 
       const result = await Api.completeScreeningSession(screeningSessionId);
       showToast('Skrining selesai!', 'success');
+      showCelebration('Skrining selesai! 🎉');
 
       // Navigate to result page
       viewScreeningResult(screeningSessionId);
