@@ -7,7 +7,10 @@ const { authenticateToken } = require('../middleware/auth');
 router.use(authenticateToken);
 
 // GET /api/child/profile — ambil data anak + growth terakhir
-router.get('/profile', async (req, res) => {
+router.get('/profile', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+}, async (req, res) => {
   try {
     const userResult = await pool.query(
       `SELECT child_name, child_nickname, child_dob, child_gender, child_photo,

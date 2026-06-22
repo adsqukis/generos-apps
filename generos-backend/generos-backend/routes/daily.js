@@ -310,7 +310,10 @@ router.delete('/poop/:id', [param('id').isUUID().withMessage('ID tidak valid')],
 // ============================
 // DASHBOARD SUMMARY
 // ============================
-router.get('/summary', async (req, res) => {
+router.get('/summary', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+}, async (req, res) => {
   const date = getDate(req);
   try {
     const [sleep, feeding, eating, drink, pee, poop, growth] = await Promise.all([
