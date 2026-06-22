@@ -441,8 +441,28 @@ function showToast(message, type = 'info') {
 // NAVIGATION
 // ============================
 function navigate(page) {
-  document.querySelectorAll('.page').forEach((p) => p.classList.add('hidden'));
-  document.getElementById(`page-${page}`).classList.remove('hidden');
+  const currentEl = document.getElementById(`page-${currentPage}`);
+  const nextEl = document.getElementById(`page-${page}`);
+  if (!nextEl || page === currentPage) return;
+
+  // Animate exit current page
+  if (currentEl && !currentEl.classList.contains('hidden')) {
+    currentEl.classList.add('page-exit');
+    setTimeout(() => {
+      currentEl.classList.add('hidden');
+      currentEl.classList.remove('page-exit');
+    }, 200);
+  } else if (currentEl) {
+    currentEl.classList.add('hidden');
+  }
+
+  // Animate enter next page
+  nextEl.classList.remove('hidden');
+  nextEl.classList.add('page-enter');
+  setTimeout(() => {
+    nextEl.classList.remove('page-enter');
+  }, 350);
+
   currentPage = page;
 
   const navBar = document.getElementById('nav-bar');
