@@ -115,6 +115,26 @@ function initApp() {
   });
   safeAddListener('btn-submit-home-growth', 'click', submitHomeGrowth);
   safeAddListener('btn-notif', 'click', openNotifModal);
+  // Quick menu items
+  document.querySelectorAll('.quick-menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.dataset.menu;
+      if (page) navigate(page);
+    });
+  });
+  // Hero CTA
+  safeAddListener('hero-cta', 'click', () => navigate('tracking'));
+  // AI chips (suggestion chips)
+  document.querySelectorAll('.ai-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById('ai-chat-input').value = chip.textContent.trim();
+    });
+  });
+  // AI send button
+  safeAddListener('ai-send-btn', 'click', () => {
+    const input = document.getElementById('ai-chat-input');
+    if (input.value.trim()) navigate('chat');
+  });
   // Child Data page listeners
   if (typeof initChildDataListeners === 'function') initChildDataListeners();
   safeAddListener('btn-submit-quickadd', 'click', submitQuickAdd);
@@ -561,58 +581,82 @@ async function loadHomeData() {
   const user = Api.getUser();
   if (!user) return;
 
-  // 1. Header greeting
+  // Personal greeting
   const nameParts = (user.full_name || '').split(' ');
   const firstName = nameParts[0] || 'Pengguna';
-  document.getElementById('home-greeting').textContent = `Hi, ${firstName}!`;
+  const greetingEl = document.getElementById('home-greeting');
+  if (greetingEl) greetingEl.textContent = `Hi, ${firstName}! 👋`;
 
-  // 2. Fetch fresh child profile dari API (satu sumber utk semua data anak)
-  let childData = null;
-  let childGrowth = null;
+  // Fetch child data
+  let childName = user.child_name || 'Anak';
+  let childDob = user.child_dob;
+  let childGender = user.child_gender;
+  let growthData = null;
+
   try {
     const apiData = await Api.getChildProfile();
-    childData = apiData.child || null;
-    childGrowth = apiData.growth || null;
-  } catch (e) {
-    console.error('[loadHomeData] getChildProfile error:', e);
-    /* fallback ke localStorage */
+    const child = apiData.child || {};
+    if (child.name) childName = child.name;
+    if (child.dob) childDob = child.dob;
+    if (child.gender) childGender = child.gender;
+    growthData = apiData.growth || null;
+  } catch (e) { /* fallback */ }
+
+  // Update child name/age in hero
+  const nameEl = document.getElementById('child-name-home');
+  if (nameEl) nameEl.textContent = childName;
+
+  const age = calculateAgeMonths(childDob);
+  const ageEl = document.getElementById('child-age-home');
+  if (ageEl) {
+    const parts = getAgeParts(childDob);
+    ageEl.textContent = `${parts.months} bulan ${parts.days} hari`;
   }
 
-  // Merge: API data lebih prioritas, localStorage sebagai fallback
-  const childName = (childData && childData.name) || user.child_name || 'Anak';
-  const childDob = (childData && childData.dob) || user.child_dob;
-  const childGender = (childData && childData.gender) || user.child_gender;
-  const childPhoto = (childData && childData.photo) || user.child_photo;
+  // Avatar
+  const avatarEl = document.getElementById('child-avatar-home');
+  if (avatarEl) {
+    if (childGender === 'Laki-laki') avatarEl.textContent = '👦';
+    else if (childGender === 'Perempuan') avatarEl.textContent = '👧';
+    else avatarEl.textContent = (childName.charAt(0) || '·').toUpperCase();
+  }
 
-  // Hitung usia anak
-  const age = calculateAgeMonths(childDob);
+  // Growth stats in hero
+  if (growthData) {
+    const hEl = document.getElementById('stat-height');
+    if (hEl) hEl.textContent = growthData.height_cm ? `${growthData.height_cm} cm` : '-';
+    const wEl = document.getElementById('stat-weight');
+    if (wEl) wEl.textContent = growthData.weight_kg ? `${growthData.weight_kg} kg` : '-';
+  }
 
-  // Sembunyikan tracker yang gak relevan berdasarkan usia
-  applyAgeBasedVisibility(age);
+  // Growth Tracker Card
+  if (growthData) {
+    const curH = document.getElementById('growth-current-height');
+    if (curH) curH.textContent = growthData.height_cm || '-';
+    const targetH = document.getElementById('growth-target-height');
+    if (targetH) {
+      // Estimate target based on age (rough WHO-based)
+      const targets = {12:78, 24:87, 36:96, 48:103, 60:110, 72:116};
+      const target = Object.entries(targets).reduce((a,[k,v]) => age >= parseInt(k) ? v : a, 110);
+      targetH.textContent = `${target} cm`;
+    }
+    // Progress %
+    if (growthData.height_cm) {
+      const pct = Math.min(100, Math.round((parseFloat(growthData.height_cm) / 110) * 100));
+      const fill = document.getElementById('growth-progress-fill');
+      const pctEl = document.getElementById('growth-progress-pct');
+      if (fill) fill.style.width = `${pct}%`;
+      if (pctEl) pctEl.textContent = `${pct}%`;
+    }
+  }
 
-  // 3. Child Profile — pake data fresh dari API (growth juga dari sini)
-  // Gabungin API data + localStorage jadi satu object user
-  const mergedUser = {
-    ...user,
-    child_name: childName,
-    child_dob: childDob,
-    child_gender: childGender,
-    child_photo: childPhoto,
-  };
-  // Growth record pake dari child profile API biar sinkron dgn Settings
-  const growthRecord = childGrowth ? [childGrowth] : [];
-  await loadChildProfile(mergedUser, growthRecord);
-
-  // 3. Daily Summary (tidur, menyusui, minum, BAB, BAK)
+  // Daily summary
   await loadDailySummary();
 
-  // 4. Development Today
+  // Development today
   await loadDevelopmentToday(user);
 
-  // 5. Growth summary (pake data growth yg udah diambil)
-  await loadBerandaGrowthRingkasan(growthRecord);
-
-  // 6. Reminders
+  // Reminders
   await loadReminders();
 }
 
