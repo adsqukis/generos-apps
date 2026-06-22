@@ -569,8 +569,10 @@ async function loadChildProfile(user, growthRecords) {
     extraDays = totalDays % 30;
   }
 
+  // Gunakan getAgeParts untuk display yang akurat
+  const parts = getAgeParts(user.child_dob);
   document.getElementById('child-name').textContent = childName;
-  document.getElementById('child-age').textContent = `${age} bulan ${extraDays} hari`;
+  document.getElementById('child-age').textContent = `${parts.months} bulan ${parts.days} hari`;
 
   // Avatar — from photo/emoji/SVG
   const avatarEl = document.getElementById('child-avatar');
@@ -1169,8 +1171,24 @@ document.addEventListener('keydown', function(e) {
 
 function calculateAgeMonths(dob) {
   if (!dob) return '-';
-  const diff = new Date() - new Date(dob);
-  return Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+  const now = new Date();
+  const birth = new Date(dob);
+  const diff = now - birth;
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 30)); // tetap 30-day untuk konsistensi dgn extraDays
+}
+
+function getAgeParts(dob) {
+  if (!dob) return { months: '-', days: 0 };
+  const now = new Date();
+  const birth = new Date(dob);
+  let months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  let days = now.getDate() - birth.getDate();
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  return { months, days };
 }
 
 function formatDate(dateStr) {
@@ -3680,13 +3698,8 @@ async function loadDevelopmentPageData(age) {
   const user = Api.getUser();
   if (!user) return;
   const childName = user.child_name || 'Anak';
-  const dob = user.child_dob ? new Date(user.child_dob) : null;
-  let extraDays = 0;
-  if (dob) {
-    const diff = new Date() - dob;
-    extraDays = Math.floor(diff / (1000 * 60 * 60 * 24)) % 30;
-  }
-  document.getElementById('dev-age-label').textContent = `${age} bulan ${extraDays} hari`;
+  const parts = getAgeParts(user.child_dob);
+  document.getElementById('dev-age-label').textContent = `${parts.months} bulan ${parts.days} hari`;
   try {
     const data = await Api.request(`/development?age=${age}`);
     if (!data) return;
