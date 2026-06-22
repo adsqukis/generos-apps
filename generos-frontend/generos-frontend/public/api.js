@@ -555,14 +555,14 @@ const Api = {
   },
 
   async updateUser(id, payload) {
-    return this.request(`/user/${id}`, {
+    return this.request(`/user/edit/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
     });
   },
 
   async deleteUser(id) {
-    return this.request(`/user/${id}`, {
+    return this.request(`/user/remove/${id}`, {
       method: 'DELETE',
     });
   },

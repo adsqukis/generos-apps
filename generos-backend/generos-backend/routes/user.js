@@ -101,7 +101,7 @@ router.put('/settings', async (req, res) => {
 // ============================
 // ADMIN: Update user
 // ============================
-router.put('/:id', async (req, res) => {
+router.put('/edit/:id', async (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Hanya admin yang dapat mengedit pengguna' });
   }
@@ -136,7 +136,7 @@ router.put('/:id', async (req, res) => {
 // ============================
 // ADMIN: Delete user
 // ============================
-router.delete('/:id', async (req, res) => {
+router.delete('/remove/:id', async (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Hanya admin yang dapat menghapus pengguna' });
   }
