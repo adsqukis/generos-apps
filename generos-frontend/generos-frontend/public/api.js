@@ -415,6 +415,17 @@ const Api = {
     return this.request('/daily/reminders');
   },
 
+  async markImmunization(vaccineName) {
+    const today = new Date().toISOString().split('T')[0];
+    return this.request('/tracking/immunization', {
+      method: 'POST',
+      body: JSON.stringify({
+        vaccine_name: vaccineName,
+        immunization_date: today,
+      }),
+    });
+  },
+
   // ============ SLEEP DETAIL ============
   async getSleepAnalytics(days) {
     const q = days ? `?days=${days}` : '';
@@ -540,6 +551,19 @@ const Api = {
     return this.request('/auth/register-admin', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  async updateUser(id, payload) {
+    return this.request(`/user/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteUser(id) {
+    return this.request(`/user/${id}`, {
+      method: 'DELETE',
     });
   },
 };

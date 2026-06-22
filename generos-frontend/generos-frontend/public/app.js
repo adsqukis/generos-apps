@@ -320,6 +320,9 @@ function initApp() {
     else if (action === 'show-admin-user-list') showAdminUserList();
     else if (action === 'show-admin-add-admin') showAdminAddAdmin();
     else if (action === 'submit-admin-add-admin') submitAdminAddAdmin();
+    else if (action === 'show-admin-edit-user') showAdminEditUser(e);
+    else if (action === 'submit-admin-edit-user') submitAdminEditUser();
+    else if (action === 'show-admin-delete-user') submitAdminDeleteUser(e);
     else if (action === 'edit-child-data' || action === 'add-child-data') openChildForm();
     else if (action === 'save-cs-settings') saveCsSettings();
     else if (action === 'toggle-privacy') toggleAccordion('accordion-privacy');
@@ -875,10 +878,35 @@ async function loadReminders() {
       return;
     }
     container.innerHTML = reminders.slice(0, 3).map(r => {
-      const icon = r.type === 'imunisasi' ? '💉' : '🏥';
       const days = r.days_left > 0 ? `${r.days_left} hari lagi` : 'Hari ini';
-      return `<div class="reminder-item"><span>${icon} ${escapeHtml(r.title)}</span><span class="reminder-days">${days}</span></div>`;
+      const doneBtn = r.type === 'imunisasi'
+        ? `<button class="reminder-done-btn" data-vaccine="${escapeHtml(r.title.replace('Imunisasi ', ''))}" title="Tandai sudah">✓</button>`
+        : '';
+      return `<div class="reminder-item">${doneBtn}<span>${r.icon} ${escapeHtml(r.title)}</span><span class="reminder-days">${days}</span></div>`;
     }).join('');
+
+    // Bind "Tandai sudah" buttons
+    container.querySelectorAll('.reminder-done-btn').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const vaccineName = this.dataset.vaccine;
+        this.disabled = true;
+        this.textContent = '...';
+        try {
+          await Api.markImmunization(vaccineName);
+          // Remove parent reminder-item
+          this.closest('.reminder-item').remove();
+          // If no more items, show empty state
+          if (container.querySelectorAll('.reminder-item').length === 0) {
+            container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
+          }
+        } catch (e) {
+          this.textContent = '✗';
+          this.style.color = '#e53935';
+          console.error('Gagal tandai imunisasi:', e);
+        }
+      });
+    });
   } catch (e) {
     container.innerHTML = '<p class="info-text">Tidak ada pengingat.</p>';
   }
@@ -2412,6 +2440,10 @@ async function showAdminUserList() {
                 <span style="color:${u.role === 'admin' ? '#E86C3A' : '#4CAF82'};">${u.role === 'admin' ? 'Admin' : 'User'}</span>
                 · Bergabung ${new Date(u.created_at).toLocaleDateString('id-ID')}
               </p>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <button class="btn-sm" data-action="show-admin-edit-user" data-id="${u.id}" data-item='${encodeURIComponent(JSON.stringify({id:u.id,full_name:u.full_name,email:u.email,phone:u.phone,child_name:u.child_name,role:u.role}))}'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Edit</button>
+                ${u.role !== 'admin' ? `<button class="btn-sm btn-danger" data-action="show-admin-delete-user" data-id="${u.id}" data-name="${escapeHtml(u.full_name)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Hapus</button>` : ''}
+              </div>
             </div>`
           ).join('')
       );
@@ -2463,6 +2495,74 @@ async function submitAdminAddAdmin() {
     name.value = '';
     identifier.value = '';
     password.value = '';
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Edit User Form
+// ============================
+function showAdminEditUser(e) {
+  const itemRaw = decodeURIComponent(e.dataset.item);
+  const u = JSON.parse(itemRaw);
+  const panel = document.getElementById('admin-panel-content');
+  panel.innerHTML =
+    '<h4 style="margin-top:12px;">Edit User</h4>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">' +
+      '<input type="text" id="admin-edit-name" placeholder="Nama lengkap" value="' + escapeHtml(u.full_name || '') + '" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<input type="text" id="admin-edit-email" placeholder="Email" value="' + escapeHtml(u.email || '') + '" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<input type="text" id="admin-edit-phone" placeholder="Nomor telepon" value="' + escapeHtml(u.phone || '') + '" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<input type="text" id="admin-edit-child" placeholder="Nama anak" value="' + escapeHtml(u.child_name || '') + '" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+      '<select id="admin-edit-role" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">' +
+        '<option value="user"' + (u.role === 'user' ? ' selected' : '') + '>User</option>' +
+        '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
+      '</select>' +
+      '<div style="display:flex;gap:8px;margin-top:4px;">' +
+        '<button class="btn-primary" data-action="submit-admin-edit-user" data-id="' + u.id + '" style="flex:1;">Simpan</button>' +
+        '<button class="btn-secondary" data-action="show-admin-user-list" style="flex:1;">Batal</button>' +
+      '</div>' +
+    '</div>';
+}
+
+// ============================
+// ADMIN: Submit Edit User
+// ============================
+async function submitAdminEditUser() {
+  const btn = document.querySelector('[data-action="submit-admin-edit-user"]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const full_name = document.getElementById('admin-edit-name')?.value.trim();
+  const email = document.getElementById('admin-edit-email')?.value.trim();
+  const phone = document.getElementById('admin-edit-phone')?.value.trim();
+  const child_name = document.getElementById('admin-edit-child')?.value.trim();
+  const role = document.getElementById('admin-edit-role')?.value;
+
+  if (!full_name) {
+    showToast('Nama tidak boleh kosong', 'error');
+    return;
+  }
+
+  try {
+    const result = await Api.updateUser(id, { full_name, email, phone, child_name, role });
+    showToast('User berhasil diperbarui: ' + result.user.full_name, 'success');
+    showAdminUserList();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ============================
+// ADMIN: Delete User
+// ============================
+async function submitAdminDeleteUser(e) {
+  const id = e.dataset.id;
+  const name = e.dataset.name;
+  if (!confirm('Hapus user "' + name + '"? Tindakan ini tidak bisa dibatalkan.')) return;
+  try {
+    const result = await Api.deleteUser(id);
+    showToast(result.message || 'User berhasil dihapus', 'success');
+    showAdminUserList();
   } catch (err) {
     showToast(err.message, 'error');
   }
