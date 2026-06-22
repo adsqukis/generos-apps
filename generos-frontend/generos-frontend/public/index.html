@@ -24,7 +24,7 @@
       .login { background: #E8F0FF; }
       .logo-circle { background: #003DA5; }
     </style>
-    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
     <div class="phone">
@@ -121,6 +121,19 @@
                     <button class="icon-btn-round" id="btn-notif"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
                     <button class="icon-btn-round" id="btn-settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#003DA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
                 </div>
+            </div>
+
+            <!-- Streak & Daily Goal -->
+            <div id="streak-bar" class="streak-bar hidden">
+              <div class="streak-left">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-count" id="streak-count">0</span>
+                <span class="streak-label">hari berturut-turut</span>
+              </div>
+              <div class="streak-right">
+                <span class="goal-label" id="goal-label">0/4</span>
+                <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+              </div>
             </div>
             <div class="container">
                 <!-- Child Profile Card -->

@@ -457,6 +457,70 @@ body {
   background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 35%);
 }
 
+/* Streak & Daily Goal Bar */
+.streak-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  margin: 0 16px 8px;
+  background: linear-gradient(135deg, #FFF5E6 0%, #FFF0E0 100%);
+  border-radius: 14px;
+  border: 1.5px solid #FFE0C0;
+}
+
+.streak-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.streak-fire {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.streak-count {
+  font-size: 20px;
+  font-weight: 800;
+  color: #E8682E;
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #A07040;
+}
+
+.streak-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goal-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #E8682E;
+  white-space: nowrap;
+}
+
+.goal-track {
+  width: 60px;
+  height: 8px;
+  background: #FFE0C0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.goal-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF8A6B, #E8682E);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
 /* Card entrance animation */
 .card, .child-card, .tracker-card, .menu-btn, .reminder-item, .video-card {
   animation: fadeInUp 0.5s ease forwards;

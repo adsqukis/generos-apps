@@ -722,6 +722,62 @@ function applyAgeBasedVisibility(age) {
   showCard('pee', true);
 }
 
+// === Streak & Daily Goal ===
+function updateStreakGoal(summaryData) {
+  const streakBar = document.getElementById('streak-bar');
+  if (!streakBar) return;
+
+  if (!summaryData) {
+    streakBar.classList.add('hidden');
+    return;
+  }
+
+  // Hitung tracker yang aktif hari ini (count > 0)
+  const trackers = [
+    summaryData.sleep?.count > 0,
+    summaryData.feeding?.count > 0,
+    summaryData.eating?.count > 0,
+    summaryData.drink?.count > 0,
+    summaryData.poop?.total > 0,
+    summaryData.pee?.count > 0,
+  ];
+  const done = trackers.filter(Boolean).length;
+  const total = trackers.length;
+  const pct = Math.round((done / total) * 100);
+  const today = new Date().toISOString().split('T')[0];
+
+  // Update goal bar
+  document.getElementById('goal-label').textContent = `${done}/${total}`;
+  document.getElementById('goal-fill').style.width = `${pct}%`;
+
+  // Streak dari localStorage
+  let streak = { count: 0, lastDate: '' };
+  try {
+    const raw = localStorage.getItem('generos_streak');
+    if (raw) streak = JSON.parse(raw);
+  } catch (e) { /* ignore */ }
+
+  if (done > 0) {
+    // Hari ini ada aktivitas
+    if (streak.lastDate !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yStr = yesterday.toISOString().split('T')[0];
+
+      if (streak.lastDate === yStr) {
+        streak.count += 1; // lanjut streak
+      } else if (streak.lastDate !== today) {
+        streak.count = 1; // reset streak
+      }
+      streak.lastDate = today;
+      localStorage.setItem('generos_streak', JSON.stringify(streak));
+    }
+  }
+
+  document.getElementById('streak-count').textContent = streak.count;
+  streakBar.classList.remove('hidden');
+}
+
 // === 3. Daily Summary ===
 async function loadDailySummary() {
   const today = new Date().toISOString().split('T')[0];
@@ -810,6 +866,9 @@ async function loadDailySummary() {
       eatVal.textContent = '0';
       eatTime.textContent = '—';
     }
+
+    // Update streak & goal
+    updateStreakGoal(s);
   } catch (err) {
     console.error('Failed to load daily summary:', err);
     document.querySelectorAll('.tracker-value').forEach(el => el.textContent = '!');
