@@ -694,7 +694,16 @@ async function loadDailySummary() {
     const s = data || {};
     const fmtLast = (val) => {
       if (!val) return '—';
-      let time = val.includes('T') ? val.split('T')[1].slice(0, 5) : val.slice(0, 5);
+      let time;
+      if (val.includes('T')) {
+        // ISO UTC → WIB (+7 jam)
+        const utc = new Date(val);
+        const wib = new Date(utc.getTime() + 7 * 60 * 60 * 1000);
+        time = wib.toISOString().split('T')[1].slice(0, 5);
+      } else {
+        // Already HH:mm:ss format (sleep_end)
+        time = val.slice(0, 5);
+      }
       return time + ' WIB';
     };
 
