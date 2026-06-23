@@ -321,7 +321,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.get('/api/backup-db', async (req, res) => {
   try {
     const { Client } = require('pg');
-    const client = new Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    const client = new Client({ connectionString: process.env.DATABASE_URL, ssl: false });
     await client.connect();
     const tables = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name");
     const dump = {};
