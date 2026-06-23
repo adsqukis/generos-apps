@@ -146,7 +146,7 @@ function collectFormData() {
     child_nickname: document.getElementById('cd-nickname').value.trim(),
     child_dob: document.getElementById('cd-dob').value || null,
     child_gender: document.getElementById('cd-gender').value,
-    child_photo: document.getElementById('cd-avatar').value || '',
+    child_photo: '',
     birth_weight: document.getElementById('cd-birth-weight').value || null,
     birth_height: document.getElementById('cd-birth-height').value || null,
     birth_head_circumference: document.getElementById('cd-birth-head').value || null,

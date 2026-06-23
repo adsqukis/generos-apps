@@ -25,7 +25,7 @@ body {
 .phone {
   max-width: 420px;
   margin: 0 auto;
-  background: var(--primary-bg);
+  background: #F8FAFF;
   min-height: 100vh;
   position: relative;
 }
@@ -44,6 +44,7 @@ body {
 .page {
   min-height: 100vh;
   padding-bottom: 80px;
+  background: linear-gradient(180deg, #D6E4FF 0%, #EEF3FF 40%, #F8FAFF 70%, #FFFFFF 100%);
 }
 
 .page.hidden {
@@ -87,6 +88,7 @@ body {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px 16px;
+  background: transparent;
 }
 
 /* Login Page */
@@ -3392,7 +3394,6 @@ textarea {
   display: flex; align-items: center; gap: 12px;
   background: var(--primary-light); margin: 0; padding: 14px 16px;
 }
-.media-hero-img { width: 70px; height: 70px; object-fit: contain; }
 .media-hero-title { font-weight: 700; font-size: 15px; color: var(--text); margin: 0; }
 .media-hero-sub { font-size: 12px; color: var(--text-light); margin: 2px 0 0; }
 .media-tabs { display: flex; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 5; }
@@ -3481,9 +3482,8 @@ textarea {
 .home-cta-img { width: 92px !important; height: 92px !important; }
 .home-cta { padding: 16px 18px; }
 
-.media-hero { padding: 16px 18px 0; align-items: flex-end; background: linear-gradient(180deg, var(--primary-light) 0%, var(--white) 100%); }
-.media-hero-img { width: auto !important; height: 150px !important; object-position: bottom; filter: drop-shadow(0 8px 14px rgba(138,155,219,0.22)); }
-.media-hero-text { flex: 1; padding-bottom: 18px; }
+.media-hero { padding: 16px 18px; align-items: center; background: linear-gradient(180deg, var(--primary-light) 0%, var(--white) 100%); }
+.media-hero-text { flex: 1; }
 
 .loyalty-hero { align-items: center; }
 .loyalty-hero-img { width: auto !important; height: 132px !important; object-fit: contain; }
