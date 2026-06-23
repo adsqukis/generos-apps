@@ -29,42 +29,24 @@ function openChildForm() {
   document.getElementById('cd-mother-name').value = cdData.mother_name || '';
   document.getElementById('cd-parent-notes').value = cdData.parent_notes || '';
 
-  // Pre-select avatar
-  if (cdSelectedAvatar) {
-    const opts = document.querySelectorAll('.avatar-opt');
-    opts.forEach(o => {
-      if (o.dataset.avatar === cdSelectedAvatar) {
-        o.style.borderColor = '#E8682E';
-        o.style.background = '#FFF0E8';
-      } else {
-        o.style.borderColor = 'transparent';
-        o.style.background = '#f5f5f5';
-      }
-    });
-    document.getElementById('cd-avatar').value = cdSelectedAvatar;
-  } else {
-    document.getElementById('cd-avatar').value = '';
-  }
+  // Avatar — otomatis sesuai usia & gender, gak perlu pre-select
+  document.getElementById('cd-avatar').value = '';
 
-  // Init avatar picker
+  // Avatar — preview ilustrasi sesuai umur + gender
   const pickerContainer = document.getElementById('avatar-picker-container');
   if (pickerContainer) {
-    cdAvatarPicker = avatarPickerBuilder(pickerContainer, cdSelectedAvatar || 'warm-peach', (cfg) => {
-      cdSelectedAvatar = avatarEncode(cfg);
-      document.getElementById('cd-avatar').value = cdSelectedAvatar;
-    });
-    // If existing avatar data, set initial encoded value
-    if (cdSelectedAvatar) {
-      const parsed = avatarParse(cdSelectedAvatar);
-      if (!parsed._isEmoji) {
-        cdSelectedAvatar = avatarEncode(parsed);
-        document.getElementById('cd-avatar').value = cdSelectedAvatar;
-      } else {
-        // Legacy emoji — will show as emoji text fallback
-        document.getElementById('cd-avatar').value = cdSelectedAvatar;
-      }
-    }
+    const ageMonths = getAgeMonths(cdData.dob);
+    const gender = document.getElementById('cd-gender').value || cdData.gender || 'Laki-laki';
+    const avatarFile = getAvatarByAgeGender(ageMonths, gender);
+    pickerContainer.innerHTML = `
+      <div style="text-align:center;padding:8px 0;">
+        <img src="/images/characters/${avatarFile}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-bottom:8px;">
+        <p style="font-size:13px;color:#888;margin:0;">🔄 Avatar otomatis sesuai usia & jenis kelamin</p>
+      </div>
+    `;
   }
+  // Reset hidden avatar field — gak dipake lagi
+  document.getElementById('cd-avatar').value = '';
 
   showStep(1);
   document.getElementById('child-form-modal').classList.remove('hidden');
