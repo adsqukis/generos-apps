@@ -316,28 +316,6 @@ app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // ============================
-// TEMP BACKUP ENDPOINT (remove after deploy)
-// ============================
-app.get('/api/backup-db', async (req, res) => {
-  try {
-    const { Client } = require('pg');
-    const client = new Client({ connectionString: process.env.DATABASE_URL, ssl: false });
-    await client.connect();
-    const tables = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name");
-    const dump = {};
-    for (const row of tables.rows) {
-      const tn = row.table_name;
-      const data = await client.query(`SELECT * FROM "${tn}"`);
-      dump[tn] = data.rows;
-    }
-    await client.end();
-    res.json({ backup: dump, tables: tables.rows.map(t => t.table_name), generatedAt: new Date().toISOString() });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ============================
 // 404 HANDLER
 // ============================
 app.use((req, res) => {
