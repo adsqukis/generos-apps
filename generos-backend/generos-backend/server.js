@@ -270,11 +270,11 @@ const { Pool } = require('pg');
     try {
       const bcrypt = require('bcryptjs');
       const sPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
-      const existing = await sPool.query("SELECT COUNT(*) as cnt FROM users WHERE phone = '08123456789' OR email = 'irvanhidayat919@gmail.com'");
-      if (parseInt(existing.rows[0].cnt) === 0) {
+      const existing = await sPool.query("SELECT phone, email FROM users WHERE phone = '08123456789' OR email = 'irvanhidayat919@gmail.com'");
+      if (parseInt(existing.rows.length) === 0) {
         const hash = await bcrypt.hash('Admin12345', 12);
         await sPool.query(
-          "INSERT INTO users (phone, password_hash, full_name, role) VALUES ('08123456789', $1, 'Admin Generos', 'admin')",
+          "INSERT INTO users (phone, password_hash, full_name, child_name, child_dob, role) VALUES ('08123456789', $1, 'Admin Generos', 'Buah Hati', '2022-06-01', 'admin')",
           [hash]
         );
         const hash2 = await bcrypt.hash('Irvan12345', 12);
@@ -284,7 +284,13 @@ const { Pool } = require('pg');
         );
         console.log('🌱 Admin + test accounts seeded');
       } else {
-        console.log('✓ Admin accounts already exist');
+        // Ensure existing accounts have child_dob set
+        const hashAdmin = await bcrypt.hash('Admin12345', 12);
+        await sPool.query(
+          "UPDATE users SET password_hash = $1, child_name = COALESCE(child_name, 'Buah Hati'), child_dob = COALESCE(child_dob, '2022-06-01') WHERE phone = '08123456789'",
+          [hashAdmin]
+        );
+        console.log('✓ Admin account updated with child data');
       }
       await sPool.end();
     } catch(e) {
