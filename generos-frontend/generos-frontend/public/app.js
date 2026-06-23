@@ -597,11 +597,11 @@ async function loadChildProfile(user, growthRecords) {
   } else if (childPhoto) {
     avatarEl.innerHTML = avatarGenerateSVG(childPhoto, 72);
   } else if (user.child_gender === 'Laki-laki') {
-    avatarEl.textContent = '👦';
+    avatarEl.innerHTML = `<img src="/images/characters/anak-wave.png" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
   } else if (user.child_gender === 'Perempuan') {
-    avatarEl.textContent = '👧';
+    avatarEl.innerHTML = `<img src="/images/characters/anak-growth.png" style="width:100%;height:100%;object-fit:cover;object-position:75% 20%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
   } else {
-    avatarEl.textContent = (childName.charAt(0) || '·').toUpperCase();
+    avatarEl.innerHTML = `<img src="/images/characters/anak-wave.png" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
   }
 
   // Ambil data pertumbuhan terakhir (dari parameter)
@@ -2136,7 +2136,7 @@ async function loadChildProfileSettings() {
       } else if (child.gender === 'Perempuan') {
         avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'long-straight', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'coral' }, 72);
       } else {
-        avatar.innerHTML = (child.name || 'A')[0].toUpperCase();
+        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'short-flat', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'sky-blue' }, 72);
       }
     }
 
@@ -4046,7 +4046,6 @@ async function loadLoyaltyPage() {
     const user = Api.getUser();
     if (user && user.role === 'admin') {
       adminPanel.classList.remove('hidden');
-      // Reset result each load
       document.getElementById('loyalty-gen-result').classList.add('hidden');
     } else {
       adminPanel.classList.add('hidden');
@@ -4182,7 +4181,6 @@ function handleCopyCodes() {
   navigator.clipboard.writeText(codes).then(() => {
     showToast('Semua kode tersalin!', 'success');
   }).catch(() => {
-    // Fallback
     const ta = document.createElement('textarea');
     ta.value = codes;
     document.body.appendChild(ta);

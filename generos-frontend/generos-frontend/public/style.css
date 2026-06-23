@@ -1294,6 +1294,7 @@ textarea {
   font-weight: 700;
   color: var(--white);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .child-info h2 {
   font-size: 18px;
@@ -3436,6 +3437,12 @@ textarea {
 .gift-btn { width: 100%; background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .gift-btn-disabled { background: #e5e5ea; color: #999; cursor: not-allowed; }
 .loyalty-history { display: flex; flex-direction: column; gap: 8px; }
+.loyalty-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; }
+.loyalty-row-main { font-size: 13px; font-weight: 600; color: var(--text); }
+.loyalty-row-pts { font-size: 13px; font-weight: 700; color: var(--success); }
+.loyalty-row-status { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.status-pending { background: var(--butter-light); color: #8a6d1f; }
+.status-completed { background: #E7F8F0; color: #0a8f5b; }
 
 /* Admin panel — generate kode */
 .loyalty-gen-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
@@ -3448,13 +3455,97 @@ textarea {
 .loyalty-gen-codes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .loyalty-code-tag { display: inline-block; background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; font-family: monospace; color: var(--text); }
 .loyalty-gen-copy { font-size: 12px; color: var(--primary); cursor: pointer; background: none; border: none; padding: 4px 0; }
-.loyalty-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; }
-.loyalty-row-main { font-size: 13px; font-weight: 600; color: var(--text); }
-.loyalty-row-pts { font-size: 13px; font-weight: 700; color: var(--success); }
-.loyalty-row-status { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
-.status-pending { background: var(--butter-light); color: #8a6d1f; }
-.status-completed { background: #E7F8F0; color: #0a8f5b; }
 
 /* ---- CHAT WELCOME ---- */
 .chat-welcome { display: flex; justify-content: center; margin: 8px 0 4px; }
 .chat-welcome-img { width: 120px; height: 120px; object-fit: contain; }
+
+/* ============================================================
+   BIG CHARACTER HEROES (per screen) — visual upgrade
+   ============================================================ */
+/* Reusable medium hero band under page headers */
+.page-hero {
+  display: flex; align-items: flex-end; justify-content: center; gap: 14px;
+  background: linear-gradient(180deg, var(--primary-light) 0%, var(--white) 100%);
+  padding: 14px 18px 0; position: relative; overflow: hidden;
+}
+.page-hero-img {
+  width: auto; height: 168px; object-fit: contain; object-position: bottom;
+  filter: drop-shadow(0 8px 14px rgba(138,155,219,0.22));
+}
+.page-hero-txt { flex: 1; padding-bottom: 22px; }
+.page-hero-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+.page-hero-sub { font-size: 12px; color: var(--text-light); margin: 0; line-height: 1.4; }
+
+/* Enlarge existing heroes */
+.home-cta-img { width: 92px !important; height: 92px !important; }
+.home-cta { padding: 16px 18px; }
+
+.media-hero { padding: 16px 18px 0; align-items: flex-end; background: linear-gradient(180deg, var(--primary-light) 0%, var(--white) 100%); }
+.media-hero-img { width: auto !important; height: 150px !important; object-position: bottom; filter: drop-shadow(0 8px 14px rgba(138,155,219,0.22)); }
+.media-hero-text { flex: 1; padding-bottom: 18px; }
+
+.loyalty-hero { align-items: center; }
+.loyalty-hero-img { width: auto !important; height: 132px !important; object-fit: contain; }
+
+.chat-welcome-img { width: 190px !important; height: 190px !important; }
+
+/* LOGIN big character */
+.login-hero-char {
+  display: block; margin: 4px auto 0; height: 210px; width: auto;
+  object-fit: contain; filter: drop-shadow(0 10px 18px rgba(138,155,219,0.28));
+}
+.login-header .login-logo { margin-bottom: 6px; }
+.login-header .logo-circle { width: 56px !important; height: 56px !important; }
+
+/* ============================================================
+   DAILY ACTIVITY SECTION — restyle to match lilac/character system
+   ============================================================ */
+.tracker-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  margin-bottom: 6px;
+}
+.tracker-card {
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.milestone-card {
+  background: linear-gradient(135deg, #8A9BDB 0%, #A88BD6 100%);
+  border-left: none;
+  border-radius: var(--border-radius-lg, 16px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  overflow: hidden;
+  position: relative;
+}
+.milestone-img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.milestone-body { flex: 1; min-width: 0; }
+.milestone-card .cat {
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  margin: 0 0 4px;
+}
+.milestone-card .title {
+  color: #fff !important;
+  font-size: 15px;
+  margin: 0 0 3px;
+}
+.milestone-card .desc {
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Avatar foto karakter — pastikan crop rapi dalam lingkaran */
+.child-avatar img { display: block; }
