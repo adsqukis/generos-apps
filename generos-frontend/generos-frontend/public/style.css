@@ -98,7 +98,7 @@ body {
   min-height: 100vh;
   padding: 40px 16px;
   padding-bottom: env(safe-area-inset-bottom, 20px);
-  background: linear-gradient(180deg, #EEEDF7 0%, #F5F4FA 35%);
+  background: linear-gradient(180deg, #E8F0FF 0%, #FFFFFF 35%);
 }
 
 .login-header {
@@ -116,11 +116,11 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #8A9BDB;
+  background: #003DA5;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(138,155,219,0.3);
+  box-shadow: 0 4px 16px rgba(0,61,165,0.2);
   overflow: hidden;
 }
 
@@ -135,7 +135,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 28px;
   font-weight: 700;
-  color: #8A9BDB;
+  color: #003DA5;
   letter-spacing: -0.5px;
   margin: 0 0 12px;
 }
@@ -215,14 +215,14 @@ body {
 
 .login .form-group input:focus {
   outline: none;
-  border-color: #8A9BDB;
+  border-color: #003DA5;
   background: #FFFFFF;
   box-shadow: 0 0 0 3px rgba(0,61,165,0.1);
 }
 
 .login .btn-primary {
   width: 100%;
-  background: #8A9BDB;
+  background: #003DA5;
   color: #FFFFFF;
   border: none;
   border-radius: 12px;
@@ -251,12 +251,12 @@ body {
   text-align: center;
   font-size: 13px;
   font-weight: 500;
-  color: #8A9BDB;
+  color: #003DA5;
   margin-top: 24px;
 }
 
 .login .link-text a {
-  color: #8A9BDB;
+  color: #003DA5;
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
@@ -3491,12 +3491,6 @@ textarea {
 .chat-welcome-img { width: 190px !important; height: 190px !important; }
 
 /* LOGIN big character */
-.login-hero-char {
-  display: block; margin: 4px auto 0; height: 210px; width: auto;
-  object-fit: contain; filter: drop-shadow(0 10px 18px rgba(138,155,219,0.28));
-}
-.login-header .login-logo { margin-bottom: 6px; }
-.login-header .logo-circle { width: 56px !important; height: 56px !important; }
 
 /* ============================================================
    DAILY ACTIVITY SECTION — restyle to match lilac/character system
