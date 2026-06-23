@@ -424,3 +424,21 @@ function avatarEncode(config) {
 function avatarDecode(stored) {
   return avatarParse(stored);
 }
+
+// ============================
+// AVATAR — ilustrasi berdasarkan umur + gender
+// ============================
+function getAvatarByAgeGender(ageMonths, gender) {
+  if (ageMonths == null || ageMonths < 0) ageMonths = 0;
+  if (gender == null) gender = 'Laki-laki';
+
+  if (ageMonths <= 6) {
+    return gender === 'Perempuan' ? 'newborn-pink.png' : 'newborn-cream.png';
+  } else if (ageMonths <= 12) {
+    return gender === 'Perempuan' ? 'bayi-sit-girl.png' : 'bayi-sit-boy.png';
+  } else if (ageMonths <= 36) {
+    return gender === 'Perempuan' ? 'anak-celebrate.png' : 'anak-explore.png';
+  } else {
+    return gender === 'Perempuan' ? 'anak-growth.png' : 'anak-wave.png';
+  }
+}

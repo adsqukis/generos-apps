@@ -589,19 +589,15 @@ async function loadChildProfile(user, growthRecords) {
   document.getElementById('child-name').textContent = childName;
   document.getElementById('child-age').textContent = `${parts.months} bulan ${parts.days} hari`;
 
-  // Avatar — from photo/emoji/SVG
+  // Avatar — ilustrasi berdasarkan umur + gender
   const avatarEl = document.getElementById('child-avatar');
   const childPhoto = user.child_photo;
   if (childPhoto && childPhoto.startsWith('http')) {
     avatarEl.innerHTML = `<img src="${escapeHtml(childPhoto)}" style="width:100%;height:100%;object-fit:cover;">`;
-  } else if (childPhoto) {
-    avatarEl.innerHTML = avatarGenerateSVG(childPhoto, 72);
-  } else if (user.child_gender === 'Laki-laki') {
-    avatarEl.innerHTML = `<img src="/images/characters/anak-wave.png" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
-  } else if (user.child_gender === 'Perempuan') {
-    avatarEl.innerHTML = `<img src="/images/characters/anak-growth.png" style="width:100%;height:100%;object-fit:cover;object-position:75% 20%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
   } else {
-    avatarEl.innerHTML = `<img src="/images/characters/anak-wave.png" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
+    // Pilih ilustrasi berdasarkan umur & gender
+    const avatarFile = getAvatarByAgeGender(age, user.child_gender);
+    avatarEl.innerHTML = `<img src="/images/characters/${avatarFile}" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;" onerror="this.parentElement.textContent='${(childName.charAt(0) || '·').toUpperCase()}'">`;
   }
 
   // Ambil data pertumbuhan terakhir (dari parameter)
@@ -2123,20 +2119,15 @@ async function loadChildProfileSettings() {
     cdData = child;
     const g = data.growth || {};
 
-    // Avatar — photo/emoji/SVG
+    // Avatar — ilustrasi berdasarkan umur + gender
     const avatar = document.getElementById('cd-avatar-settings');
     if (avatar) {
       if (child.photo && typeof child.photo === 'string' && child.photo.startsWith('http')) {
         avatar.innerHTML = `<img src="${escapeHtml(child.photo)}" style="width:100%;height:100%;object-fit:cover;">`;
-      } else if (child.photo && child.photo.length > 2) {
-        // New SVG avatar system (JSON) or legacy emoji
-        avatar.innerHTML = avatarGenerateSVG(child.photo, 72);
-      } else if (child.gender === 'Laki-laki') {
-        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'short-flat', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'navy' }, 72);
-      } else if (child.gender === 'Perempuan') {
-        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'long-straight', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'coral' }, 72);
       } else {
-        avatar.innerHTML = avatarGenerateSVG({ type: 'child', skinTone: 'warm-peach', hair: 'short-flat', hairColor: 'dark-brown', eyes: 'dots', mouth: 'smile', clothingColor: 'sky-blue' }, 72);
+        const age = calculateAgeMonths(child.dob);
+        const avatarFile = getAvatarByAgeGender(age, child.gender);
+        avatar.innerHTML = `<img src="/images/characters/${avatarFile}" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;">`;
       }
     }
 

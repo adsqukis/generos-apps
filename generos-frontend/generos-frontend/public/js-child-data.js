@@ -122,13 +122,20 @@ function nextStep() {
   }
 }
 
+function getAgeMonths(dob) {
+  if (!dob) return 0;
+  const birth = new Date(dob);
+  const now = new Date();
+  return Math.floor((now - birth) / (1000 * 60 * 60 * 24 * 30));
+}
+
 function buildReview() {
   const data = collectFormData();
 
   const html = `
     <div class="cd-review-section">
       <div class="cd-review-title">📋 Data Dasar</div>
-      <div class="cd-review-item"><span class="cd-review-label">Avatar</span><span class="cd-review-value" style="display:flex;justify-content:center;">${data.child_photo ? avatarGenerateSVG(data.child_photo, 56) : '❌'}</span></div>
+      <div class="cd-review-item"><span class="cd-review-label">Avatar</span><span class="cd-review-value" style="display:flex;justify-content:center;"><img src="/images/characters/${getAvatarByAgeGender(getAgeMonths(data.child_dob), data.child_gender)}" style="width:56px;height:56px;object-fit:cover;border-radius:50%;"></span></div>
       <div class="cd-review-item"><span class="cd-review-label">Nama Lengkap</span><span class="cd-review-value">${escapeHtml(data.child_name) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Nama Panggilan</span><span class="cd-review-value">${escapeHtml(data.child_nickname) || '-'}</span></div>
       <div class="cd-review-item"><span class="cd-review-label">Tanggal Lahir</span><span class="cd-review-value">${data.child_dob || '-'}</span></div>
