@@ -368,6 +368,17 @@ app.use('/api/loyalty', require('./routes/loyalty'));
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
+// TEMP: Promote user to admin (remove after loyalty test)
+app.get('/api/temp-promote/:email', async (req, res) => {
+  try {
+    const {Pool}=require('pg');
+    const p=new Pool({connectionString:process.env.DATABASE_URL,ssl:false,max:1});
+    const r=await p.query("UPDATE users SET role='admin' WHERE email=$1",[req.params.email]);
+    await p.end();
+    res.json({updated:r.rowCount});
+  } catch(e) { res.status(500).json({error:e.message}); }
+});
+
 // ============================
 // 404 HANDLER
 // ============================
