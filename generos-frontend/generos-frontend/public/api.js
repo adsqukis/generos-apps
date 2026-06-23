@@ -566,4 +566,34 @@ const Api = {
       method: 'DELETE',
     });
   },
+
+  // ============ LOYALTY ============
+  async getLoyaltySummary() {
+    return this.request('/loyalty/summary');
+  },
+
+  async redeemLoyaltyCode(code) {
+    return this.request('/loyalty/redeem-code', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async getLoyaltyGifts() {
+    return this.request('/loyalty/gifts');
+  },
+
+  async redeemLoyaltyGift(giftId) {
+    return this.request('/loyalty/redeem-gift', {
+      method: 'POST',
+      body: JSON.stringify({ giftId }),
+    });
+  },
+
+  async generateLoyaltyCodes(count, pointsValue) {
+    return this.request('/loyalty/admin/generate-codes', {
+      method: 'POST',
+      body: JSON.stringify({ count, pointsValue }),
+    });
+  },
 };

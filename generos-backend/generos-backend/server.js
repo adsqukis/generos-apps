@@ -201,6 +201,48 @@ const { Pool } = require('pg');
     console.warn('[video-migrate]', e.message.slice(0,200));
   }
 
+  // Auto create loyalty tables (kode redeem, hadiah, riwayat tukar)
+  try {
+    const lPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+    await lPool.query(`
+      CREATE TABLE IF NOT EXISTS loyalty_codes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        code VARCHAR(64) UNIQUE NOT NULL,
+        points_value INTEGER NOT NULL DEFAULT 50,
+        is_active BOOLEAN DEFAULT true,
+        redeemed_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        redeemed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_loyalty_codes_redeemed_by ON loyalty_codes(redeemed_by);
+
+      CREATE TABLE IF NOT EXISTS loyalty_gifts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        points_required INTEGER NOT NULL,
+        stock INTEGER,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS loyalty_redemptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        gift_id UUID REFERENCES loyalty_gifts(id) ON DELETE SET NULL,
+        points_spent INTEGER NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        redeemed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_loyalty_redemptions_user ON loyalty_redemptions(user_id);
+    `);
+    await lPool.end();
+    console.log('✓ Loyalty tables ready');
+  } catch(e) {
+    console.warn('[loyalty-migrate]', e.message.slice(0,200));
+  }
+
   // Auto migrate: user extra columns (child_nickname, photo, birth data, parent data)
   // Terpisah dari migrate.js utama biar gak kena rollback batch error
   try {
@@ -281,6 +323,16 @@ const { Pool } = require('pg');
     } catch(e) {
       console.warn('[seed-articles] Skipped:', e.message.slice(0,100));
     }
+
+    // Auto seed loyalty gift catalog if empty
+    try {
+      const seedLoyalty = require('./config/seed-loyalty');
+      const r = await seedLoyalty();
+      if (r.seeded) console.log(`🌱 Loyalty gifts seeded (${r.seeded})`);
+      else console.log('✓ Loyalty gifts already exist');
+    } catch(e) {
+      console.warn('[seed-loyalty] Skipped:', e.message.slice(0,100));
+    }
   }, 100);
 })();
 
@@ -311,6 +363,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/screening', require('./routes/screening'));
 app.use('/api/stimulation', require('./routes/stimulation'));
 app.use('/api/upload', uploadRoutes);
+app.use('/api/loyalty', require('./routes/loyalty'));
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));

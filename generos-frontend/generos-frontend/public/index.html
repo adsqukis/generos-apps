@@ -106,16 +106,31 @@
         <!-- ============ HOME PAGE ============ -->
         <div id="page-home" class="page hidden">
             <div id="home-header">
-                <div>
-                    <p class="greeting" id="home-greeting">Hi!</p>
-                    <p class="greeting-sub">Pantau tumbuh kembang si kecil</p>
+                <button class="hamburger-btn hamburger-home" data-open-drawer aria-label="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="home-greet-wrap">
+                    <p class="greeting" id="home-greeting">Hi, Bunda!</p>
+                    <span class="point-pill" id="home-point-pill" data-drawer-nav="loyalty">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#F0C674" stroke="#F0C674" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span id="home-point-val">0</span> Poin
+                    </span>
                 </div>
                 <div class="header-actions">
-                    <button class="icon-btn-round" id="btn-notif"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-                    <button class="icon-btn-round" id="btn-settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+                    <button class="icon-btn-round" id="btn-notif"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
                 </div>
             </div>
             <div class="container">
+                <!-- CTA Card -->
+                <div class="home-cta" id="home-cta" data-page="development">
+                    <img src="/images/characters/family-celebrate.png" alt="" class="home-cta-img" onerror="this.style.display='none'">
+                    <div class="home-cta-text">
+                        <p class="home-cta-title">Sudah catat tumbuh kembang hari ini?</p>
+                        <p class="home-cta-sub">Pantau milestone & pertumbuhan si kecil bareng Generos Care</p>
+                    </div>
+                    <svg class="home-cta-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+
                 <!-- Child Profile Card -->
                 <div id="child-profile" class="child-card">
                     <div class="child-top">
@@ -188,12 +203,51 @@
                     <p class="desc" id="dev-text"></p>
                 </div>
 
-                <!-- Quick menu (akses skrining & stimulasi) -->
+                <!-- Menu grid 8 item -->
                 <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Menu</h3>
-                <div class="menu-grid">
-                    <button class="menu-btn" id="btn-go-screening"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Skrining</button>
-                    <button class="menu-btn" id="btn-go-stimulation"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M7 3h4l3 3-7 7-3-3 3-3"/><path d="M3 17l3 3"/><path d="M10 21h4l4-4-3-3-5 5"/></svg> Stimulasi</button>
-                    <button class="menu-btn" id="btn-go-video"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video Edukasi</button>
+                <div class="menu-grid-8" id="home-menu-grid">
+                    <button class="menu-cell" data-menu="screening">
+                        <span class="menu-ic" style="background:#EEEDF7;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
+                        <span class="menu-lbl">Skrining</span>
+                    </button>
+                    <button class="menu-cell" data-menu="stimulation">
+                        <span class="menu-ic" style="background:#EAF3EC;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FB89A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h4l3 3-7 7-3-3 3-3"/><path d="M3 17l3 3"/><path d="M10 21h4l4-4-3-3-5 5"/></svg></span>
+                        <span class="menu-lbl">Stimulasi</span>
+                    </button>
+                    <button class="menu-cell" data-menu="media">
+                        <span class="menu-ic" style="background:#FBF3E0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span>
+                        <span class="menu-lbl">Media</span>
+                    </button>
+                    <button class="menu-cell" data-menu="loyalty">
+                        <span class="menu-ic" style="background:#FBEEEF;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E4A8AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+                        <span class="menu-lbl">Poin</span>
+                    </button>
+                    <button class="menu-cell" data-menu="shop">
+                        <span class="menu-ic" style="background:#E8F3F1;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7FB8B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+                        <span class="menu-lbl">Belanja</span>
+                    </button>
+                    <button class="menu-cell" data-menu="tracking">
+                        <span class="menu-ic" style="background:#EEEDF7;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+                        <span class="menu-lbl">Pertumbuhan</span>
+                    </button>
+                    <button class="menu-cell menu-cell-soon" data-menu="checklist">
+                        <span class="menu-ic" style="background:#EAF3EC;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FB89A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+                        <span class="menu-lbl">Checklist</span>
+                    </button>
+                    <button class="menu-cell" data-menu="more">
+                        <span class="menu-ic" style="background:#F5F4FA;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>
+                        <span class="menu-lbl">Lainnya</span>
+                    </button>
+                </div>
+
+                <!-- OPINI Survey -->
+                <div class="opini-card" id="opini-card">
+                    <p class="opini-q">Apakah Bunda mau merekomendasikan aplikasi Generos Care?</p>
+                    <div class="opini-opts">
+                        <button class="opini-opt" data-opini="yes">Mau banget, Min!</button>
+                        <button class="opini-opt" data-opini="no">Belum, Min</button>
+                    </div>
+                    <button class="opini-submit" id="btn-opini-submit" disabled>Simpan</button>
                 </div>
 
                 <!-- Growth Summary -->
@@ -446,15 +500,38 @@
             </div>
         </div>
 
-        <!-- ============ VIDEO EDUKASI PAGE ============ -->
-        <div id="page-video" class="page hidden">
-            <div class="header">
-                <button class="back-btn" id="btn-back-video">←</button>
-                <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video Edukasi</h1>
+        <!-- ============ MEDIA PAGE (Artikel + Video tabs) ============ -->
+        <div id="page-media" class="page hidden">
+            <div class="header header-with-menu">
+                <button class="hamburger-btn" data-open-drawer aria-label="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Media</h1>
             </div>
+
+            <div class="media-hero">
+                <img src="/images/characters/media-hero-mom-girl.png" alt="" class="media-hero-img" onerror="this.style.display='none'">
+                <div class="media-hero-text">
+                    <p class="media-hero-title">Belajar bareng si kecil</p>
+                    <p class="media-hero-sub">Artikel & video edukasi tumbuh kembang</p>
+                </div>
+            </div>
+
+            <div class="media-tabs">
+                <button class="media-tab active" data-mtab="artikel">Artikel</button>
+                <button class="media-tab" data-mtab="video">Video</button>
+            </div>
+
             <div class="container">
-                <!-- Category Filter -->
-                <div class="video-filter" id="video-filter">
+                <!-- TAB: Artikel -->
+                <div id="media-panel-artikel" class="media-panel">
+                    <div id="article-list">Memuat...</div>
+                    <div id="article-detail" class="hidden"></div>
+                </div>
+
+                <!-- TAB: Video -->
+                <div id="media-panel-video" class="media-panel hidden">
+                    <div class="video-filter" id="video-filter">
                     <button class="filter-chip active" data-category="">Semua</button>
                     <button class="filter-chip" data-category="Speech">Speech</button>
                     <button class="filter-chip" data-category="Motor">Motor</button>
@@ -465,9 +542,9 @@
                 <div id="video-grid" class="video-grid">
                     <p class="info-text">Memuat video...</p>
                 </div>
+                </div>
             </div>
 
-            <!-- Video Modal -->
             <div id="video-modal" class="modal-overlay hidden">
                 <div class="modal-box video-modal-box">
                     <div class="modal-head">
@@ -479,18 +556,6 @@
                     </div>
                     <div id="video-modal-desc" class="video-modal-desc"></div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ============ KNOWLEDGE BASE PAGE ============ -->
-        <div id="page-knowledge" class="page hidden">
-            <div class="header">
-                <button class="back-btn" id="btn-back-knowledge">←</button>
-                <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg> Pengetahuan</h1>
-            </div>
-            <div class="container">
-                <div id="article-list">Memuat...</div>
-                <div id="article-detail" class="hidden"></div>
             </div>
         </div>
 
@@ -847,36 +912,116 @@
             </div>
         </div>
 
-        <!-- ============ NAVIGATION BAR ============ -->
+        <!-- ============ LOYALTY PAGE ============ -->
+        <div id="page-loyalty" class="page hidden">
+            <div class="header header-with-menu">
+                <button class="hamburger-btn" data-open-drawer aria-label="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Loyalty</h1>
+            </div>
+            <div class="container">
+                <!-- Poin hero -->
+                <div class="loyalty-hero">
+                    <img src="/images/characters/anak-celebrate.png" alt="" class="loyalty-hero-img" onerror="this.style.display='none'">
+                    <div class="loyalty-hero-body">
+                        <p class="loyalty-hero-label">Total Poin Kamu</p>
+                        <p class="loyalty-points" id="loyalty-total">-</p>
+                        <p class="loyalty-hero-sub">Kumpulkan poin dari pembelian, tukar jadi hadiah</p>
+                    </div>
+                </div>
+
+                <!-- Input kode -->
+                <div class="loyalty-card">
+                    <p class="loyalty-card-title">Punya kode dari pembelian?</p>
+                    <div class="loyalty-code-row">
+                        <input type="text" id="loyalty-code-input" placeholder="GENEROS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+                        <button id="btn-redeem-code" class="btn-primary loyalty-redeem-btn">Validasi</button>
+                    </div>
+                    <p id="loyalty-code-msg" class="loyalty-msg hidden"></p>
+                </div>
+
+                <!-- Katalog hadiah -->
+                <h3 class="loyalty-section-title">Tukar Poin dengan Hadiah</h3>
+                <div id="loyalty-gifts" class="loyalty-gift-grid">
+                    <p class="info-text">Memuat hadiah...</p>
+                </div>
+
+                <!-- Riwayat -->
+                <h3 class="loyalty-section-title">Hadiah Saya</h3>
+                <div id="loyalty-my-gifts" class="loyalty-history"><p class="info-text">Belum ada hadiah ditukar.</p></div>
+
+                <h3 class="loyalty-section-title">Riwayat Kode</h3>
+                <div id="loyalty-code-history" class="loyalty-history"><p class="info-text">Belum ada kode ditukar.</p></div>
+            </div>
+
+            <!-- Konfirmasi tukar hadiah -->
+            <div id="gift-confirm-modal" class="modal-overlay hidden">
+                <div class="sheet">
+                    <div class="sheet-handle"></div>
+                    <p class="sheet-title" id="gift-confirm-title">Tukar hadiah?</p>
+                    <p id="gift-confirm-desc" class="sheet-desc"></p>
+                    <button id="btn-confirm-gift" class="btn-primary" style="width:100%;margin-bottom:10px;">Ya, Tukar Sekarang</button>
+                    <button class="sheet-cancel" data-close-modal="gift-confirm-modal">Batal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ NAVIGATION BAR (5 item + FAB tengah) ============ -->
         <div id="nav-bar" class="nav-bar hidden">
-            <button class="nav-btn" data-page="home">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                <span>Beranda</span>
+            <button class="nav-btn" data-page="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Beranda</span></button>
+            <button class="nav-btn" data-page="development"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12a5 5 0 00-5-5H2"/><path d="M12 12a5 5 0 015-5h5"/><path d="M7 3v3"/><path d="M17 3v3"/></svg><span>Kembang</span></button>
+            <button class="nav-btn nav-fab" id="nav-quickadd" aria-label="Tambah catatan">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button class="nav-btn" data-page="development">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12a5 5 0 00-5-5H2"/><path d="M12 12a5 5 0 015-5h5"/><path d="M7 3v3"/><path d="M17 3v3"/></svg>
-                <span>Tumbuh Kembang</span>
-            </button>
-            <button class="nav-btn" data-page="knowledge">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M12 6v7"/><path d="M9 9h6"/></svg>
-                <span>Artikel</span>
-            </button>
-            <button class="nav-btn" data-page="video">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                <span>Video</span>
-            </button>
-            <button class="nav-btn" data-page="chat">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                <span>Pesan</span>
-            </button>
-            <button class="nav-btn" data-page="shop">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                <span>Belanja</span>
-            </button>
-            <button class="nav-btn" data-page="settings" id="nav-btn-settings">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                <span>Pengaturan</span>
-            </button>
+            <button class="nav-btn" data-page="chat"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Chat</span></button>
+            <button class="nav-btn" data-page="shop"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Belanja</span></button>
+        </div>
+    </div>
+
+    <!-- ============ HAMBURGER DRAWER (Media, Loyalty, Settings) ============ -->
+    <div id="drawer-overlay" class="drawer-overlay hidden" data-close-drawer></div>
+    <div id="drawer" class="drawer hidden">
+        <div class="drawer-head">
+            <span class="drawer-title">Menu</span>
+            <button class="drawer-close" data-close-drawer aria-label="Tutup">✕</button>
+        </div>
+        <button class="drawer-item" data-drawer-nav="media">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <span>Media</span><small>Artikel & Video</small>
+        </button>
+        <button class="drawer-item" data-drawer-nav="loyalty">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Loyalty</span><small>Tukar poin & hadiah</small>
+        </button>
+        <button class="drawer-item" data-drawer-nav="screening">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            <span>Skrining</span><small>Deteksi dini tumbuh kembang</small>
+        </button>
+        <button class="drawer-item" data-drawer-nav="stimulation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h4l3 3-7 7-3-3 3-3"/><path d="M3 17l3 3"/><path d="M10 21h4l4-4-3-3-5 5"/></svg>
+            <span>Stimulasi</span><small>Aktivitas stimulasi anak</small>
+        </button>
+        <button class="drawer-item" data-drawer-nav="settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A9BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <span>Pengaturan</span><small>Akun & preferensi</small>
+        </button>
+    </div>
+
+    <!-- ============ QUICK ADD LAUNCHER (tombol + di nav) ============ -->
+    <div id="quickadd-launcher" class="modal-overlay hidden">
+        <div class="sheet">
+            <div class="sheet-handle"></div>
+            <p class="sheet-title">Tambah Catatan Harian</p>
+            <div class="quickadd-grid">
+                <button class="quickadd-opt" data-qa="sleep"><span class="qa-ic" style="background:#E8F3F1;color:#7FB8B0;">🌙</span>Tidur</button>
+                <button class="quickadd-opt" data-qa="feeding"><span class="qa-ic" style="background:#FBEEEF;color:#E4A8AE;">🍼</span>Menyusui</button>
+                <button class="quickadd-opt" data-qa="drink"><span class="qa-ic" style="background:#EEEDF7;color:#8A9BDB;">💧</span>Minum</button>
+                <button class="quickadd-opt" data-qa="eating"><span class="qa-ic" style="background:#FBF3E0;color:#D9A441;">🍽️</span>Makan</button>
+                <button class="quickadd-opt" data-qa="poop"><span class="qa-ic" style="background:#EAF3EC;color:#8FB89A;">💩</span>BAB</button>
+                <button class="quickadd-opt" data-qa="pee"><span class="qa-ic" style="background:#EEEDF7;color:#8A9BDB;">💛</span>BAK</button>
+            </div>
+            <button class="sheet-cancel" data-close-modal="quickadd-launcher">Batal</button>
         </div>
     </div>
 

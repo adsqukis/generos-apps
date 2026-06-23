@@ -408,8 +408,16 @@ function showToast(message, type = 'info') {
 // NAVIGATION
 // ============================
 function navigate(page) {
+  // Alias halaman lama -> Media dengan tab terkait (backward compat)
+  let mediaTab = null;
+  if (page === 'knowledge') { mediaTab = 'artikel'; page = 'media'; }
+  else if (page === 'video') { mediaTab = 'video'; page = 'media'; }
+
+  const target = document.getElementById(`page-${page}`);
+  if (!target) { console.warn('Halaman tidak ditemukan:', page); return; }
+
   document.querySelectorAll('.page').forEach((p) => p.classList.add('hidden'));
-  document.getElementById(`page-${page}`).classList.remove('hidden');
+  target.classList.remove('hidden');
   currentPage = page;
 
   const navBar = document.getElementById('nav-bar');
@@ -417,21 +425,22 @@ function navigate(page) {
     navBar.classList.add('hidden');
   } else {
     navBar.classList.remove('hidden');
+    // Highlight hanya kalau page ada di bottom nav; selain itu clear semua
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.page === page);
     });
-    // Hide top-right gear icon — semua user pake nav settings
     const headerSettings = document.getElementById('btn-settings');
-    if (headerSettings) {
-      headerSettings.style.display = 'none';
-    }
+    if (headerSettings) headerSettings.style.display = 'none';
   }
 
+  // Tutup drawer kalau lagi kebuka
+  closeDrawer();
+
   // Load data per page
-  if (page === 'home') loadHomeData();
+  if (page === 'home') { loadHomeData(); refreshHomePoints(); }
   if (page === 'tracking') loadGrowthPage();
-  if (page === 'video') loadVideoPage();
-  if (page === 'knowledge') loadArticles();
+  if (page === 'media') loadMediaPage(mediaTab);
+  if (page === 'loyalty') loadLoyaltyPage();
   if (page === 'chat') loadChatHistory();
   if (page === 'shop') loadProducts();
   if (page === 'settings') loadSettings();
@@ -1863,8 +1872,11 @@ async function loadChatHistory() {
     const data = await Api.getChatHistory();
     if (data.history.length === 0) {
       container.innerHTML = `
+        <div class="chat-welcome">
+          <img src="/images/characters/bunda-welcome.png" alt="" class="chat-welcome-img" onerror="this.style.display='none'">
+        </div>
         <div class="chat-bubble bot">
-          Halo! 👋 Saya siap membantu. Tanya tentang produk Generos atau tips parenting umum.
+          Halo, Bunda! 👋 Saya siap membantu. Tanya tentang produk Generos atau tips parenting umum.
         </div>
       `;
     } else {
@@ -3939,4 +3951,294 @@ async function loadDevelopmentPageData(age) {
   } catch (err) {
     console.error('Development page error:', err);
   }
+}
+
+// ============================================================
+// NEW UI MODULE — drawer, media tabs, loyalty, quick-add, menu, opini
+// (ditambahkan untuk redesign Generos Care; idempotent init di bawah)
+// ============================================================
+
+// ---------- DRAWER ----------
+function openDrawer() {
+  const o = document.getElementById('drawer-overlay');
+  const d = document.getElementById('drawer');
+  if (o) o.classList.remove('hidden');
+  if (d) { d.classList.remove('hidden'); requestAnimationFrame(() => d.classList.add('open')); }
+}
+function closeDrawer() {
+  const o = document.getElementById('drawer-overlay');
+  const d = document.getElementById('drawer');
+  if (d) d.classList.remove('open');
+  if (o) o.classList.add('hidden');
+  if (d) setTimeout(() => { if (!d.classList.contains('open')) d.classList.add('hidden'); }, 250);
+}
+
+// ---------- MEDIA TABS ----------
+function loadMediaPage(tab) {
+  switchMediaTab(tab || window._mediaTab || 'artikel');
+}
+function switchMediaTab(tab) {
+  window._mediaTab = tab;
+  document.querySelectorAll('.media-tab').forEach((b) => {
+    b.classList.toggle('active', b.dataset.mtab === tab);
+  });
+  const artikel = document.getElementById('media-panel-artikel');
+  const video = document.getElementById('media-panel-video');
+  if (artikel) artikel.classList.toggle('hidden', tab !== 'artikel');
+  if (video) video.classList.toggle('hidden', tab !== 'video');
+  if (tab === 'artikel' && typeof loadArticles === 'function') loadArticles();
+  if (tab === 'video' && typeof loadVideoPage === 'function') loadVideoPage();
+}
+
+// ---------- HOME POINTS ----------
+async function refreshHomePoints() {
+  if (!Api.getToken()) return;
+  try {
+    const sum = await Api.getLoyaltySummary();
+    const el = document.getElementById('home-point-val');
+    if (el) el.textContent = sum.totalPoints;
+  } catch (e) { /* diam — poin opsional di home */ }
+}
+
+// ---------- LOYALTY ----------
+async function loadLoyaltyPage() {
+  const totalEl = document.getElementById('loyalty-total');
+  try {
+    const sum = await Api.getLoyaltySummary();
+    if (totalEl) totalEl.textContent = sum.totalPoints;
+
+    // Riwayat kode
+    const codeBox = document.getElementById('loyalty-code-history');
+    if (codeBox) {
+      if (sum.redeemedCodes && sum.redeemedCodes.length) {
+        codeBox.innerHTML = sum.redeemedCodes.map((c) => `
+          <div class="loyalty-row">
+            <span class="loyalty-row-main">${c.code}</span>
+            <span class="loyalty-row-pts">+${c.points_value}</span>
+          </div>`).join('');
+      } else {
+        codeBox.innerHTML = '<p class="info-text">Belum ada kode ditukar.</p>';
+      }
+    }
+
+    // Hadiah saya
+    const giftBox = document.getElementById('loyalty-my-gifts');
+    if (giftBox) {
+      if (sum.redemptions && sum.redemptions.length) {
+        giftBox.innerHTML = sum.redemptions.map((r) => `
+          <div class="loyalty-row">
+            <span class="loyalty-row-main">${r.gift_name || 'Hadiah'}</span>
+            <span class="loyalty-row-status status-${r.status}">${r.status === 'pending' ? 'Diproses' : (r.status === 'completed' ? 'Selesai' : r.status)}</span>
+          </div>`).join('');
+      } else {
+        giftBox.innerHTML = '<p class="info-text">Belum ada hadiah ditukar.</p>';
+      }
+    }
+  } catch (e) {
+    if (totalEl) totalEl.textContent = '0';
+    console.error('Loyalty load error:', e);
+  }
+  loadLoyaltyGifts();
+}
+
+async function loadLoyaltyGifts() {
+  const grid = document.getElementById('loyalty-gifts');
+  if (!grid) return;
+  try {
+    const data = await Api.getLoyaltyGifts();
+    const bal = data.totalPoints;
+    if (!data.gifts || !data.gifts.length) {
+      grid.innerHTML = '<p class="info-text">Belum ada hadiah tersedia.</p>';
+      return;
+    }
+    grid.innerHTML = data.gifts.map((g) => {
+      const enough = bal >= g.points_required;
+      const out = (g.stock !== null && g.stock <= 0);
+      let btn;
+      if (out) btn = '<button class="gift-btn gift-btn-disabled" disabled>Stok Habis</button>';
+      else if (enough) btn = `<button class="gift-btn" data-gift-id="${g.id}" data-gift-name="${g.name}" data-gift-pts="${g.points_required}">Tukar Poin</button>`;
+      else btn = `<button class="gift-btn gift-btn-disabled" disabled>Poin Kurang (${g.points_required})</button>`;
+      return `
+        <div class="gift-card">
+          <div class="gift-img-wrap">
+            <img src="${imgUrl(g.image_url) || ''}" alt="" class="gift-img" onerror="this.style.display='none'">
+          </div>
+          <p class="gift-name">${g.name}</p>
+          <p class="gift-pts"><svg width="12" height="12" viewBox="0 0 24 24" fill="#F0C674" stroke="#F0C674"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ${g.points_required} poin</p>
+          ${btn}
+        </div>`;
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<p class="info-text">Gagal memuat hadiah.</p>';
+    console.error('Gifts load error:', e);
+  }
+}
+
+async function handleRedeemCode() {
+  const input = document.getElementById('loyalty-code-input');
+  const msg = document.getElementById('loyalty-code-msg');
+  const btn = document.getElementById('btn-redeem-code');
+  const code = (input.value || '').trim();
+  if (!code) { showToast('Masukkan kode dulu', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const res = await Api.redeemLoyaltyCode(code);
+    if (msg) {
+      msg.classList.remove('hidden', 'loyalty-msg-error');
+      msg.classList.add('loyalty-msg-ok');
+      msg.textContent = res.message || 'Kode berhasil ditukar!';
+    }
+    input.value = '';
+    showToast(res.message || 'Berhasil!', 'success');
+    loadLoyaltyPage();
+  } catch (e) {
+    if (msg) {
+      msg.classList.remove('hidden', 'loyalty-msg-ok');
+      msg.classList.add('loyalty-msg-error');
+      msg.textContent = e.message || 'Kode tidak valid';
+    }
+    showToast(e.message || 'Kode tidak valid', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Validasi';
+  }
+}
+
+function openGiftConfirm(id, name, pts) {
+  window._pendingGift = id;
+  const modal = document.getElementById('gift-confirm-modal');
+  const title = document.getElementById('gift-confirm-title');
+  const desc = document.getElementById('gift-confirm-desc');
+  if (title) title.textContent = `Tukar ${pts} poin?`;
+  if (desc) desc.textContent = `Kamu akan menukar ${pts} poin untuk "${name}".`;
+  if (modal) modal.classList.remove('hidden');
+}
+
+async function confirmRedeemGift() {
+  const id = window._pendingGift;
+  if (!id) return;
+  const btn = document.getElementById('btn-confirm-gift');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const res = await Api.redeemLoyaltyGift(id);
+    showToast(res.message || 'Berhasil ditukar!', 'success');
+    document.getElementById('gift-confirm-modal').classList.add('hidden');
+    loadLoyaltyPage();
+  } catch (e) {
+    showToast(e.message || 'Gagal menukar hadiah', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ya, Tukar Sekarang';
+    window._pendingGift = null;
+  }
+}
+
+// ---------- MENU GRID (8 item) ----------
+function handleMenuCell(menu) {
+  switch (menu) {
+    case 'screening': navigate('screening'); break;
+    case 'stimulation': navigate('stimulation'); break;
+    case 'media': navigate('media'); break;
+    case 'loyalty': navigate('loyalty'); break;
+    case 'shop': navigate('shop'); break;
+    case 'tracking': navigate('tracking'); break;
+    case 'more': openDrawer(); break;
+    default: showToast('Fitur ini segera hadir', 'info');
+  }
+}
+
+// ---------- OPINI ----------
+function initOpini() {
+  const card = document.getElementById('opini-card');
+  if (!card) return;
+  // kalau sudah pernah submit, sembunyikan
+  if (localStorage.getItem('opini_submitted') === '1') {
+    card.classList.add('hidden');
+    return;
+  }
+  let choice = null;
+  card.querySelectorAll('.opini-opt').forEach((b) => {
+    b.addEventListener('click', () => {
+      choice = b.dataset.opini;
+      card.querySelectorAll('.opini-opt').forEach((x) => x.classList.remove('selected'));
+      b.classList.add('selected');
+      const sub = document.getElementById('btn-opini-submit');
+      if (sub) sub.disabled = false;
+    });
+  });
+  const submit = document.getElementById('btn-opini-submit');
+  if (submit) submit.addEventListener('click', () => {
+    if (!choice) return;
+    localStorage.setItem('opini_submitted', '1');
+    localStorage.setItem('opini_choice', choice);
+    card.innerHTML = '<p class="opini-thanks">Terima kasih atas masukannya! 💜</p>';
+    showToast('Masukan tersimpan', 'success');
+  });
+}
+
+// ---------- INIT (idempotent) ----------
+function initNewUI() {
+  if (window._newUiInit) return;
+  window._newUiInit = true;
+
+  // Drawer open/close (delegasi global biar nangkep semua tombol)
+  document.addEventListener('click', (e) => {
+    const opener = e.target.closest('[data-open-drawer]');
+    if (opener) { openDrawer(); return; }
+    const closer = e.target.closest('[data-close-drawer]');
+    if (closer) { closeDrawer(); return; }
+    const dnav = e.target.closest('[data-drawer-nav]');
+    if (dnav) { closeDrawer(); navigate(dnav.dataset.drawerNav); return; }
+    const mtab = e.target.closest('.media-tab');
+    if (mtab) { switchMediaTab(mtab.dataset.mtab); return; }
+    const cell = e.target.closest('.menu-cell');
+    if (cell) { handleMenuCell(cell.dataset.menu); return; }
+    const cta = e.target.closest('#home-cta');
+    if (cta) { navigate(cta.dataset.page || 'development'); return; }
+    const qaOpt = e.target.closest('.quickadd-opt');
+    if (qaOpt) {
+      const m = document.getElementById('quickadd-launcher');
+      if (m) m.classList.add('hidden');
+      openQuickAdd(qaOpt.dataset.qa);
+      return;
+    }
+    const giftBtn = e.target.closest('.gift-btn:not(.gift-btn-disabled)');
+    if (giftBtn && giftBtn.dataset.giftId) {
+      openGiftConfirm(giftBtn.dataset.giftId, giftBtn.dataset.giftName, giftBtn.dataset.giftPts);
+      return;
+    }
+    const closeModal = e.target.closest('[data-close-modal]');
+    if (closeModal) {
+      const m = document.getElementById(closeModal.dataset.closeModal);
+      if (m) m.classList.add('hidden');
+      return;
+    }
+    // Klik backdrop (area gelap di luar sheet) -> tutup
+    if (e.target.id === 'quickadd-launcher' || e.target.id === 'gift-confirm-modal') {
+      e.target.classList.add('hidden');
+      return;
+    }
+  });
+
+  // Tombol + (FAB) di nav -> launcher quick add
+  safeAddListener('nav-quickadd', 'click', () => {
+    const m = document.getElementById('quickadd-launcher');
+    if (m) m.classList.remove('hidden');
+  });
+
+  // Loyalty: redeem code + enter key
+  safeAddListener('btn-redeem-code', 'click', handleRedeemCode);
+  const codeInput = document.getElementById('loyalty-code-input');
+  if (codeInput) codeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleRedeemCode(); });
+
+  // Loyalty: confirm tukar hadiah
+  safeAddListener('btn-confirm-gift', 'click', confirmRedeemGift);
+
+  // OPINI
+  initOpini();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNewUI);
+} else {
+  initNewUI();
 }
