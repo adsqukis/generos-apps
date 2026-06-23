@@ -265,6 +265,33 @@ const { Pool } = require('pg');
     console.warn('[user-columns-migrate]', e.message.slice(0,200));
   }
 
+  // Auto seed admin user if empty (background — jangan delay server start)
+  setTimeout(async () => {
+    try {
+      const bcrypt = require('bcryptjs');
+      const sPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
+      const existing = await sPool.query("SELECT COUNT(*) as cnt FROM users WHERE phone = '08123456789' OR email = 'irvanhidayat919@gmail.com'");
+      if (parseInt(existing.rows[0].cnt) === 0) {
+        const hash = await bcrypt.hash('Admin12345', 12);
+        await sPool.query(
+          "INSERT INTO users (phone, password_hash, full_name, role) VALUES ('08123456789', $1, 'Admin Generos', 'admin')",
+          [hash]
+        );
+        const hash2 = await bcrypt.hash('Irvan12345', 12);
+        await sPool.query(
+          "INSERT INTO users (email, password_hash, full_name, child_name, child_dob, role) VALUES ('irvanhidayat919@gmail.com', $1, 'Irvan', 'Anak Irvan', '2023-06-01', 'user')",
+          [hash2]
+        );
+        console.log('🌱 Admin + test accounts seeded');
+      } else {
+        console.log('✓ Admin accounts already exist');
+      }
+      await sPool.end();
+    } catch(e) {
+      console.warn('[seed-admin]', e.message.slice(0,200));
+    }
+  }, 0);
+
   // Fallback: alter columns for articles & products (in case main migration skipped)
   try {
     const fpPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false, max: 1 });
