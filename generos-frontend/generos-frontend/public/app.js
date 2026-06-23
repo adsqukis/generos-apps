@@ -4039,6 +4039,19 @@ async function loadLoyaltyPage() {
     console.error('Loyalty load error:', e);
   }
   loadLoyaltyGifts();
+  
+  // Admin panel: show only for admin
+  const adminPanel = document.getElementById('loyalty-admin-panel');
+  if (adminPanel) {
+    const user = Api.getUser();
+    if (user && user.role === 'admin') {
+      adminPanel.classList.remove('hidden');
+      // Reset result each load
+      document.getElementById('loyalty-gen-result').classList.add('hidden');
+    } else {
+      adminPanel.classList.add('hidden');
+    }
+  }
 }
 
 async function loadLoyaltyGifts() {
@@ -4130,6 +4143,54 @@ async function confirmRedeemGift() {
     btn.disabled = false; btn.textContent = 'Ya, Tukar Sekarang';
     window._pendingGift = null;
   }
+}
+
+// ============================
+// LOYALTY — ADMIN GENERATE CODES
+// ============================
+async function handleGenerateCodes() {
+  const btn = document.getElementById('btn-generate-codes');
+  const count = parseInt(document.getElementById('loyalty-gen-count').value) || 5;
+  const points = parseInt(document.getElementById('loyalty-gen-points').value) || 100;
+  const resultDiv = document.getElementById('loyalty-gen-result');
+  const codesDiv = document.getElementById('loyalty-gen-codes');
+
+  if (count < 1) { showToast('Jumlah minimal 1', 'error'); return; }
+  if (points < 1) { showToast('Nilai poin minimal 1', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = '...';
+  resultDiv.classList.add('hidden');
+  try {
+    const res = await Api.generateLoyaltyCodes(count, points);
+    if (res.codes && res.codes.length) {
+      codesDiv.innerHTML = res.codes.map(c => `<code class="loyalty-code-tag">${c}</code>`).join('');
+      resultDiv.classList.remove('hidden');
+      showToast(`${res.codes.length} kode berhasil dibuat!`, 'success');
+    } else {
+      showToast('Gagal generate kode', 'error');
+    }
+  } catch (e) {
+    showToast(e.message || 'Gagal generate kode', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Generate';
+  }
+}
+
+function handleCopyCodes() {
+  const codes = Array.from(document.querySelectorAll('.loyalty-code-tag')).map(el => el.textContent).join('\n');
+  if (!codes) return;
+  navigator.clipboard.writeText(codes).then(() => {
+    showToast('Semua kode tersalin!', 'success');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = codes;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    showToast('Semua kode tersalin!', 'success');
+  });
 }
 
 // ---------- MENU GRID (8 item) ----------

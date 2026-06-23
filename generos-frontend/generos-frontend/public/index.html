@@ -941,6 +941,27 @@
                     <p id="loyalty-code-msg" class="loyalty-msg hidden"></p>
                 </div>
 
+                <!-- Admin: Generate kode unik (hidden untuk non-admin) -->
+                <div id="loyalty-admin-panel" class="loyalty-card hidden">
+                    <p class="loyalty-card-title">🔐 Generate Kode Unik <span style="font-size:11px;color:var(--text-light);">(Admin)</span></p>
+                    <div class="loyalty-gen-row">
+                        <div class="loyalty-gen-field">
+                            <label>Jumlah</label>
+                            <input type="number" id="loyalty-gen-count" value="5" min="1" max="100">
+                        </div>
+                        <div class="loyalty-gen-field">
+                            <label>Nilai Poin</label>
+                            <input type="number" id="loyalty-gen-points" value="100" min="1">
+                        </div>
+                        <button id="btn-generate-codes" class="btn-primary loyalty-gen-btn" onclick="handleGenerateCodes()">Generate</button>
+                    </div>
+                    <div id="loyalty-gen-result" class="loyalty-gen-result hidden">
+                        <p class="loyalty-gen-result-title">Kode berhasil dibuat:</p>
+                        <div id="loyalty-gen-codes" class="loyalty-gen-codes"></div>
+                        <button class="btn-text loyalty-gen-copy" id="btn-copy-codes" onclick="handleCopyCodes()">📋 Salin Semua</button>
+                    </div>
+                </div>
+
                 <!-- Katalog hadiah -->
                 <h3 class="loyalty-section-title">Tukar Poin dengan Hadiah</h3>
                 <div id="loyalty-gifts" class="loyalty-gift-grid">
